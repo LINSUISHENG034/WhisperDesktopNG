@@ -44,10 +44,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)..\Scripts\Build\whisper_build\build\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)..\Scripts\Build\whisper_build\build\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)..\Scripts\Build\whisper_build\build\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)..\Scripts\Build\whisper_build\build\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -65,6 +67,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>whisper.def</ModuleDefinitionFile>
+      <AdditionalDependencies>whisper.lib;ggml.lib;ggml-base.lib;ggml-cpu.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -78,7 +81,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
@@ -89,6 +92,7 @@
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>whisper.def</ModuleDefinitionFile>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <AdditionalDependencies>whisper.lib;ggml.lib;ggml-base.lib;ggml-cpu.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -170,6 +174,8 @@
     <ClCompile Include="source.compat\ggmlMsvc.c">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Whisper\ContextImpl.misc.cpp" />
     <ClCompile Include="Utils\ProfileCollection.cpp" />
