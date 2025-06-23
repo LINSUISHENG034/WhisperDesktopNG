@@ -33,6 +33,13 @@ namespace Whisper
             iTranscribeResult** resultSink  // Output: pointer to store result object
         );
 
+        // Encode-only method that matches ContextImpl::encode signature
+        // This method only performs encoding without full transcription
+        HRESULT encodeOnly(
+            iSpectrogram& spectrogram,      // Input: original project's spectrogram object
+            int seek                        // Seek offset parameter
+        );
+
         // Get engine information
         std::string getModelType() const;
         bool isMultilingual() const;

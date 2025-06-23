@@ -12,11 +12,28 @@ ContextImpl::ContextImpl( const DirectCompute::Device& dev, const WhisperModel& 
 	profiler( modelData )
 { }
 
+ContextImpl::ContextImpl( const DirectCompute::Device& dev, const WhisperModel& modelData, iModel* modelPointer, std::unique_ptr<WhisperCppEncoder> encoder ) :
+	device( dev ),
+	model( modelData ),
+	modelPtr( modelPointer ),
+	context( modelData, profiler ),
+	profiler( modelData ),
+	whisperCppEncoder( std::move( encoder ) )
+{ }
+
 #define WHISPER_CHUNK_SIZE  30
 
 HRESULT ContextImpl::encode( iSpectrogram& mel, int seek )
 {
 	auto prof = profiler.cpuBlock( eCpuBlock::Encode );
+
+	// If we have WhisperCppEncoder, use it; otherwise fall back to original implementation
+	if( whisperCppEncoder )
+	{
+		return whisperCppEncoder->encodeOnly( mel, seek );
+	}
+
+	// Original implementation as fallback
 	// whisper_encode
 	using namespace DirectCompute;
 

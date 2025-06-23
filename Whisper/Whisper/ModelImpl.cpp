@@ -17,7 +17,35 @@ HRESULT COMLIGHTCALL ModelImpl::createContext( iContext** pp )
 	ComLight::CComPtr<ComLight::Object<ContextImpl>> obj;
 
 	iModel* m = this;
-	CHECK( ComLight::Object<ContextImpl>::create( obj, device, model, m ) );
+
+	// Create WhisperCppEncoder instance if we have a model path
+	if( !modelPath.empty() )
+	{
+		try
+		{
+			// Convert wide string to UTF-8 for WhisperCppEncoder
+			std::string utf8Path;
+			int len = WideCharToMultiByte( CP_UTF8, 0, modelPath.c_str(), -1, nullptr, 0, nullptr, nullptr );
+			if( len > 0 )
+			{
+				utf8Path.resize( len - 1 );
+				WideCharToMultiByte( CP_UTF8, 0, modelPath.c_str(), -1, &utf8Path[0], len, nullptr, nullptr );
+			}
+
+			auto encoder = std::make_unique<WhisperCppEncoder>( utf8Path );
+			CHECK( ComLight::Object<ContextImpl>::create( obj, device, model, m, std::move( encoder ) ) );
+		}
+		catch( ... )
+		{
+			// If WhisperCppEncoder creation fails, fall back to original implementation
+			CHECK( ComLight::Object<ContextImpl>::create( obj, device, model, m ) );
+		}
+	}
+	else
+	{
+		// Fall back to original implementation if no model path
+		CHECK( ComLight::Object<ContextImpl>::create( obj, device, model, m ) );
+	}
 
 	obj.detach( pp );
 	return S_OK;
@@ -147,6 +175,7 @@ HRESULT __stdcall Whisper::loadGpuModel( const wchar_t* path, const sModelSetup&
 
 	ComLight::CComPtr<ComLight::Object<ModelImpl>> obj;
 	CHECK( ComLight::Object<ModelImpl>::create( obj, setup ) );
+	obj->setModelPath( path );  // Store the model path
 	hr = obj->load( &stream, hybrid, callbacks );
 	if( FAILED( hr ) )
 	{

@@ -15,6 +15,7 @@ namespace Whisper
 		WhisperModel model;
 		const uint32_t gpuFlags;
 		const std::wstring adapter;
+		std::wstring modelPath;  // Store model path for WhisperCppEncoder creation
 
 		HRESULT COMLIGHTCALL createContext( iContext** pp ) override final;
 
@@ -48,6 +49,7 @@ namespace Whisper
 		HRESULT COMLIGHTCALL clone( iModel** rdi ) override final;
 
 	public:
+		void setModelPath( const wchar_t* path ) { modelPath = path ? path : L""; }
 		ModelImpl( const sModelSetup& setup ) :
 			gpuFlags( setup.flags ),
 			adapter( makeString( setup.adapter ) )
