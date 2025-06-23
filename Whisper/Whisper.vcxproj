@@ -231,7 +231,6 @@
     <ClCompile Include="ML\TensorEx.cpp" />
     <ClCompile Include="whisperCom.cpp" />
     <ClCompile Include="CWhisperEngine.cpp" />
-    <ClCompile Include="CWhisperEngineNew.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="API\iContext.h" />
@@ -345,7 +344,6 @@
     <ClInclude Include="ML\TensorGpuViews.h" />
     <ClInclude Include="ML\TensorEx.h" />
     <ClInclude Include="CWhisperEngine.h" />
-    <ClInclude Include="CWhisperEngineNew.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="D3D\shaderData-Debug.inl" />
