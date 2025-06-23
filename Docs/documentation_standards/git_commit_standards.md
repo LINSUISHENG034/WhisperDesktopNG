@@ -208,8 +208,34 @@ git tag -a v1.2.3 -m "Release version 1.2.3"
 - [ ] 没有包含敏感信息
 - [ ] 变更是逻辑完整的
 
+## 实际应用示例
+
+以下是按照本标准完成的实际git操作示例：
+
+### 提交历史
+
+```bash
+14f7059 docs(assets): add sample clips and UI screenshots
+2ce707f feat: add WhisperDesktopNG core implementation
+15e9c85 chore: add project configuration and documentation
+1466710 test: add comprehensive testing framework
+f0c3e6d docs(implementation): add project implementation documentation
+b4672e5 docs(standards): add git commit message standards
+```
+
+### 标准应用分析
+
+1. **docs(standards)**: 文档类型，范围为standards，符合标准格式
+2. **docs(implementation)**: 文档类型，范围为implementation，主题简洁明了
+3. **test**: 测试类型，添加测试框架，符合最佳实践
+4. **chore**: 杂项类型，用于项目配置文件
+5. **feat**: 功能类型，添加核心实现，是主要功能提交
+6. **docs(assets)**: 文档类型，范围为assets，用于支持文件
+
+每个提交都包含了详细的正文说明，解释了变更的原因和内容，完全符合制定的标准。
+
 ---
 
-**文档版本**: 1.0  
-**最后更新**: 2025年6月23日  
+**文档版本**: 1.0
+**最后更新**: 2025年6月23日
 **适用项目**: WhisperDesktopNG
