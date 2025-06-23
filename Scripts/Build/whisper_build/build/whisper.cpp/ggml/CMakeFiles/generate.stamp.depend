@@ -1,0 +1,15 @@
+# CMake generation dependency list for this directory.
+E:/Program Files/CMake/share/cmake-4.0/Modules/BasicConfigVersion-SameMajorVersion.cmake.in
+E:/Program Files/CMake/share/cmake-4.0/Modules/CMakePackageConfigHelpers.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/CheckCSourceCompiles.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/CheckIncludeFile.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/CheckIncludeFileCXX.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/CheckLibraryExists.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageHandleStandardArgs.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageMessage.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/GNUInstallDirs.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CheckSourceCompiles.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/WriteBasicConfigVersionFile.cmake
+F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/CMakeLists.txt
+F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/cmake/ggml-config.cmake.in

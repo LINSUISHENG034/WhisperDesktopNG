@@ -1,0 +1,688 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      The system is: Windows - 10.0.26100 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.14.10+8b8e13593 for .NET Framework
+      Build started 2025/6/24 1:28:56.
+      
+      Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\4.0.3\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+        Creating directory "Debug\\CompilerIdC.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdC.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+      ClCompile:
+        D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TC /FC /errorReport:queue CMakeCCompilerId.c
+        CMakeCCompilerId.c
+      Link:
+        D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdC.lib" /MACHINE:X64 Debug\\CMakeCCompilerId.obj
+        CompilerIdC.vcxproj -> F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\4.0.3\\CompilerIdC\\CompilerIdC.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_C_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_C_COMPILER=D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdC.tlog\\CompilerIdC.lastbuildstate".
+      Done Building Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\4.0.3\\CompilerIdC\\CompilerIdC.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:01.50
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcxproj"
+      
+      The C compiler identification is MSVC, found in:
+        F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/4.0.3/CompilerIdC/CompilerIdC.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.14.10+8b8e13593 for .NET Framework
+      Build started 2025/6/24 1:28:58.
+      
+      Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\4.0.3\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+        Creating directory "Debug\\CompilerIdCXX.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+      ClCompile:
+        D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TP /FC /errorReport:queue CMakeCXXCompilerId.cpp
+        CMakeCXXCompilerId.cpp
+      Link:
+        D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdCXX.lib" /MACHINE:X64 Debug\\CMakeCXXCompilerId.obj
+        CompilerIdCXX.vcxproj -> F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\4.0.3\\CompilerIdCXX\\CompilerIdCXX.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_CXX_COMPILER=D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.lastbuildstate".
+      Done Building Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\4.0.3\\CompilerIdCXX\\CompilerIdCXX.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:01.59
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
+      
+      The CXX compiler identification is MSVC, found in:
+        F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/4.0.3/CompilerIdCXX/CompilerIdCXX.exe
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-5zpsql"
+      binary: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-5zpsql"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+      CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-5zpsql'
+        
+        Run Build Command(s): "D:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_be9c4.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 2025/6/24 1:29:00.
+        
+        Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-5zpsql\\cmTC_be9c4.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_be9c4.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-5zpsql\\Debug\\".
+          Creating directory "cmTC_be9c4.dir\\Debug\\cmTC_be9c4.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_be9c4.dir\\Debug\\cmTC_be9c4.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_be9c4.dir\\Debug\\cmTC_be9c4.tlog\\unsuccessfulbuild".
+        ClCompile:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_be9c4.dir\\Debug\\\\" /Fd"cmTC_be9c4.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCCompilerABI.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35211 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_be9c4.dir\\Debug\\\\" /Fd"cmTC_be9c4.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "E:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCCompilerABI.c"
+          CMakeCCompilerABI.c
+        Link:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-5zpsql\\Debug\\cmTC_be9c4.exe" /INCREMENTAL /ILK:"cmTC_be9c4.dir\\Debug\\cmTC_be9c4.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-5zpsql/Debug/cmTC_be9c4.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-5zpsql/Debug/cmTC_be9c4.lib" /MACHINE:X64  /machine:x64 cmTC_be9c4.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_be9c4.vcxproj -> F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-5zpsql\\Debug\\cmTC_be9c4.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_be9c4.dir\\Debug\\cmTC_be9c4.tlog\\unsuccessfulbuild".
+          Touching "cmTC_be9c4.dir\\Debug\\cmTC_be9c4.tlog\\cmTC_be9c4.lastbuildstate".
+        Done Building Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-5zpsql\\cmTC_be9c4.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:01.68
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:227 (message)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|link\\.exe|lld-link(\\.exe)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|link\\.exe|lld-link(\\.exe)?))("|,| |$)]
+        linker tool for 'C': D:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/HostX64/x64/link.exe
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CMakeDetermineLinkerId.cmake:36 (message)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:270 (cmake_determine_linker_id)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Running the C compiler's linker: "D:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/HostX64/x64/link.exe" "-v"
+      Microsoft (R) Incremental Linker Version 14.44.35211.0
+      Copyright (C) Microsoft Corporation.  All rights reserved.
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-8sd0gi"
+      binary: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-8sd0gi"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-8sd0gi'
+        
+        Run Build Command(s): "D:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_bbced.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 2025/6/24 1:29:02.
+        
+        Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8sd0gi\\cmTC_bbced.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_bbced.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8sd0gi\\Debug\\".
+          Creating directory "cmTC_bbced.dir\\Debug\\cmTC_bbced.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_bbced.dir\\Debug\\cmTC_bbced.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_bbced.dir\\Debug\\cmTC_bbced.tlog\\unsuccessfulbuild".
+        ClCompile:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_bbced.dir\\Debug\\\\" /Fd"cmTC_bbced.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCXXCompilerABI.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35211 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_bbced.dir\\Debug\\\\" /Fd"cmTC_bbced.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "E:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCXXCompilerABI.cpp"
+          CMakeCXXCompilerABI.cpp
+        Link:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8sd0gi\\Debug\\cmTC_bbced.exe" /INCREMENTAL /ILK:"cmTC_bbced.dir\\Debug\\cmTC_bbced.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-8sd0gi/Debug/cmTC_bbced.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-8sd0gi/Debug/cmTC_bbced.lib" /MACHINE:X64  /machine:x64 cmTC_bbced.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_bbced.vcxproj -> F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8sd0gi\\Debug\\cmTC_bbced.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_bbced.dir\\Debug\\cmTC_bbced.tlog\\unsuccessfulbuild".
+          Touching "cmTC_bbced.dir\\Debug\\cmTC_bbced.tlog\\cmTC_bbced.lastbuildstate".
+        Done Building Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8sd0gi\\cmTC_bbced.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:01.58
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:227 (message)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed CXX implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|link\\.exe|lld-link(\\.exe)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|link\\.exe|lld-link(\\.exe)?))("|,| |$)]
+        linker tool for 'CXX': D:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/HostX64/x64/link.exe
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CMakeDetermineLinkerId.cmake:36 (message)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDetermineCompilerABI.cmake:270 (cmake_determine_linker_id)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Running the CXX compiler's linker: "D:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/HostX64/x64/link.exe" "-v"
+      Microsoft (R) Incremental Linker Version 14.44.35211.0
+      Copyright (C) Microsoft Corporation.  All rights reserved.
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:97 (check_c_source_compiles)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/CMakeLists.txt:229 (find_package)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-rd6g1j"
+      binary: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-rd6g1j"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+      CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MODULE_PATH: "F:/Projects/WhisperDesktopNG/external/whisper.cpp/cmake/"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: 'F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-rd6g1j'
+        
+        Run Build Command(s): "D:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_eeb99.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 2025/6/24 1:29:05.
+        
+        Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rd6g1j\\cmTC_eeb99.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_eeb99.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rd6g1j\\Debug\\".
+          Creating directory "cmTC_eeb99.dir\\Debug\\cmTC_eeb99.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_eeb99.dir\\Debug\\cmTC_eeb99.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_eeb99.dir\\Debug\\cmTC_eeb99.tlog\\unsuccessfulbuild".
+        ClCompile:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c11 /Fo"cmTC_eeb99.dir\\Debug\\\\" /Fd"cmTC_eeb99.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rd6g1j\\src.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35211 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c11 /Fo"cmTC_eeb99.dir\\Debug\\\\" /Fd"cmTC_eeb99.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rd6g1j\\src.c"
+          src.c
+        F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rd6g1j\\src.c(1,1): error C1083: Cannot open include file: 'pthread.h': No such file or directory [F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rd6g1j\\cmTC_eeb99.vcxproj]
+        Done Building Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rd6g1j\\cmTC_eeb99.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rd6g1j\\cmTC_eeb99.vcxproj" (default target) (1) ->
+        (ClCompile target) -> 
+          F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rd6g1j\\src.c(1,1): error C1083: Cannot open include file: 'pthread.h': No such file or directory [F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rd6g1j\\cmTC_eeb99.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:01.34
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CheckLibraryExists.cmake:112 (try_compile)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:112 (check_library_exists)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:175 (_threads_check_lib)"
+      - "F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/CMakeLists.txt:229 (find_package)"
+    checks:
+      - "Looking for pthread_create in pthreads"
+    directories:
+      source: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-ef2ijg"
+      binary: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-ef2ijg"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+      CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MODULE_PATH: "F:/Projects/WhisperDesktopNG/external/whisper.cpp/cmake/"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREADS_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-ef2ijg'
+        
+        Run Build Command(s): "D:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_834c3.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 2025/6/24 1:29:07.
+        
+        Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ef2ijg\\cmTC_834c3.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_834c3.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ef2ijg\\Debug\\".
+          Creating directory "cmTC_834c3.dir\\Debug\\cmTC_834c3.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_834c3.dir\\Debug\\cmTC_834c3.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_834c3.dir\\Debug\\cmTC_834c3.tlog\\unsuccessfulbuild".
+        ClCompile:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c11 /Fo"cmTC_834c3.dir\\Debug\\\\" /Fd"cmTC_834c3.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ef2ijg\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35211 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c11 /Fo"cmTC_834c3.dir\\Debug\\\\" /Fd"cmTC_834c3.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ef2ijg\\CheckFunctionExists.c"
+          CheckFunctionExists.c
+        Link:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ef2ijg\\Debug\\cmTC_834c3.exe" /INCREMENTAL /ILK:"cmTC_834c3.dir\\Debug\\cmTC_834c3.ilk" /NOLOGO pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-ef2ijg/Debug/cmTC_834c3.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-ef2ijg/Debug/cmTC_834c3.lib" /MACHINE:X64  /machine:x64 cmTC_834c3.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ef2ijg\\cmTC_834c3.vcxproj]
+        Done Building Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ef2ijg\\cmTC_834c3.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ef2ijg\\cmTC_834c3.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-ef2ijg\\cmTC_834c3.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:01.40
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/CheckLibraryExists.cmake:112 (try_compile)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:112 (check_library_exists)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:176 (_threads_check_lib)"
+      - "F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/CMakeLists.txt:229 (find_package)"
+    checks:
+      - "Looking for pthread_create in pthread"
+    directories:
+      source: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-aw934m"
+      binary: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-aw934m"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+      CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MODULE_PATH: "F:/Projects/WhisperDesktopNG/external/whisper.cpp/cmake/"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREAD_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-aw934m'
+        
+        Run Build Command(s): "D:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_5487d.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 2025/6/24 1:29:08.
+        
+        Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-aw934m\\cmTC_5487d.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_5487d.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-aw934m\\Debug\\".
+          Creating directory "cmTC_5487d.dir\\Debug\\cmTC_5487d.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_5487d.dir\\Debug\\cmTC_5487d.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_5487d.dir\\Debug\\cmTC_5487d.tlog\\unsuccessfulbuild".
+        ClCompile:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c11 /Fo"cmTC_5487d.dir\\Debug\\\\" /Fd"cmTC_5487d.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-aw934m\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35211 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c11 /Fo"cmTC_5487d.dir\\Debug\\\\" /Fd"cmTC_5487d.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-aw934m\\CheckFunctionExists.c"
+          CheckFunctionExists.c
+        Link:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-aw934m\\Debug\\cmTC_5487d.exe" /INCREMENTAL /ILK:"cmTC_5487d.dir\\Debug\\cmTC_5487d.ilk" /NOLOGO pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-aw934m/Debug/cmTC_5487d.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-aw934m/Debug/cmTC_5487d.lib" /MACHINE:X64  /machine:x64 cmTC_5487d.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthread.lib' [F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-aw934m\\cmTC_5487d.vcxproj]
+        Done Building Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-aw934m\\cmTC_5487d.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-aw934m\\cmTC_5487d.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthread.lib' [F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-aw934m\\cmTC_5487d.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:01.38
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindOpenMP.cmake:250 (try_compile)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindOpenMP.cmake:557 (_OPENMP_GET_FLAGS)"
+      - "F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/ggml-cpu/CMakeLists.txt:71 (find_package)"
+      - "F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/CMakeLists.txt:361 (ggml_add_cpu_backend_variant_impl)"
+    description: "Detecting C OpenMP compiler info"
+    directories:
+      source: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-rtirbf"
+      binary: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-rtirbf"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+      CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MODULE_PATH: "F:/Projects/WhisperDesktopNG/external/whisper.cpp/cmake/"
+    buildResult:
+      variable: "OpenMP_COMPILE_RESULT_C_openmp"
+      cached: true
+      stdout: |
+        Change Dir: 'F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-rtirbf'
+        
+        Run Build Command(s): "D:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_b8cb6.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 2025/6/24 1:29:10.
+        
+        Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rtirbf\\cmTC_b8cb6.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_b8cb6.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rtirbf\\Debug\\".
+          Creating directory "cmTC_b8cb6.dir\\Debug\\cmTC_b8cb6.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_b8cb6.dir\\Debug\\cmTC_b8cb6.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_b8cb6.dir\\Debug\\cmTC_b8cb6.tlog\\unsuccessfulbuild".
+        ClCompile:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /openmp /std:c11 /Fo"cmTC_b8cb6.dir\\Debug\\\\" /Fd"cmTC_b8cb6.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rtirbf\\OpenMPTryFlag.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35211 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /openmp /std:c11 /Fo"cmTC_b8cb6.dir\\Debug\\\\" /Fd"cmTC_b8cb6.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rtirbf\\OpenMPTryFlag.c"
+          OpenMPTryFlag.c
+        Link:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rtirbf\\Debug\\cmTC_b8cb6.exe" /INCREMENTAL /ILK:"cmTC_b8cb6.dir\\Debug\\cmTC_b8cb6.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-rtirbf/Debug/cmTC_b8cb6.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-rtirbf/Debug/cmTC_b8cb6.lib" /MACHINE:X64  /machine:x64 cmTC_b8cb6.dir\\Debug\\OpenMPTryFlag.obj
+          cmTC_b8cb6.vcxproj -> F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rtirbf\\Debug\\cmTC_b8cb6.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_b8cb6.dir\\Debug\\cmTC_b8cb6.tlog\\unsuccessfulbuild".
+          Touching "cmTC_b8cb6.dir\\Debug\\cmTC_b8cb6.tlog\\cmTC_b8cb6.lastbuildstate".
+        Done Building Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-rtirbf\\cmTC_b8cb6.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:01.57
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindOpenMP.cmake:250 (try_compile)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindOpenMP.cmake:557 (_OPENMP_GET_FLAGS)"
+      - "F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/ggml-cpu/CMakeLists.txt:71 (find_package)"
+      - "F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/CMakeLists.txt:361 (ggml_add_cpu_backend_variant_impl)"
+    description: "Detecting CXX OpenMP compiler info"
+    directories:
+      source: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-c7zdsq"
+      binary: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-c7zdsq"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MODULE_PATH: "F:/Projects/WhisperDesktopNG/external/whisper.cpp/cmake/"
+    buildResult:
+      variable: "OpenMP_COMPILE_RESULT_CXX_openmp"
+      cached: true
+      stdout: |
+        Change Dir: 'F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-c7zdsq'
+        
+        Run Build Command(s): "D:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_1857f.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 2025/6/24 1:29:12.
+        
+        Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c7zdsq\\cmTC_1857f.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_1857f.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c7zdsq\\Debug\\".
+          Creating directory "cmTC_1857f.dir\\Debug\\cmTC_1857f.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_1857f.dir\\Debug\\cmTC_1857f.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_1857f.dir\\Debug\\cmTC_1857f.tlog\\unsuccessfulbuild".
+        ClCompile:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /openmp /std:c++17 /Fo"cmTC_1857f.dir\\Debug\\\\" /Fd"cmTC_1857f.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c7zdsq\\OpenMPTryFlag.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35211 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /openmp /std:c++17 /Fo"cmTC_1857f.dir\\Debug\\\\" /Fd"cmTC_1857f.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c7zdsq\\OpenMPTryFlag.cpp"
+          OpenMPTryFlag.cpp
+        Link:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c7zdsq\\Debug\\cmTC_1857f.exe" /INCREMENTAL /ILK:"cmTC_1857f.dir\\Debug\\cmTC_1857f.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-c7zdsq/Debug/cmTC_1857f.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-c7zdsq/Debug/cmTC_1857f.lib" /MACHINE:X64  /machine:x64 cmTC_1857f.dir\\Debug\\OpenMPTryFlag.obj
+          cmTC_1857f.vcxproj -> F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c7zdsq\\Debug\\cmTC_1857f.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_1857f.dir\\Debug\\cmTC_1857f.tlog\\unsuccessfulbuild".
+          Touching "cmTC_1857f.dir\\Debug\\cmTC_1857f.tlog\\cmTC_1857f.lastbuildstate".
+        Done Building Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-c7zdsq\\cmTC_1857f.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:01.54
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindOpenMP.cmake:491 (try_compile)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindOpenMP.cmake:631 (_OPENMP_GET_SPEC_DATE)"
+      - "F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/ggml-cpu/CMakeLists.txt:71 (find_package)"
+      - "F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/CMakeLists.txt:361 (ggml_add_cpu_backend_variant_impl)"
+    description: "Detecting C OpenMP version"
+    directories:
+      source: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-x0m95o"
+      binary: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-x0m95o"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
+      CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MODULE_PATH: "F:/Projects/WhisperDesktopNG/external/whisper.cpp/cmake/"
+    buildResult:
+      variable: "OpenMP_SPECTEST_C_"
+      cached: true
+      stdout: |
+        Change Dir: 'F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-x0m95o'
+        
+        Run Build Command(s): "D:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_0d249.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 2025/6/24 1:29:14.
+        
+        Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-x0m95o\\cmTC_0d249.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_0d249.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-x0m95o\\Debug\\".
+          Creating directory "cmTC_0d249.dir\\Debug\\cmTC_0d249.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_0d249.dir\\Debug\\cmTC_0d249.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_0d249.dir\\Debug\\cmTC_0d249.tlog\\unsuccessfulbuild".
+        ClCompile:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /openmp /std:c11 /Fo"cmTC_0d249.dir\\Debug\\\\" /Fd"cmTC_0d249.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-x0m95o\\OpenMPCheckVersion.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35211 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /openmp /std:c11 /Fo"cmTC_0d249.dir\\Debug\\\\" /Fd"cmTC_0d249.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-x0m95o\\OpenMPCheckVersion.c"
+          OpenMPCheckVersion.c
+        Link:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-x0m95o\\Debug\\cmTC_0d249.exe" /INCREMENTAL /ILK:"cmTC_0d249.dir\\Debug\\cmTC_0d249.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-x0m95o/Debug/cmTC_0d249.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-x0m95o/Debug/cmTC_0d249.lib" /MACHINE:X64  /machine:x64 cmTC_0d249.dir\\Debug\\OpenMPCheckVersion.obj
+          cmTC_0d249.vcxproj -> F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-x0m95o\\Debug\\cmTC_0d249.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_0d249.dir\\Debug\\cmTC_0d249.tlog\\unsuccessfulbuild".
+          Touching "cmTC_0d249.dir\\Debug\\cmTC_0d249.tlog\\cmTC_0d249.lastbuildstate".
+        Done Building Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-x0m95o\\cmTC_0d249.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:01.66
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindOpenMP.cmake:491 (try_compile)"
+      - "E:/Program Files/CMake/share/cmake-4.0/Modules/FindOpenMP.cmake:631 (_OPENMP_GET_SPEC_DATE)"
+      - "F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/ggml-cpu/CMakeLists.txt:71 (find_package)"
+      - "F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/CMakeLists.txt:361 (ggml_add_cpu_backend_variant_impl)"
+    description: "Detecting CXX OpenMP version"
+    directories:
+      source: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-8bgrf3"
+      binary: "F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-8bgrf3"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MODULE_PATH: "F:/Projects/WhisperDesktopNG/external/whisper.cpp/cmake/"
+    buildResult:
+      variable: "OpenMP_SPECTEST_CXX_"
+      cached: true
+      stdout: |
+        Change Dir: 'F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-8bgrf3'
+        
+        Run Build Command(s): "D:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_f6960.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.10+8b8e13593 for .NET Framework
+        Build started 2025/6/24 1:29:17.
+        
+        Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8bgrf3\\cmTC_f6960.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_f6960.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8bgrf3\\Debug\\".
+          Creating directory "cmTC_f6960.dir\\Debug\\cmTC_f6960.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_f6960.dir\\Debug\\cmTC_f6960.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_f6960.dir\\Debug\\cmTC_f6960.tlog\\unsuccessfulbuild".
+        ClCompile:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /openmp /std:c++17 /Fo"cmTC_f6960.dir\\Debug\\\\" /Fd"cmTC_f6960.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8bgrf3\\OpenMPCheckVersion.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35211 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /openmp /std:c++17 /Fo"cmTC_f6960.dir\\Debug\\\\" /Fd"cmTC_f6960.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8bgrf3\\OpenMPCheckVersion.cpp"
+          OpenMPCheckVersion.cpp
+        Link:
+          D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8bgrf3\\Debug\\cmTC_f6960.exe" /INCREMENTAL /ILK:"cmTC_f6960.dir\\Debug\\cmTC_f6960.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-8bgrf3/Debug/cmTC_f6960.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/CMakeScratch/TryCompile-8bgrf3/Debug/cmTC_f6960.lib" /MACHINE:X64  /machine:x64 cmTC_f6960.dir\\Debug\\OpenMPCheckVersion.obj
+          cmTC_f6960.vcxproj -> F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8bgrf3\\Debug\\cmTC_f6960.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_f6960.dir\\Debug\\cmTC_f6960.tlog\\unsuccessfulbuild".
+          Touching "cmTC_f6960.dir\\Debug\\cmTC_f6960.tlog\\cmTC_f6960.lastbuildstate".
+        Done Building Project "F:\\Projects\\WhisperDesktopNG\\Scripts\\Build\\whisper_build\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8bgrf3\\cmTC_f6960.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:01.63
+        
+      exitCode: 0
+...

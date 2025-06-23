@@ -1,0 +1,14 @@
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\ggml-cpu.c;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\ggml-cpu\ggml-cpu.c.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\ggml-cpu.cpp;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\ggml-cpu\ggml-cpu.cpp.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\repack.cpp;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\ggml-cpu\repack.cpp.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\hbm.cpp;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\hbm.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\quants.c;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\ggml-cpu\quants.c.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\traits.cpp;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\traits.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\amx\amx.cpp;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\amx.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\amx\mmq.cpp;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\mmq.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\binary-ops.cpp;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\binary-ops.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\unary-ops.cpp;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\unary-ops.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\vec.cpp;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\vec.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\ops.cpp;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\ops.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\arch\x86\quants.c;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\ggml-cpu\arch\x86\quants.c.obj
+F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\arch\x86\repack.cpp;F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-cpu.dir\Release\ggml-cpu\arch\x86\repack.cpp.obj

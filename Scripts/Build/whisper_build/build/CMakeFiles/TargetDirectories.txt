@@ -1,0 +1,15 @@
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/copy_headers.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/INSTALL.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/ALL_BUILD.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/CMakeFiles/ZERO_CHECK.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/CMakeFiles/INSTALL.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/CMakeFiles/ALL_BUILD.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/ggml/CMakeFiles/INSTALL.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/ggml/CMakeFiles/ALL_BUILD.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/ggml/src/CMakeFiles/ggml-base.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/ggml/src/CMakeFiles/ggml.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/ggml/src/CMakeFiles/ggml-cpu.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/ggml/src/CMakeFiles/INSTALL.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/ggml/src/ggml-cpu/CMakeFiles/INSTALL.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/src/CMakeFiles/whisper.dir
+F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/src/CMakeFiles/INSTALL.dir

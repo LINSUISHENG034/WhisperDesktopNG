@@ -1,0 +1,13 @@
+# CMake generation dependency list for this directory.
+E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/CMakeParseImplicitLinkInfo.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/CheckCXXCompilerFlag.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/CheckCXXSourceCompiles.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/FindOpenMP.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageHandleStandardArgs.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageMessage.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CheckCompilerFlag.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CheckFlagCommonConfig.cmake
+E:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CheckSourceCompiles.cmake
+F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/cmake/common.cmake
+F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/CMakeLists.txt

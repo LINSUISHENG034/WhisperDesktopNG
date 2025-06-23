@@ -1,0 +1,359 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BFB6100E-ED26-39A1-A323-9B52BEAC566F}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>ggml-cpu</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\lib\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ggml-cpu.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ggml-cpu</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\lib\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ggml-cpu.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ggml-cpu</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\lib\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">ggml-cpu.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">ggml-cpu</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\lib\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">ggml-cpu.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">ggml-cpu</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\.;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4005;4244;4267;4305;4566;4996;4702</DisableSpecificWarnings>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <MinimalRebuild></MinimalRebuild>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;GGML_USE_OPENMP;GGML_USE_CPU_REPACK;GGML_AVX2;GGML_FMA;GGML_F16C;__BMI2__;GGML_BMI2;GGML_SCHED_MAX_COPIES=4;_XOPEN_SOURCE=600;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;GGML_USE_OPENMP;GGML_USE_CPU_REPACK;GGML_AVX2;GGML_FMA;GGML_F16C;__BMI2__;GGML_BMI2;GGML_SCHED_MAX_COPIES=4;_XOPEN_SOURCE=600;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\.;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\.;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\.;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DisableSpecificWarnings>4005;4244;4267;4305;4566;4996;4702</DisableSpecificWarnings>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <MinimalRebuild></MinimalRebuild>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;GGML_USE_OPENMP;GGML_USE_CPU_REPACK;GGML_AVX2;GGML_FMA;GGML_F16C;__BMI2__;GGML_BMI2;GGML_SCHED_MAX_COPIES=4;_XOPEN_SOURCE=600;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;GGML_USE_OPENMP;GGML_USE_CPU_REPACK;GGML_AVX2;GGML_FMA;GGML_F16C;__BMI2__;GGML_BMI2;GGML_SCHED_MAX_COPIES=4;_XOPEN_SOURCE=600;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\.;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\.;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\.;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DisableSpecificWarnings>4005;4244;4267;4305;4566;4996;4702</DisableSpecificWarnings>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <MinimalRebuild></MinimalRebuild>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;GGML_USE_OPENMP;GGML_USE_CPU_REPACK;GGML_AVX2;GGML_FMA;GGML_F16C;__BMI2__;GGML_BMI2;GGML_SCHED_MAX_COPIES=4;_XOPEN_SOURCE=600;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;GGML_USE_OPENMP;GGML_USE_CPU_REPACK;GGML_AVX2;GGML_FMA;GGML_F16C;__BMI2__;GGML_BMI2;GGML_SCHED_MAX_COPIES=4;_XOPEN_SOURCE=600;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\.;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\.;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\.;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4005;4244;4267;4305;4566;4996;4702</DisableSpecificWarnings>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <MinimalRebuild></MinimalRebuild>
+      <OpenMPSupport>true</OpenMPSupport>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;GGML_USE_OPENMP;GGML_USE_CPU_REPACK;GGML_AVX2;GGML_FMA;GGML_F16C;__BMI2__;GGML_BMI2;GGML_SCHED_MAX_COPIES=4;_XOPEN_SOURCE=600;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;GGML_USE_OPENMP;GGML_USE_CPU_REPACK;GGML_AVX2;GGML_FMA;GGML_F16C;__BMI2__;GGML_BMI2;GGML_SCHED_MAX_COPIES=4;_XOPEN_SOURCE=600;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\.;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\.;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"E:\Program Files\CMake\bin\cmake.exe" -SF:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build -BF:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build --check-stamp-file F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/ggml/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">E:\Program Files\CMake\share\cmake-4.0\Modules\CMakeCheckCompilerFlagCommonPatterns.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\CMakeParseImplicitLinkInfo.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\CheckCXXCompilerFlag.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\CheckCXXSourceCompiles.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\FindOpenMP.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\FindPackageHandleStandardArgs.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\FindPackageMessage.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\Internal\CheckCompilerFlag.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\Internal\CheckFlagCommonConfig.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\Internal\CheckSourceCompiles.cmake;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\cmake\common.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"E:\Program Files\CMake\bin\cmake.exe" -SF:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build -BF:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build --check-stamp-file F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/ggml/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">E:\Program Files\CMake\share\cmake-4.0\Modules\CMakeCheckCompilerFlagCommonPatterns.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\CMakeParseImplicitLinkInfo.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\CheckCXXCompilerFlag.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\CheckCXXSourceCompiles.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\FindOpenMP.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\FindPackageHandleStandardArgs.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\FindPackageMessage.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\Internal\CheckCompilerFlag.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\Internal\CheckFlagCommonConfig.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\Internal\CheckSourceCompiles.cmake;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\cmake\common.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"E:\Program Files\CMake\bin\cmake.exe" -SF:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build -BF:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build --check-stamp-file F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/ggml/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">E:\Program Files\CMake\share\cmake-4.0\Modules\CMakeCheckCompilerFlagCommonPatterns.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\CMakeParseImplicitLinkInfo.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\CheckCXXCompilerFlag.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\CheckCXXSourceCompiles.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\FindOpenMP.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\FindPackageHandleStandardArgs.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\FindPackageMessage.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\Internal\CheckCompilerFlag.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\Internal\CheckFlagCommonConfig.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\Internal\CheckSourceCompiles.cmake;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\cmake\common.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule F:/Projects/WhisperDesktopNG/external/whisper.cpp/ggml/src/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"E:\Program Files\CMake\bin\cmake.exe" -SF:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build -BF:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build --check-stamp-file F:/Projects/WhisperDesktopNG/Scripts/Build/whisper_build/build/whisper.cpp/ggml/src/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">E:\Program Files\CMake\share\cmake-4.0\Modules\CMakeCheckCompilerFlagCommonPatterns.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\CMakeParseImplicitLinkInfo.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\CheckCXXCompilerFlag.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\CheckCXXSourceCompiles.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\FindOpenMP.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\FindPackageHandleStandardArgs.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\FindPackageMessage.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\Internal\CheckCompilerFlag.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\Internal\CheckFlagCommonConfig.cmake;E:\Program Files\CMake\share\cmake-4.0\Modules\Internal\CheckSourceCompiles.cmake;F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\cmake\common.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\ggml-cpu.c">
+      <ObjectFileName>$(IntDir)/ggml-cpu/ggml-cpu.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\ggml-cpu.cpp">
+      <ObjectFileName>$(IntDir)/ggml-cpu/ggml-cpu.cpp.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\repack.cpp">
+      <ObjectFileName>$(IntDir)/ggml-cpu/repack.cpp.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\repack.h" />
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\hbm.cpp" />
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\hbm.h" />
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\quants.c">
+      <ObjectFileName>$(IntDir)/ggml-cpu/quants.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\quants.h" />
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\traits.cpp" />
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\traits.h" />
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\amx\amx.cpp" />
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\amx\amx.h" />
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\amx\mmq.cpp" />
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\amx\mmq.h" />
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\ggml-cpu-impl.h" />
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\common.h" />
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\binary-ops.h" />
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\binary-ops.cpp" />
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\unary-ops.h" />
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\unary-ops.cpp" />
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\simd-mappings.h" />
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\vec.h" />
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\vec.cpp" />
+    <ClInclude Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\ops.h" />
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\ops.cpp" />
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\arch\x86\quants.c">
+      <ObjectFileName>$(IntDir)/ggml-cpu/arch/x86/quants.c.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="F:\Projects\WhisperDesktopNG\external\whisper.cpp\ggml\src\ggml-cpu\arch\x86\repack.cpp">
+      <ObjectFileName>$(IntDir)/ggml-cpu/arch/x86/repack.cpp.obj</ObjectFileName>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\ZERO_CHECK.vcxproj">
+      <Project>{3CD4091A-3F13-3ED2-9E42-6BEF3501A570}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="F:\Projects\WhisperDesktopNG\Scripts\Build\whisper_build\build\whisper.cpp\ggml\src\ggml-base.vcxproj">
+      <Project>{A8B906F3-B5B9-3093-BF57-D834215A93A0}</Project>
+      <Name>ggml-base</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
