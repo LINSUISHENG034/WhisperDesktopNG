@@ -44,11 +44,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)..\Scripts\Build\whisper_build\build\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)..\external\whisper.cpp\include;$(ProjectDir)..\Scripts\Build\whisper_build\build\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)..\Scripts\Build\whisper_build\build\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)..\Scripts\Build\whisper_build\build\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)..\external\whisper.cpp\include;$(ProjectDir)..\Scripts\Build\whisper_build\build\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)..\Scripts\Build\whisper_build\build\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -230,6 +230,8 @@
     <ClCompile Include="ML\TensorGpuViews.cpp" />
     <ClCompile Include="ML\TensorEx.cpp" />
     <ClCompile Include="whisperCom.cpp" />
+    <ClCompile Include="CWhisperEngine.cpp" />
+    <ClCompile Include="CWhisperEngineNew.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="API\iContext.h" />
@@ -342,6 +344,8 @@
     <ClInclude Include="ML\Tensor.h" />
     <ClInclude Include="ML\TensorGpuViews.h" />
     <ClInclude Include="ML\TensorEx.h" />
+    <ClInclude Include="CWhisperEngine.h" />
+    <ClInclude Include="CWhisperEngineNew.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="D3D\shaderData-Debug.inl" />
