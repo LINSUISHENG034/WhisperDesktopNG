@@ -247,6 +247,64 @@ HRESULT WhisperCppEncoder::encode(iSpectrogram& spectrogram, iTranscribeResult**
     }
 }
 
+// Enhanced encode method with progress callback support
+HRESULT WhisperCppEncoder::encode(iSpectrogram& spectrogram, const sProgressSink& progress, iTranscribeResult** resultSink)
+{
+    if (resultSink == nullptr) {
+        return E_POINTER;
+    }
+
+    if (m_engine == nullptr) {
+        return E_FAIL; // Engine initialization failed
+    }
+
+    try
+    {
+        // 1. Data conversion: from iSpectrogram -> std::vector<float>
+        std::vector<float> audioFeatures;
+        HRESULT hr = extractMelData(spectrogram, audioFeatures);
+        if (FAILED(hr)) {
+            return hr;
+        }
+
+        // 2. Call new engine's transcription method with progress callback
+        // Pass the progress callback to the engine for progress reporting and cancellation support
+        TranscriptionResult engineResult = m_engine->transcribe(audioFeatures, m_config, progress);
+
+        // 3. Create COM object for result
+        ComLight::CComPtr<ComLight::Object<TranscribeResult>> resultObj;
+        hr = ComLight::Object<TranscribeResult>::create(resultObj);
+        if (FAILED(hr)) {
+            return hr;
+        }
+
+        // 4. Result conversion: from TranscriptionResult -> TranscribeResult
+        hr = convertResults(engineResult, *resultObj);
+        if (FAILED(hr)) {
+            return hr;
+        }
+
+        // 5. Return result interface
+        resultObj.detach(resultSink);
+
+        return S_OK;
+    }
+    catch (const CWhisperError& e)
+    {
+        // Catch our engine's exceptions and convert to HRESULT error code
+        return E_FAIL;
+    }
+    catch (const std::bad_alloc&)
+    {
+        return E_OUTOFMEMORY;
+    }
+    catch (...)
+    {
+        // Catch other unknown exceptions
+        return E_UNEXPECTED;
+    }
+}
+
 // Encode-only method that matches ContextImpl::encode signature
 HRESULT WhisperCppEncoder::encodeOnly(iSpectrogram& spectrogram, int seek)
 {

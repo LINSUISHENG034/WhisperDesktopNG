@@ -15,6 +15,11 @@ struct whisper_context;
 struct whisper_context_params;
 struct whisper_full_params;
 
+// Forward declaration of progress callback structure from original project
+namespace Whisper {
+    struct sProgressSink;
+}
+
 // Enhanced structure to hold transcription results with timestamps and language detection
 struct TranscriptionResult {
     bool success = false;
@@ -79,6 +84,11 @@ public:
     // Transcribe with custom configuration (overrides constructor config)
     TranscriptionResult transcribe(const std::vector<float>& audioData,
                                    const TranscriptionConfig& config);
+
+    // Transcribe with progress callback support (for UI responsiveness and cancellation)
+    TranscriptionResult transcribe(const std::vector<float>& audioData,
+                                   const TranscriptionConfig& config,
+                                   const Whisper::sProgressSink& progress);
 
     // Separate encoding and decoding methods for streaming pipeline integration
 

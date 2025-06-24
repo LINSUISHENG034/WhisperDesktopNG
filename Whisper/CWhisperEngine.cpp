@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "CWhisperEngine.h"
+#include "API/sFullParams.h" // Include sProgressSink definition
 
 // Include the latest whisper.cpp API from external submodule
 extern "C" {
@@ -74,6 +75,49 @@ TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioDa
 
     // Create whisper parameters using latest API
     auto params = createWhisperParams(config);
+
+    // Reset timings for this transcription
+    whisper_reset_timings(m_ctx);
+
+    // Call the core transcription function with latest API
+    if (whisper_full(m_ctx, params, audioData.data(), static_cast<int>(audioData.size())) != 0) {
+        throw CWhisperError("Failed to process audio data with whisper_full.");
+    }
+
+    // Extract results using latest API
+    return extractResults();
+}
+
+TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioData,
+                                              const TranscriptionConfig& config,
+                                              const Whisper::sProgressSink& progress) {
+    if (!m_ctx) {
+        throw CWhisperError("Whisper context is not initialized.");
+    }
+
+    validateAudioData(audioData);
+
+    // Create whisper parameters using latest API
+    auto params = createWhisperParams(config);
+
+    // Set up progress callback if provided
+    if (progress.pfn != nullptr) {
+        // Create a static wrapper function for the progress callback that matches whisper.cpp's expected signature
+        static auto progress_wrapper = [](struct whisper_context* ctx, struct whisper_state* state, int progress_cur, void* user_data) -> void {
+            const Whisper::sProgressSink* sink = static_cast<const Whisper::sProgressSink*>(user_data);
+            if (sink && sink->pfn) {
+                // Convert progress to percentage (0.0 to 1.0)
+                double percentage = static_cast<double>(progress_cur) / 100.0;
+                // Call the original progress callback
+                // Note: We pass nullptr for iContext* since we don't have access to it here
+                HRESULT hr = sink->pfn(percentage, nullptr, sink->pv);
+                // Note: whisper_progress_callback returns void, so we can't signal cancellation here
+                // Cancellation would need to be handled differently if needed
+            }
+        };
+        params.progress_callback = progress_wrapper;
+        params.progress_callback_user_data = const_cast<void*>(static_cast<const void*>(&progress));
+    }
 
     // Reset timings for this transcription
     whisper_reset_timings(m_ctx);

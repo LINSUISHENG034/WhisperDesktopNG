@@ -9,6 +9,7 @@
 #include "Whisper/iSpectrogram.h" // Include original project's spectrogram interface
 #include "API/iTranscribeResult.cl.h" // Include ComLight version of result interface
 #include "API/TranscribeStructs.h" // Include result data structures
+#include "API/sFullParams.h" // Include sProgressSink definition
 #include "Whisper/TranscribeResult.h" // Include TranscribeResult implementation class
 
 namespace Whisper
@@ -30,6 +31,14 @@ namespace Whisper
         // HRESULT is a common Windows return type indicating success or failure
         HRESULT encode(
             iSpectrogram& spectrogram,      // Input: original project's spectrogram object
+            iTranscribeResult** resultSink  // Output: pointer to store result object
+        );
+
+        // Enhanced "encode" method with progress callback support
+        // This version supports progress reporting and cancellation
+        HRESULT encode(
+            iSpectrogram& spectrogram,      // Input: original project's spectrogram object
+            const sProgressSink& progress,  // Input: progress reporting and cancellation callbacks
             iTranscribeResult** resultSink  // Output: pointer to store result object
         );
 
