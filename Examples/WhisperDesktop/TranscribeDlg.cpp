@@ -399,7 +399,14 @@ HRESULT TranscribeDlg::transcribe()
 	using namespace Whisper;
 	CComPtr<iAudioReader> reader;
 
-	CHECK_EX( appState.mediaFoundation->openAudioFile( transcribeArgs.pathMedia, false, &reader ) );
+	HRESULT hr = appState.mediaFoundation->openAudioFile( transcribeArgs.pathMedia, false, &reader );
+	if( FAILED( hr ) )
+	{
+		CString errorMsg;
+		errorMsg.Format( L"Failed to open audio file. HRESULT: 0x%08X", hr );
+		transcribeArgs.errorMessage = errorMsg;
+		return hr;
+	}
 
 	const eOutputFormat format = transcribeArgs.format;
 	CAtlFile outputFile;
@@ -408,11 +415,32 @@ HRESULT TranscribeDlg::transcribe()
 
 	transcribeArgs.resultFlags = eResultFlags::Timestamps | eResultFlags::Tokens;
 
+	// Debug: Check if model is loaded
+	if( !appState.model )
+	{
+		transcribeArgs.errorMessage = L"Model is not loaded. Please load a model first.";
+		return E_FAIL;
+	}
+
 	CComPtr<iContext> context;
-	CHECK_EX( appState.model->createContext( &context ) );
+	hr = appState.model->createContext( &context );
+	if( FAILED( hr ) )
+	{
+		CString errorMsg;
+		errorMsg.Format( L"Failed to create context. HRESULT: 0x%08X", hr );
+		transcribeArgs.errorMessage = errorMsg;
+		return hr;
+	}
 
 	sFullParams fullParams;
-	CHECK_EX( context->fullDefaultParams( eSamplingStrategy::Greedy, &fullParams ) );
+	hr = context->fullDefaultParams( eSamplingStrategy::Greedy, &fullParams );
+	if( FAILED( hr ) )
+	{
+		CString errorMsg;
+		errorMsg.Format( L"Failed to get default parameters. HRESULT: 0x%08X", hr );
+		transcribeArgs.errorMessage = errorMsg;
+		return hr;
+	}
 	fullParams.language = transcribeArgs.language;
 	fullParams.setFlag( eFullParamsFlags::Translate, transcribeArgs.translate );
 	fullParams.resetFlag( eFullParamsFlags::PrintRealtime );
@@ -426,7 +454,14 @@ HRESULT TranscribeDlg::transcribe()
 	// Setup the progress indication sink
 	sProgressSink progressSink{ &progressCallbackStatic, this };
 	// Run the transcribe
-	CHECK_EX( context->runStreamed( fullParams, progressSink, reader ) );
+	hr = context->runStreamed( fullParams, progressSink, reader );
+	if( FAILED( hr ) )
+	{
+		CString errorMsg;
+		errorMsg.Format( L"Failed to run transcription. HRESULT: 0x%08X", hr );
+		transcribeArgs.errorMessage = errorMsg;
+		return hr;
+	}
 
 	// Once finished, query duration of the audio.
 	// The duration before the processing is sometimes different, by 20 seconds for the file in that issue:
