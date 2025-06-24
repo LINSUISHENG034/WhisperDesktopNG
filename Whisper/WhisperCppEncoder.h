@@ -40,6 +40,12 @@ namespace Whisper
             int seek                        // Seek offset parameter
         );
 
+        // Decode-only method that performs decoding after encoding
+        // This method uses the previously encoded state to generate transcription results
+        HRESULT decodeOnly(
+            iTranscribeResult** resultSink  // Output: pointer to store result object
+        );
+
         // Get engine information
         std::string getModelType() const;
         bool isMultilingual() const;

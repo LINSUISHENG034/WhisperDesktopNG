@@ -256,11 +256,6 @@ HRESULT WhisperCppEncoder::encodeOnly(iSpectrogram& spectrogram, int seek)
 
     try
     {
-        // For now, we'll implement this as a simplified version
-        // In a full implementation, this would only do encoding without decoding
-        // But since our CWhisperEngine does full transcription, we'll just call it
-        // and ignore the results, focusing on the encoding part
-
         // 1. Data conversion: from iSpectrogram -> std::vector<float>
         std::vector<float> audioFeatures;
         HRESULT hr = extractMelData(spectrogram, audioFeatures);
@@ -268,9 +263,12 @@ HRESULT WhisperCppEncoder::encodeOnly(iSpectrogram& spectrogram, int seek)
             return hr;
         }
 
-        // 2. For encode-only, we could potentially call a partial transcription
-        // But since our engine does full transcription, we'll just return success
-        // The actual encoding happens internally in the engine
+        // 2. Call the new CWhisperEngine::encode() method for true encode-only functionality
+        // This will perform only the encoding phase and store the encoded state
+        bool success = m_engine->encode(audioFeatures);
+        if (!success) {
+            return E_FAIL;
+        }
 
         return S_OK;
     }
@@ -284,6 +282,57 @@ HRESULT WhisperCppEncoder::encodeOnly(iSpectrogram& spectrogram, int seek)
     }
     catch (...)
     {
+        return E_UNEXPECTED;
+    }
+}
+
+// Decode-only method that performs decoding after encoding
+HRESULT WhisperCppEncoder::decodeOnly(iTranscribeResult** resultSink)
+{
+    if (resultSink == nullptr) {
+        return E_POINTER;
+    }
+
+    if (m_engine == nullptr) {
+        return E_FAIL; // Engine initialization failed
+    }
+
+    try
+    {
+        // 1. Call the new engine's decode method using previously encoded state
+        TranscriptionResult engineResult = m_engine->decode(m_config);
+
+        // 2. Create COM object for result
+        ComLight::CComPtr<ComLight::Object<TranscribeResult>> resultObj;
+        HRESULT hr = ComLight::Object<TranscribeResult>::create(resultObj);
+        if (FAILED(hr)) {
+            return hr;
+        }
+
+        // 3. Result conversion: from TranscriptionResult -> TranscribeResult
+        hr = convertResults(engineResult, *resultObj);
+        if (FAILED(hr)) {
+            return hr;
+        }
+
+        // 4. Return result interface
+        resultObj.detach(resultSink);
+
+        return S_OK;
+    }
+    catch (const CWhisperError& e)
+    {
+        // Catch our engine's exceptions and convert to HRESULT error code
+        // Can log error information e.what() here
+        return E_FAIL;
+    }
+    catch (const std::bad_alloc&)
+    {
+        return E_OUTOFMEMORY;
+    }
+    catch (...)
+    {
+        // Catch other unknown exceptions
         return E_UNEXPECTED;
     }
 }

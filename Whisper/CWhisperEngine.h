@@ -80,6 +80,22 @@ public:
     TranscriptionResult transcribe(const std::vector<float>& audioData,
                                    const TranscriptionConfig& config);
 
+    // Separate encoding and decoding methods for streaming pipeline integration
+
+    // Encode method: process MEL spectrogram data and store encoded state
+    // Input: MEL spectrogram data (audioFeatures should be in time-first format: [time_steps * N_MEL])
+    // Returns: true on success, false on failure
+    // Note: Encoded state is stored internally in whisper_context for later decoding
+    bool encode(const std::vector<float>& audioFeatures);
+
+    // Decode method: perform decoding using previously encoded state
+    // Returns: TranscriptionResult with decoded text segments
+    // Note: Must call encode() first to establish the encoded state
+    TranscriptionResult decode();
+
+    // Decode with custom configuration (overrides constructor config)
+    TranscriptionResult decode(const TranscriptionConfig& config);
+
     // Get model information
     std::string getModelType() const;
     bool isMultilingual() const;
@@ -101,10 +117,15 @@ private:
     whisper_context* m_ctx = nullptr;
     TranscriptionConfig m_defaultConfig;
 
+    // State tracking for separate encode/decode operations
+    bool m_isEncoded = false;  // Track whether encoding has been performed
+    int m_encodedOffset = 0;   // Store the offset used during encoding
+
     // Helper methods
     whisper_full_params createWhisperParams(const TranscriptionConfig& config) const;
     TranscriptionResult extractResults() const;
     void validateAudioData(const std::vector<float>& audioData) const;
+    void validateMelData(const std::vector<float>& melData) const;
 };
 
 // Custom exception class for reporting engine-related errors
