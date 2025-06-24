@@ -8,18 +8,37 @@ using namespace Whisper;
 // This function bridges the gap between new WhisperCppEncoder results and original project's internal data structures
 HRESULT ContextImpl::convertResult(iTranscribeResult* pSource, std::vector<Segment>& dest)
 {
-	if (!pSource) return E_POINTER;
+	// B.1 LOG: convertResult入口
+	printf("[DEBUG] ContextImpl::convertResult ENTRY\n");
+
+	if (!pSource) {
+		printf("[DEBUG] ContextImpl::convertResult ERROR: pSource is NULL\n");
+		return E_POINTER;
+	}
 
 	dest.clear(); // Clear old results
 
 	sTranscribeLength len;
 	HRESULT hr = pSource->getSize(len);
-	if (FAILED(hr)) return hr;
+	if (FAILED(hr)) {
+		printf("[DEBUG] ContextImpl::convertResult ERROR: getSize failed, hr=0x%08X\n", hr);
+		return hr;
+	}
 
-	if (len.countSegments == 0) return S_OK;
+	// B.1 LOG: 打印源数据大小
+	printf("[DEBUG] ContextImpl::convertResult: source countSegments=%u, countTokens=%u\n",
+	       len.countSegments, len.countTokens);
+
+	if (len.countSegments == 0) {
+		printf("[DEBUG] ContextImpl::convertResult: No segments to convert, returning S_OK\n");
+		return S_OK;
+	}
 
 	const sSegment* segments = pSource->getSegments();
-	if (!segments) return E_POINTER;
+	if (!segments) {
+		printf("[DEBUG] ContextImpl::convertResult ERROR: getSegments returned NULL\n");
+		return E_POINTER;
+	}
 
 	try
 	{
@@ -36,10 +55,13 @@ HRESULT ContextImpl::convertResult(iTranscribeResult* pSource, std::vector<Segme
 			if (seg.text)
 			{
 				internalSeg.text = seg.text;
+				// B.1 LOG: 打印每个segment的文本内容
+				printf("[DEBUG] ContextImpl::convertResult: segment[%u].text=\"%s\"\n", i, seg.text);
 			}
 			else
 			{
 				internalSeg.text = "";
+				printf("[DEBUG] ContextImpl::convertResult: segment[%u].text=EMPTY\n", i);
 			}
 
 			// Convert time from sTimeInterval (100-nanosecond ticks) to internal format (whisper time units)
@@ -48,20 +70,30 @@ HRESULT ContextImpl::convertResult(iTranscribeResult* pSource, std::vector<Segme
 			internalSeg.t0 = seg.time.begin.ticks / 100000; // Convert to whisper time units (10ms)
 			internalSeg.t1 = seg.time.end.ticks / 100000;   // Convert to whisper time units (10ms)
 
+			// B.1 LOG: 打印时间转换信息
+			printf("[DEBUG] ContextImpl::convertResult: segment[%u] time: ticks=%llu-%llu -> whisper_units=%lld-%lld\n",
+			       i, seg.time.begin.ticks, seg.time.end.ticks, internalSeg.t0, internalSeg.t1);
+
 			// Initialize empty tokens vector - token conversion can be added later if needed
 			internalSeg.tokens.clear();
 
 			dest.push_back(std::move(internalSeg));
 		}
 
+		// B.1 LOG: convertResult成功完成
+		printf("[DEBUG] ContextImpl::convertResult: Successfully converted %u segments to dest.size()=%zu\n",
+		       len.countSegments, dest.size());
+
 		return S_OK;
 	}
 	catch (const std::bad_alloc&)
 	{
+		printf("[DEBUG] ContextImpl::convertResult ERROR: std::bad_alloc\n");
 		return E_OUTOFMEMORY;
 	}
 	catch (...)
 	{
+		printf("[DEBUG] ContextImpl::convertResult ERROR: unknown exception\n");
 		return E_UNEXPECTED;
 	}
 }
@@ -533,9 +565,16 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 	auto ts = device.setForCurrentThread();
 	const Whisper::Vocabulary& vocab = model.shared->vocab;
 
+	// B.1 LOG: runFullImpl入口，检查whisperCppEncoder状态
+	printf("[DEBUG] ContextImpl::runFullImpl ENTRY: whisperCppEncoder=%p\n", whisperCppEncoder.get());
+	fflush(stdout);
+
 	// If we have WhisperCppEncoder, use it for complete transcription
 	if( whisperCppEncoder )
 	{
+		// B.1 LOG: runFullImpl使用WhisperCppEncoder路径
+		printf("[DEBUG] ContextImpl::runFullImpl: Using WhisperCppEncoder path\n");
+
 		result_all.clear();
 
 		// Use WhisperCppEncoder for complete transcription with progress callback support
@@ -543,17 +582,25 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 		HRESULT hr = whisperCppEncoder->encode( mel, progress, &transcribeResult );
 		if( FAILED( hr ) )
 		{
+			printf("[DEBUG] ContextImpl::runFullImpl ERROR: whisperCppEncoder->encode failed, hr=0x%08X\n", hr);
 			return hr;
 		}
+
+		// B.1 LOG: WhisperCppEncoder返回成功，准备转换结果
+		printf("[DEBUG] ContextImpl::runFullImpl: WhisperCppEncoder->encode succeeded, converting results\n");
 
 		// --- NEW CRITICAL STEP ---
 		// Call conversion function to populate internal data structures with results from new engine
 		hr = this->convertResult(transcribeResult, result_all);
 		if (FAILED(hr))
 		{
+			printf("[DEBUG] ContextImpl::runFullImpl ERROR: convertResult failed, hr=0x%08X\n", hr);
 			return hr;
 		}
 		// --- END OF CRITICAL STEP ---
+
+		// B.1 LOG: 转换完成，打印最终的result_all大小
+		printf("[DEBUG] ContextImpl::runFullImpl: Conversion completed, result_all.size()=%zu\n", result_all.size());
 
 		return S_OK;
 	}

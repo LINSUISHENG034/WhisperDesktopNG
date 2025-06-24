@@ -49,7 +49,12 @@ namespace Whisper
 		HRESULT COMLIGHTCALL clone( iModel** rdi ) override final;
 
 	public:
-		void setModelPath( const wchar_t* path ) { modelPath = path ? path : L""; }
+		void setModelPath( const wchar_t* path ) {
+			modelPath = path ? path : L"";
+			// B.1 LOG: setModelPath被调用
+			printf("[DEBUG] ModelImpl::setModelPath: path=%ls\n", modelPath.c_str());
+			fflush(stdout);
+		}
 		ModelImpl( const sModelSetup& setup ) :
 			gpuFlags( setup.flags ),
 			adapter( makeString( setup.adapter ) )

@@ -379,8 +379,18 @@ HRESULT COMLIGHTCALL ContextImpl::runFull( const sFullParams& params, const iAud
 
 	try
 	{
+		// B.1 LOG: runFull准备调用runFullImpl
+		printf("[DEBUG] ContextImpl::runFull: About to call runFullImpl\n");
+		fflush(stdout);
+
 		sProgressSink progressSink{ nullptr, nullptr };
-		return runFullImpl( params, progressSink, spectrogram );
+		HRESULT hr = runFullImpl( params, progressSink, spectrogram );
+
+		// B.1 LOG: runFullImpl返回
+		printf("[DEBUG] ContextImpl::runFull: runFullImpl returned hr=0x%08X\n", hr);
+		fflush(stdout);
+
+		return hr;
 	}
 	catch( HRESULT hr )
 	{

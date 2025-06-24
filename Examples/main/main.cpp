@@ -17,7 +17,17 @@ static HRESULT loadWhisperModel( const wchar_t* path, const std::wstring& gpu, i
 	setup.impl = eModelImplementation::GPU;
 	if( !gpu.empty() )
 		setup.adapter = gpu.c_str();
-	return Whisper::loadModel( path, setup, nullptr, pp );
+
+	// B.1 LOG: main.cpp加载模型
+	printf("[DEBUG] main.cpp: loadWhisperModel calling Whisper::loadModel with GPU implementation\n");
+	fflush(stdout);
+
+	HRESULT hr = Whisper::loadModel( path, setup, nullptr, pp );
+
+	printf("[DEBUG] main.cpp: Whisper::loadModel returned hr=0x%08X\n", hr);
+	fflush(stdout);
+
+	return hr;
 }
 
 namespace
@@ -54,6 +64,10 @@ namespace
 
 	HRESULT __cdecl newSegmentCallback( iContext* context, uint32_t n_new, void* user_data ) noexcept
 	{
+		// B.1 LOG: newSegmentCallback被调用
+		printf("[DEBUG] newSegmentCallback: Called with n_new=%u\n", n_new);
+		fflush(stdout);
+
 		ComLight::CComPtr<iTranscribeResult> results;
 		CHECK( context->getResults( eResultFlags::Timestamps | eResultFlags::Tokens, &results ) );
 
@@ -227,12 +241,16 @@ int wmain( int argc, wchar_t* argv[] )
 	}
 
 	ComLight::CComPtr<iContext> context;
+	// B.1 LOG: main.cpp调用createContext
+	printf("[DEBUG] main.cpp: Calling model->createContext()\n");
 	hr = model->createContext( &context );
 	if( FAILED( hr ) )
 	{
 		printError( "failed to initialize whisper context", hr );
 		return 6;
 	}
+	// B.1 LOG: createContext成功
+	printf("[DEBUG] main.cpp: model->createContext() succeeded\n");
 
 	ComLight::CComPtr<iMediaFoundation> mf;
 	hr = initMediaFoundation( &mf );
@@ -315,7 +333,11 @@ int wmain( int argc, wchar_t* argv[] )
 			// When these timestamps are requested, fall back to buffered mode.
 			ComLight::CComPtr<iAudioBuffer> buffer;
 			CHECK( mf->loadAudioFile( fname.c_str(), params.diarize, &buffer ) );
+			// B.1 LOG: main.cpp调用runFull
+			printf("[DEBUG] main.cpp: Calling context->runFull()\n");
 			hr = context->runFull( wparams, buffer );
+			// B.1 LOG: runFull完成
+			printf("[DEBUG] main.cpp: context->runFull() completed with hr=0x%08X\n", hr);
 		}
 
 		if( FAILED( hr ) )

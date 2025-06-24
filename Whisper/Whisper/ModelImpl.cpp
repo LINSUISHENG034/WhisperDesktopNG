@@ -21,6 +21,10 @@ HRESULT COMLIGHTCALL ModelImpl::createContext( iContext** pp )
 	// Create WhisperCppEncoder instance if we have a model path
 	if( !modelPath.empty() )
 	{
+		// B.1 LOG: ModelImpl::createContext尝试创建WhisperCppEncoder
+		printf("[DEBUG] ModelImpl::createContext: Attempting to create WhisperCppEncoder with modelPath\n");
+		fflush(stdout);
+
 		try
 		{
 			// Convert wide string to UTF-8 for WhisperCppEncoder
@@ -32,18 +36,34 @@ HRESULT COMLIGHTCALL ModelImpl::createContext( iContext** pp )
 				WideCharToMultiByte( CP_UTF8, 0, modelPath.c_str(), -1, &utf8Path[0], len, nullptr, nullptr );
 			}
 
+			// B.1 LOG: 打印转换后的UTF-8路径
+			printf("[DEBUG] ModelImpl::createContext: UTF-8 path: %s\n", utf8Path.c_str());
+
 			auto encoder = std::make_unique<WhisperCppEncoder>( utf8Path );
 			CHECK( ComLight::Object<ContextImpl>::create( obj, device, model, m, std::move( encoder ) ) );
+
+			// B.1 LOG: WhisperCppEncoder创建成功
+			printf("[DEBUG] ModelImpl::createContext: WhisperCppEncoder created successfully\n");
+		}
+		catch( const std::exception& e )
+		{
+			// If WhisperCppEncoder creation fails, fall back to original implementation
+			printf("[DEBUG] ModelImpl::createContext: WhisperCppEncoder creation failed with std::exception: %s\n", e.what());
+			fflush(stdout);
+			CHECK( ComLight::Object<ContextImpl>::create( obj, device, model, m ) );
 		}
 		catch( ... )
 		{
 			// If WhisperCppEncoder creation fails, fall back to original implementation
+			printf("[DEBUG] ModelImpl::createContext: WhisperCppEncoder creation failed with unknown exception, falling back to original implementation\n");
+			fflush(stdout);
 			CHECK( ComLight::Object<ContextImpl>::create( obj, device, model, m ) );
 		}
 	}
 	else
 	{
 		// Fall back to original implementation if no model path
+		printf("[DEBUG] ModelImpl::createContext: No modelPath available, using original implementation\n");
 		CHECK( ComLight::Object<ContextImpl>::create( obj, device, model, m ) );
 	}
 
@@ -175,6 +195,11 @@ HRESULT __stdcall Whisper::loadGpuModel( const wchar_t* path, const sModelSetup&
 
 	ComLight::CComPtr<ComLight::Object<ModelImpl>> obj;
 	CHECK( ComLight::Object<ModelImpl>::create( obj, setup ) );
+
+	// B.1 LOG: loadGpuModel设置模型路径
+	printf("[DEBUG] loadGpuModel: Setting model path: %ls\n", path);
+	fflush(stdout);
+
 	obj->setModelPath( path );  // Store the model path
 	hr = obj->load( &stream, hybrid, callbacks );
 	if( FAILED( hr ) )

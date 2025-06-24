@@ -71,21 +71,43 @@ TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioDa
         throw CWhisperError("Whisper context is not initialized.");
     }
 
+    // B.1 LOG: CWhisperEngine::transcribe入口 - 打印输入的audioData大小
+    printf("[DEBUG] CWhisperEngine::transcribe ENTRY: audioData.size() = %zu\n", audioData.size());
+
     validateAudioData(audioData);
 
     // Create whisper parameters using latest API
     auto params = createWhisperParams(config);
 
+    // B.1 LOG: whisper_full调用前 - 打印关键参数
+    printf("[DEBUG] CWhisperEngine::transcribe BEFORE whisper_full: language=%s, n_threads=%d, strategy=%d\n",
+           params.language, params.n_threads, params.strategy);
+
     // Reset timings for this transcription
     whisper_reset_timings(m_ctx);
 
     // Call the core transcription function with latest API
-    if (whisper_full(m_ctx, params, audioData.data(), static_cast<int>(audioData.size())) != 0) {
+    int whisper_result = whisper_full(m_ctx, params, audioData.data(), static_cast<int>(audioData.size()));
+
+    // B.1 LOG: whisper_full调用后 - 打印返回值和segments数量
+    printf("[DEBUG] CWhisperEngine::transcribe AFTER whisper_full: return_code=%d\n", whisper_result);
+    if (whisper_result == 0) {
+        int n_segments = whisper_full_n_segments(m_ctx);
+        printf("[DEBUG] CWhisperEngine::transcribe: whisper_full_n_segments=%d\n", n_segments);
+    }
+
+    if (whisper_result != 0) {
         throw CWhisperError("Failed to process audio data with whisper_full.");
     }
 
     // Extract results using latest API
-    return extractResults();
+    TranscriptionResult result = extractResults();
+
+    // B.1 LOG: CWhisperEngine::transcribe出口 - 打印构建的TranscriptionResult中segments数量
+    printf("[DEBUG] CWhisperEngine::transcribe EXIT: result.segments.size()=%zu, success=%s\n",
+           result.segments.size(), result.success ? "true" : "false");
+
+    return result;
 }
 
 TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioData,
@@ -380,9 +402,15 @@ whisper_full_params CWhisperEngine::createWhisperParams(const TranscriptionConfi
 TranscriptionResult CWhisperEngine::extractResults() const {
     TranscriptionResult result;
 
+    // B.1 LOG: extractResults入口
+    printf("[DEBUG] CWhisperEngine::extractResults ENTRY\n");
+
     // Get number of segments
     const int n_segments = whisper_full_n_segments(m_ctx);
     result.segments.reserve(n_segments);
+
+    // B.1 LOG: 打印segments数量
+    printf("[DEBUG] CWhisperEngine::extractResults: n_segments=%d\n", n_segments);
 
     // Extract language information
     const int lang_id = whisper_full_lang_id(m_ctx);
@@ -392,6 +420,9 @@ TranscriptionResult CWhisperEngine::extractResults() const {
         if (lang_str) {
             result.detectedLanguage = lang_str;
         }
+        // B.1 LOG: 打印检测到的语言
+        printf("[DEBUG] CWhisperEngine::extractResults: detected language: id=%d, str=%s\n",
+               lang_id, lang_str ? lang_str : "NULL");
     }
 
     // Extract segments with timestamps
@@ -401,11 +432,19 @@ TranscriptionResult CWhisperEngine::extractResults() const {
         const char* text = whisper_full_get_segment_text(m_ctx, i);
         if (text) {
             segment.text = text;
+            // B.1 LOG: 打印每个segment的文本内容
+            printf("[DEBUG] CWhisperEngine::extractResults: segment[%d].text=\"%s\"\n", i, text);
+        } else {
+            printf("[DEBUG] CWhisperEngine::extractResults: segment[%d].text=NULL\n", i);
         }
 
         // Get timestamps (in centiseconds, convert to milliseconds)
         segment.startTime = whisper_full_get_segment_t0(m_ctx, i) * 10;
         segment.endTime = whisper_full_get_segment_t1(m_ctx, i) * 10;
+
+        // B.1 LOG: 打印时间戳信息
+        printf("[DEBUG] CWhisperEngine::extractResults: segment[%d] time: %lld-%lld ms\n",
+               i, (long long)segment.startTime, (long long)segment.endTime);
 
         // Calculate average confidence from tokens in this segment
         const int n_tokens = whisper_full_n_tokens(m_ctx, i);
@@ -416,6 +455,10 @@ TranscriptionResult CWhisperEngine::extractResults() const {
             }
             segment.confidence = total_prob / n_tokens;
         }
+
+        // B.1 LOG: 打印confidence信息
+        printf("[DEBUG] CWhisperEngine::extractResults: segment[%d] confidence=%.3f, n_tokens=%d\n",
+               i, segment.confidence, n_tokens);
 
         result.segments.push_back(segment);
     }
@@ -429,6 +472,11 @@ TranscriptionResult CWhisperEngine::extractResults() const {
     }
 
     result.success = true;
+
+    // B.1 LOG: extractResults出口 - 打印最终结果
+    printf("[DEBUG] CWhisperEngine::extractResults EXIT: success=%s, segments.size()=%zu\n",
+           result.success ? "true" : "false", result.segments.size());
+
     return result;
 }
 

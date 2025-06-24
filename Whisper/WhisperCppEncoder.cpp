@@ -191,11 +191,16 @@ HRESULT WhisperCppEncoder::convertResults(const TranscriptionResult& engineResul
 // Core adaptation/conversion logic
 HRESULT WhisperCppEncoder::encode(iSpectrogram& spectrogram, iTranscribeResult** resultSink)
 {
+    // B.1 LOG: WhisperCppEncoder::encode入口
+    printf("[DEBUG] WhisperCppEncoder::encode ENTRY\n");
+
     if (resultSink == nullptr) {
+        printf("[DEBUG] WhisperCppEncoder::encode ERROR: resultSink is NULL\n");
         return E_POINTER;
     }
 
     if (m_engine == nullptr) {
+        printf("[DEBUG] WhisperCppEncoder::encode ERROR: m_engine is NULL\n");
         return E_FAIL; // Engine initialization failed
     }
 
@@ -206,28 +211,42 @@ HRESULT WhisperCppEncoder::encode(iSpectrogram& spectrogram, iTranscribeResult**
         std::vector<float> audioFeatures;
         HRESULT hr = extractMelData(spectrogram, audioFeatures);
         if (FAILED(hr)) {
+            printf("[DEBUG] WhisperCppEncoder::encode ERROR: extractMelData failed, hr=0x%08X\n", hr);
             return hr;
         }
 
+        // B.1 LOG: 打印提取的MEL数据大小
+        printf("[DEBUG] WhisperCppEncoder::encode: extracted audioFeatures.size()=%zu\n", audioFeatures.size());
+
         // 2. Call new engine's core transcription method
         TranscriptionResult engineResult = m_engine->transcribe(audioFeatures, m_config);
+
+        // B.1 LOG: 打印引擎返回的结果
+        printf("[DEBUG] WhisperCppEncoder::encode: engine returned success=%s, segments.size()=%zu\n", engineResult.success ? "true" : "false", engineResult.segments.size());
 
         // 3. Create COM object for result
         ComLight::CComPtr<ComLight::Object<TranscribeResult>> resultObj;
         hr = ComLight::Object<TranscribeResult>::create(resultObj);
         if (FAILED(hr)) {
+            printf("[DEBUG] WhisperCppEncoder::encode ERROR: failed to create result object, hr=0x%08X\n", hr);
             return hr;
         }
 
         // 4. Result conversion: from TranscriptionResult -> TranscribeResult
         hr = convertResults(engineResult, *resultObj);
         if (FAILED(hr)) {
+            printf("[DEBUG] WhisperCppEncoder::encode ERROR: convertResults failed, hr=0x%08X\n", hr);
             return hr;
         }
+
+        // B.1 LOG: 打印转换后的结果
+        printf("[DEBUG] WhisperCppEncoder::encode: converted result segments.size()=%zu, tokens.size()=%zu\n",
+               resultObj->segments.size(), resultObj->tokens.size());
 
         // 5. Return result interface
         resultObj.detach(resultSink);
 
+        printf("[DEBUG] WhisperCppEncoder::encode EXIT: SUCCESS\n");
         return S_OK;
     }
     catch (const CWhisperError& e)
