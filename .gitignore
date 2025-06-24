@@ -22,3 +22,14 @@ WhisperPS/obj/
 WhisperPS/bin/
 Tools/CompressTables/bin/
 Tools/CompressTables/obj/
+
+# Debug build outputs
+Scripts/Build/whisper_build/build_debug/
+
+# Test outputs
+SampleClips/jfk.txt
+SampleClips/result/
+
+# Examples build outputs
+Examples/main/x64/
+Examples/WhisperDesktop/x64/
