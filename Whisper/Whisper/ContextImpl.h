@@ -63,6 +63,9 @@ namespace Whisper
 		int wrapSegment( int max_len );
 		void expComputeTokenLevelTimestamps( int i_segment, float thold_pt, float thold_ptsum );
 
+		// Helper function to convert iTranscribeResult to internal result_all format
+		HRESULT convertResult(iTranscribeResult* pSource, std::vector<Segment>& dest);
+
 		std::vector<float> probs;
 		std::vector<std::pair<double, Vocabulary::id>> probs_id;
 

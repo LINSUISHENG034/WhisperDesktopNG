@@ -4,6 +4,68 @@
 #include "../Utils/Trace/tracing.h"
 using namespace Whisper;
 
+// Helper function to convert iTranscribeResult to internal result_all format
+// This function bridges the gap between new WhisperCppEncoder results and original project's internal data structures
+HRESULT ContextImpl::convertResult(iTranscribeResult* pSource, std::vector<Segment>& dest)
+{
+	if (!pSource) return E_POINTER;
+
+	dest.clear(); // Clear old results
+
+	sTranscribeLength len;
+	HRESULT hr = pSource->getSize(len);
+	if (FAILED(hr)) return hr;
+
+	if (len.countSegments == 0) return S_OK;
+
+	const sSegment* segments = pSource->getSegments();
+	if (!segments) return E_POINTER;
+
+	try
+	{
+		dest.reserve(len.countSegments);
+
+		for (uint32_t i = 0; i < len.countSegments; i++)
+		{
+			const sSegment& seg = segments[i];
+
+			// Create internal Segment format
+			Segment internalSeg;
+
+			// Copy text
+			if (seg.text)
+			{
+				internalSeg.text = seg.text;
+			}
+			else
+			{
+				internalSeg.text = "";
+			}
+
+			// Convert time from sTimeInterval (100-nanosecond ticks) to internal format (whisper time units)
+			// sTimeInterval uses 100-nanosecond ticks, internal format uses whisper time units (10ms units)
+			// Conversion: 100-nanosecond ticks -> milliseconds -> whisper time units (divide by 10)
+			internalSeg.t0 = seg.time.begin.ticks / 100000; // Convert to whisper time units (10ms)
+			internalSeg.t1 = seg.time.end.ticks / 100000;   // Convert to whisper time units (10ms)
+
+			// Initialize empty tokens vector - token conversion can be added later if needed
+			internalSeg.tokens.clear();
+
+			dest.push_back(std::move(internalSeg));
+		}
+
+		return S_OK;
+	}
+	catch (const std::bad_alloc&)
+	{
+		return E_OUTOFMEMORY;
+	}
+	catch (...)
+	{
+		return E_UNEXPECTED;
+	}
+}
+
 ContextImpl::ContextImpl( const DirectCompute::Device& dev, const WhisperModel& modelData, iModel* modelPointer ) :
 	device( dev ),
 	model( modelData ),
@@ -476,17 +538,23 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 	{
 		result_all.clear();
 
-		// Use WhisperCppEncoder for complete transcription
+		// Use WhisperCppEncoder for complete transcription with progress callback support
 		ComLight::CComPtr<iTranscribeResult> transcribeResult;
-		HRESULT hr = whisperCppEncoder->encode( mel, &transcribeResult );
+		HRESULT hr = whisperCppEncoder->encode( mel, progress, &transcribeResult );
 		if( FAILED( hr ) )
 		{
 			return hr;
 		}
 
-		// Convert the result to our internal format
-		// This is a simplified conversion - in a full implementation,
-		// we would need to properly convert the result format
+		// --- NEW CRITICAL STEP ---
+		// Call conversion function to populate internal data structures with results from new engine
+		hr = this->convertResult(transcribeResult, result_all);
+		if (FAILED(hr))
+		{
+			return hr;
+		}
+		// --- END OF CRITICAL STEP ---
+
 		return S_OK;
 	}
 
