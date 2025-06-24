@@ -1,9 +1,13 @@
 ﻿#pragma once
 #include <stdint.h>
 #include <assert.h>
+#include "../ComLightLib/comLightCommon.h"
 
 namespace Whisper
 {
+	// Forward declarations
+	struct iContext;
+	typedef int whisper_token;
 	// Available sampling strategies
 	enum struct eSamplingStrategy : int
 	{
