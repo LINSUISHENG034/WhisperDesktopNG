@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComLightLib", "ComLightLib\ComLightLib.vcxproj", "{52F486E7-830C-45D8-BE47-E76B5AAB2772}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Whisper", "Whisper\Whisper.vcxproj", "{701DF8C8-E4A5-43EC-9C6B-747BBF4D8E71}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1C39D386-96D0-47A1-BBFA-68BBDB24439C} = {1C39D386-96D0-47A1-BBFA-68BBDB24439C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComputeShaders", "ComputeShaders\ComputeShaders.vcxproj", "{1C39D386-96D0-47A1-BBFA-68BBDB24439C}"
 EndProject
