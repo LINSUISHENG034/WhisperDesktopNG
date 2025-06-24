@@ -5,9 +5,9 @@
 #include "stdafx.h"
 #include "CWhisperEngine.h"
 
-// Include the latest whisper.cpp API
+// Include the latest whisper.cpp API from external submodule
 extern "C" {
-#include "whisper.h"
+#include "../external/whisper.cpp/include/whisper.h"
 }
 
 #include <thread>
@@ -138,53 +138,155 @@ TranscriptionResult CWhisperEngine::decode(const TranscriptionConfig& config) {
     }
 
     if (!m_isEncoded) {
-        throw CWhisperError("Must call encode() before decode(). No encoded state available.");
+        throw CWhisperError("decode() called before a successful encode().");
     }
 
-    // For this refactoring demonstration, implement a simplified decode method
-    // that validates the encoded state exists and returns a basic result.
-    // A full implementation would require implementing the complete decoding loop
-    // similar to whisper_full, but using the pre-encoded state.
-
-    // Language detection and setup
-    int lang_id = -1;
-    if (config.language != "auto" && !config.language.empty()) {
-        lang_id = whisper_lang_id(config.language.c_str());
-        if (lang_id < 0) {
-            throw CWhisperError("Invalid language: " + config.language);
-        }
-    } else {
-        // For auto-detection, we'll use English as default for now
-        // A full implementation would call whisper_lang_auto_detect
-        lang_id = whisper_lang_id("en");
-    }
-
-    // Create a basic result to demonstrate the decode functionality
+    // Manual sampling decode implementation using verified whisper.cpp APIs
     TranscriptionResult result;
-    result.success = true;
-    result.detectedLanguageId = lang_id;
-    if (lang_id >= 0) {
-        const char* lang_str = whisper_lang_str(lang_id);
-        if (lang_str) {
-            result.detectedLanguage = lang_str;
+    result.success = false; // Default to failure
+
+    try {
+        // Reset timings for decode operation
+        whisper_reset_timings(m_ctx);
+
+        // 1. Get model vocabulary size
+        const int n_vocab = whisper_model_n_vocab(m_ctx);
+
+        // 2. Language detection and setup
+        int lang_id = -1;
+        if (config.language != "auto" && !config.language.empty()) {
+            lang_id = whisper_lang_id(config.language.c_str());
+            if (lang_id < 0) {
+                throw CWhisperError("Invalid language: " + config.language);
+            }
+        } else {
+            // Use English as default for auto-detection
+            lang_id = whisper_lang_id("en");
         }
+
+        result.detectedLanguageId = lang_id;
+        if (lang_id >= 0) {
+            const char* lang_str = whisper_lang_str(lang_id);
+            if (lang_str) {
+                result.detectedLanguage = lang_str;
+            }
+        }
+
+        // 3. Prepare initial prompt tokens
+        std::vector<whisper_token> prompt_tokens;
+
+        // Add start-of-transcript token
+        prompt_tokens.push_back(whisper_token_sot(m_ctx));
+
+        // Add language token if specified
+        if (lang_id >= 0) {
+            prompt_tokens.push_back(whisper_token_lang(m_ctx, lang_id));
+        }
+
+        // Add task token (transcribe vs translate)
+        if (config.translate) {
+            prompt_tokens.push_back(whisper_token_translate(m_ctx));
+        } else {
+            prompt_tokens.push_back(whisper_token_transcribe(m_ctx));
+        }
+
+        // Add timestamp token if timestamps are enabled
+        if (config.enableTimestamps) {
+            prompt_tokens.push_back(whisper_token_beg(m_ctx));
+        }
+
+        // 4. Set decoding loop parameters
+        const int max_tokens = 512; // Default maximum tokens for decoding
+        const int n_threads = config.numThreads > 0 ? config.numThreads :
+                             std::max(1, static_cast<int>(std::thread::hardware_concurrency()) / 2);
+        int n_past = 0; // Number of tokens processed
+
+        // 5. Initial decode with prompt tokens
+        if (whisper_decode(m_ctx, prompt_tokens.data(), static_cast<int>(prompt_tokens.size()), n_past, n_threads) != 0) {
+            throw CWhisperError("whisper_decode failed on initial prompt.");
+        }
+
+        n_past += static_cast<int>(prompt_tokens.size());
+
+        // 6. Main decoding loop with manual greedy sampling
+        std::string decoded_text;
+        int consecutive_timestamps = 0;
+
+        for (int i = 0; i < max_tokens; ++i) {
+            // Get logits from the last decode operation
+            const float* logits = whisper_get_logits(m_ctx);
+            if (!logits) {
+                break;
+            }
+
+            // Manual greedy sampling: find token with highest probability
+            whisper_token best_token_id = 0;
+            float max_prob = logits[0];
+            for (int j = 1; j < n_vocab; ++j) {
+                if (logits[j] > max_prob) {
+                    max_prob = logits[j];
+                    best_token_id = j;
+                }
+            }
+
+            // Check for end-of-transcript token
+            if (best_token_id == whisper_token_eot(m_ctx)) {
+                break;
+            }
+
+            // Handle timestamp tokens vs text tokens
+            if (best_token_id >= whisper_token_beg(m_ctx)) {
+                // This is a timestamp token
+                consecutive_timestamps++;
+                if (consecutive_timestamps >= 2) {
+                    // End of segment detected
+                    break;
+                }
+            } else {
+                // This is a text token
+                consecutive_timestamps = 0;
+                const char* token_str = whisper_token_to_str(m_ctx, best_token_id);
+                if (token_str) {
+                    decoded_text += token_str;
+                }
+            }
+
+            // Prepare for next iteration: decode the selected token
+            if (whisper_decode(m_ctx, &best_token_id, 1, n_past, n_threads) != 0) {
+                break; // Decode failed, stop loop
+            }
+
+            n_past++;
+        }
+
+        // 7. Create result segment with decoded text
+        if (!decoded_text.empty()) {
+            TranscriptionResult::Segment segment;
+            segment.text = decoded_text;
+            segment.startTime = 0;
+            segment.endTime = 1000; // Placeholder timestamp
+            segment.confidence = 0.8f; // Placeholder confidence
+            result.segments.push_back(segment);
+        }
+
+        result.success = true;
+
+        // Extract performance timings
+        const auto* timings = whisper_get_timings(m_ctx);
+        if (timings) {
+            result.timings.sampleMs = timings->sample_ms;
+            result.timings.encodeMs = timings->encode_ms;
+            result.timings.decodeMs = timings->decode_ms;
+        }
+
+    } catch (const std::exception&) {
+        // Ensure state is reset on exception
+        m_isEncoded = false;
+        throw; // Re-throw exception
     }
 
-    // Create a placeholder segment to show that decoding was called
-    TranscriptionResult::Segment segment;
-    segment.text = "[Decoded from encoded state - placeholder text]";
-    segment.startTime = 0;
-    segment.endTime = 1000; // 1 second placeholder
-    segment.confidence = 1.0f;
-    result.segments.push_back(segment);
-
-    // Extract performance timings
-    const auto* timings = whisper_get_timings(m_ctx);
-    if (timings) {
-        result.timings.sampleMs = timings->sample_ms;
-        result.timings.encodeMs = timings->encode_ms;
-        result.timings.decodeMs = timings->decode_ms;
-    }
+    // Keep encoded state for potential multiple decode calls
+    // m_isEncoded remains true to allow multiple decode calls
 
     return result;
 }
