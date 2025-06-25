@@ -1,4 +1,6 @@
 #pragma once
+
+#if !WHISPER_NG_USE_ONLY_CPP_IMPLEMENTATION
 #include "shaderNames.h"
 
 namespace DirectCompute
@@ -7,3 +9,5 @@ namespace DirectCompute
 
 	void bindShader( eComputeShader shader );
 }
+
+#endif // !WHISPER_NG_USE_ONLY_CPP_IMPLEMENTATION

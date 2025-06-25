@@ -33,6 +33,12 @@
 // Disabled because on all computers I have in this house that hybrid model performed worse than D3D11 GPGPU model
 #define BUILD_HYBRID_VERSION 0
 
+// Architecture Simplification: Use only whisper.cpp implementation
+// This macro disables all original DirectCompute/GPU implementations
+// and forces the use of WhisperCppEncoder path exclusively
+// DISABLED: Reverted due to compilation issues - requires more gradual approach
+#define WHISPER_NG_USE_ONLY_CPP_IMPLEMENTATION 0
+
 // Enable debug traces. Should be disabled in production, the feature comes with a huge performance overhead.
 // When enabled, while computing things it streams gigabytes of data into that binary file.
 // See Tools / compareTraces project for a command-line app to compare these traces.

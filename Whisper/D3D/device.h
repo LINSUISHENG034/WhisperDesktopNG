@@ -1,4 +1,6 @@
 #pragma once
+
+#if !WHISPER_NG_USE_ONLY_CPP_IMPLEMENTATION
 #include <atlcomcli.h>
 #include <string>
 #include "sGpuInfo.h"
@@ -18,3 +20,5 @@ namespace DirectCompute
 
 	__m128i resourceMemoryUsage( ID3D11ShaderResourceView* srv );
 }
+
+#endif // !WHISPER_NG_USE_ONLY_CPP_IMPLEMENTATION

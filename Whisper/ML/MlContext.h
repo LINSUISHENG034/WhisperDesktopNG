@@ -1,4 +1,6 @@
 #pragma once
+
+#if !WHISPER_NG_USE_ONLY_CPP_IMPLEMENTATION
 #include <vector>
 #include "TempBuffers.h"
 #include "ConstantBuffer.h"
@@ -112,3 +114,5 @@ namespace DirectCompute
 		__m128i getMemoryUse() const;
 	};
 }
+
+#endif // !WHISPER_NG_USE_ONLY_CPP_IMPLEMENTATION
