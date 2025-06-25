@@ -79,13 +79,12 @@ public:
     ~CWhisperEngine();
 
     // Core transcription method: receive audio data, return transcription result
-    TranscriptionResult transcribe(const std::vector<float>& audioData);
-
-    // Transcribe with custom configuration (overrides constructor config)
-    TranscriptionResult transcribe(const std::vector<float>& audioData,
+    // DEPRECATED VERSIONS - RENAMED TO FORCE COMPILATION ERRORS
+    TranscriptionResult transcribe_DEPRECATED_1(const std::vector<float>& audioData);
+    TranscriptionResult transcribe_DEPRECATED_2(const std::vector<float>& audioData,
                                    const TranscriptionConfig& config);
 
-    // Transcribe with progress callback support (for UI responsiveness and cancellation)
+    // ONLY ACTIVE VERSION - This is the transcribe method we want to use
     TranscriptionResult transcribe(const std::vector<float>& audioData,
                                    const TranscriptionConfig& config,
                                    const Whisper::sProgressSink& progress);

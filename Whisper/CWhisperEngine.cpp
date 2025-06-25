@@ -13,15 +13,22 @@ extern "C" {
 
 #include <thread>
 #include <algorithm>
+#include <numeric>
 #include <cstring>
+#include <fstream>
 
 CWhisperEngine::CWhisperEngine(const std::string& modelPath, const TranscriptionConfig& config)
     : m_defaultConfig(config), m_isEncoded(false), m_encodedOffset(0) {
 
     // Create context parameters with latest API
     auto cparams = whisper_context_default_params();
-    cparams.use_gpu = config.useGpu;
+    // E.2 TASK: 强制设置GPU模式以对齐黄金标准环境
+    cparams.use_gpu = true;  // 强制启用GPU，无论config.useGpu设置如何
     cparams.gpu_device = config.gpuDevice;
+
+    // E.2 LOG: 打印context参数设置
+    printf("[DEBUG] CWhisperEngine::CWhisperEngine: cparams.use_gpu=%s, gpu_device=%d\n",
+           cparams.use_gpu ? "true" : "false", cparams.gpu_device);
 
     // Initialize context with new API
     m_ctx = whisper_init_from_file_with_params(modelPath.c_str(), cparams);
@@ -61,58 +68,24 @@ CWhisperEngine& CWhisperEngine::operator=(CWhisperEngine&& other) noexcept {
     return *this;
 }
 
-TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioData) {
-    return transcribe(audioData, m_defaultConfig);
+TranscriptionResult CWhisperEngine::transcribe_DEPRECATED_1(const std::vector<float>& audioData) {
+    return transcribe(audioData, m_defaultConfig, Whisper::sProgressSink{});
 }
 
-TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioData,
+TranscriptionResult CWhisperEngine::transcribe_DEPRECATED_2(const std::vector<float>& audioData,
                                               const TranscriptionConfig& config) {
-    if (!m_ctx) {
-        throw CWhisperError("Whisper context is not initialized.");
-    }
-
-    // B.1 LOG: CWhisperEngine::transcribe入口 - 打印输入的audioData大小
-    printf("[DEBUG] CWhisperEngine::transcribe ENTRY: audioData.size() = %zu\n", audioData.size());
-
-    validateAudioData(audioData);
-
-    // Create whisper parameters using latest API
-    auto params = createWhisperParams(config);
-
-    // B.1 LOG: whisper_full调用前 - 打印关键参数
-    printf("[DEBUG] CWhisperEngine::transcribe BEFORE whisper_full: language=%s, n_threads=%d, strategy=%d\n",
-           params.language, params.n_threads, params.strategy);
-
-    // Reset timings for this transcription
-    whisper_reset_timings(m_ctx);
-
-    // Call the core transcription function with latest API
-    int whisper_result = whisper_full(m_ctx, params, audioData.data(), static_cast<int>(audioData.size()));
-
-    // B.1 LOG: whisper_full调用后 - 打印返回值和segments数量
-    printf("[DEBUG] CWhisperEngine::transcribe AFTER whisper_full: return_code=%d\n", whisper_result);
-    if (whisper_result == 0) {
-        int n_segments = whisper_full_n_segments(m_ctx);
-        printf("[DEBUG] CWhisperEngine::transcribe: whisper_full_n_segments=%d\n", n_segments);
-    }
-
-    if (whisper_result != 0) {
-        throw CWhisperError("Failed to process audio data with whisper_full.");
-    }
-
-    // Extract results using latest API
-    TranscriptionResult result = extractResults();
-
-    // B.1 LOG: CWhisperEngine::transcribe出口 - 打印构建的TranscriptionResult中segments数量
-    printf("[DEBUG] CWhisperEngine::transcribe EXIT: result.segments.size()=%zu, success=%s\n",
-           result.segments.size(), result.success ? "true" : "false");
-
-    return result;
+    // DEPRECATED: Redirect to the main transcribe method with empty progress sink
+    return transcribe(audioData, config, Whisper::sProgressSink{});
 }
 
 TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioData,
                                               const TranscriptionConfig& config,
                                               const Whisper::sProgressSink& progress) {
+    // B.1 LOG: CWhisperEngine::transcribe(progress)入口
+    printf("[DEBUG] CWhisperEngine::transcribe [VERSION_NEW_WITH_PROGRESS] ENTRY: audioData.size() = %zu\n", audioData.size());
+    printf("[DEBUG] *** E.2 TASK: ABOUT TO CALL createWhisperParams ***\n");
+    fflush(stdout);
+
     if (!m_ctx) {
         throw CWhisperError("Whisper context is not initialized.");
     }
@@ -141,11 +114,72 @@ TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioDa
         params.progress_callback_user_data = const_cast<void*>(static_cast<const void*>(&progress));
     }
 
+    // D.4 TASK: 详细参数对比 - 打印完整的whisper_full_params结构 (progress版本)
+    printf("[DEBUG] CWhisperEngine::transcribe(progress) FULL PARAMS:\n");
+    printf("  strategy=%d, n_threads=%d, n_max_text_ctx=%d\n", params.strategy, params.n_threads, params.n_max_text_ctx);
+    printf("  offset_ms=%d, duration_ms=%d\n", params.offset_ms, params.duration_ms);
+    printf("  translate=%s, no_context=%s, no_timestamps=%s\n",
+           params.translate ? "true" : "false",
+           params.no_context ? "true" : "false",
+           params.no_timestamps ? "true" : "false");
+    printf("  single_segment=%s, print_special=%s\n",
+           params.single_segment ? "true" : "false",
+           params.print_special ? "true" : "false");
+    printf("  print_progress=%s, print_realtime=%s, print_timestamps=%s\n",
+           params.print_progress ? "true" : "false",
+           params.print_realtime ? "true" : "false",
+           params.print_timestamps ? "true" : "false");
+    printf("  token_timestamps=%s, thold_pt=%f, thold_ptsum=%f\n",
+           params.token_timestamps ? "true" : "false",
+           params.thold_pt, params.thold_ptsum);
+    printf("  max_len=%d, split_on_word=%s, max_tokens=%d\n",
+           params.max_len, params.split_on_word ? "true" : "false", params.max_tokens);
+    printf("  debug_mode=%s, audio_ctx=%d\n",
+           params.debug_mode ? "true" : "false", params.audio_ctx);
+    printf("  suppress_blank=%s, suppress_nst=%s\n",
+           params.suppress_blank ? "true" : "false", params.suppress_nst ? "true" : "false");
+    printf("  temperature=%f, max_initial_ts=%f, length_penalty=%f\n",
+           params.temperature, params.max_initial_ts, params.length_penalty);
+    printf("  temperature_inc=%f, entropy_thold=%f, logprob_thold=%f, no_speech_thold=%f\n",
+           params.temperature_inc, params.entropy_thold, params.logprob_thold, params.no_speech_thold);
+    printf("  greedy.best_of=%d, beam_search.beam_size=%d, beam_search.patience=%f\n",
+           params.greedy.best_of, params.beam_search.beam_size, params.beam_search.patience);
+    printf("  language=%s, detect_language=%s\n",
+           params.language ? params.language : "NULL", params.detect_language ? "true" : "false");
+    fflush(stdout);
+
     // Reset timings for this transcription
     whisper_reset_timings(m_ctx);
 
+    // D.2 TASK: 转储音频数据到磁盘用于黄金标准验证
+    {
+        std::ofstream pcm_dump("dumped_audio_progress.pcm", std::ios::binary);
+        if (pcm_dump) {
+            pcm_dump.write(reinterpret_cast<const char*>(audioData.data()), audioData.size() * sizeof(float));
+            printf("[DEBUG] CWhisperEngine::transcribe(progress): Audio data dumped to dumped_audio_progress.pcm (%zu floats, %zu bytes)\n",
+                   audioData.size(), audioData.size() * sizeof(float));
+        } else {
+            printf("[ERROR] CWhisperEngine::transcribe(progress): Failed to create dumped_audio_progress.pcm\n");
+        }
+    }
+
     // Call the core transcription function with latest API
-    if (whisper_full(m_ctx, params, audioData.data(), static_cast<int>(audioData.size())) != 0) {
+    int whisper_result = whisper_full(m_ctx, params, audioData.data(), static_cast<int>(audioData.size()));
+
+    // B.1 LOG: 打印whisper_full返回值和音频数据统计
+    printf("[DEBUG] CWhisperEngine::transcribe: whisper_full returned %d\n", whisper_result);
+
+    // 检查音频数据统计
+    float min_val = *std::min_element(audioData.begin(), audioData.end());
+    float max_val = *std::max_element(audioData.begin(), audioData.end());
+    float avg_val = std::accumulate(audioData.begin(), audioData.end(), 0.0f) / audioData.size();
+
+    printf("[DEBUG] CWhisperEngine::transcribe: Audio stats - min=%.6f, max=%.6f, avg=%.6f, size=%zu\n",
+           min_val, max_val, avg_val, audioData.size());
+    fflush(stdout);
+
+    if (whisper_result != 0) {
+        printf("[ERROR] CWhisperEngine::transcribe: whisper_full failed with code %d\n", whisper_result);
         throw CWhisperError("Failed to process audio data with whisper_full.");
     }
 
@@ -358,11 +392,22 @@ TranscriptionResult CWhisperEngine::decode(const TranscriptionConfig& config) {
 }
 
 whisper_full_params CWhisperEngine::createWhisperParams(const TranscriptionConfig& config) const {
+    // 基于官方文档的参数优化
     auto params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY);
+
+    printf("[DEBUG] CWhisperEngine::createWhisperParams: Using optimized parameters based on official docs\n");
 
     // Thread configuration
     params.n_threads = config.numThreads > 0 ? config.numThreads :
                       std::max(1, static_cast<int>(std::thread::hardware_concurrency()) / 2);
+
+    // E.2 TASK: 设置beam search参数以对齐黄金标准
+    params.beam_search.beam_size = 5;  // 对齐黄金标准的"5 beams"
+    params.greedy.best_of = 5;          // 对齐黄金标准的"best of 5"
+
+    // E.2 LOG: 打印beam search参数
+    printf("[DEBUG] CWhisperEngine::createWhisperParams: strategy=%d, beam_size=%d, best_of=%d\n",
+           params.strategy, params.beam_search.beam_size, params.greedy.best_of);
 
     // Language settings
     if (config.language != "auto" && !config.language.empty()) {
@@ -379,10 +424,12 @@ whisper_full_params CWhisperEngine::createWhisperParams(const TranscriptionConfi
     params.no_timestamps = !config.enableTimestamps;
     params.token_timestamps = config.enableTokenTimestamps;
 
-    // Quality settings
-    params.temperature = config.temperature;
-    params.suppress_blank = config.suppressBlank;
-    params.suppress_nst = config.suppressNonSpeech;
+    // Quality settings - 基于官方文档优化
+    params.temperature = 0.0f;  // 使用确定性输出
+    params.suppress_blank = false;  // 关键修改：不抑制空白，让模型自由输出
+    params.suppress_nst = false;  // 不抑制非语音token
+
+    printf("[DEBUG] CWhisperEngine::createWhisperParams: CRITICAL - suppress_blank=false for better detection\n");
 
     // Disable console output - we handle results programmatically
     params.print_progress = false;
@@ -396,6 +443,20 @@ whisper_full_params CWhisperEngine::createWhisperParams(const TranscriptionConfi
         params.vad_model_path = config.vadModelPath.c_str();
     }
 
+    // Context settings - H.1 FIX: Set no_context to false to enable transcription
+    // The issue was that no_context=true prevents the model from generating segments
+    params.no_context = false;  // Enable context for proper transcription
+
+    // CRITICAL FIX: 调整语音检测阈值 - 这是关键参数！
+    params.no_speech_thold = 0.3f;  // 降低阈值，提高语音检测敏感度（默认0.6）
+
+    printf("[DEBUG] CWhisperEngine::createWhisperParams: CRITICAL - no_speech_thold=%.2f (lowered for better detection)\n",
+           params.no_speech_thold);
+
+    // H.1 DEBUG: Verify the no_context setting
+    printf("[DEBUG] CWhisperEngine::createWhisperParams: FINAL no_context=%s\n",
+           params.no_context ? "true" : "false");
+
     return params;
 }
 
@@ -406,11 +467,24 @@ TranscriptionResult CWhisperEngine::extractResults() const {
     printf("[DEBUG] CWhisperEngine::extractResults ENTRY\n");
 
     // Get number of segments
-    const int n_segments = whisper_full_n_segments(m_ctx);
-    result.segments.reserve(n_segments);
+    // B.1 LOG: 检查m_ctx状态
+    printf("[DEBUG] CWhisperEngine::extractResults: m_ctx=%p\n", m_ctx);
+    fflush(stdout);
 
-    // B.1 LOG: 打印segments数量
-    printf("[DEBUG] CWhisperEngine::extractResults: n_segments=%d\n", n_segments);
+    const int n_segments = whisper_full_n_segments(m_ctx);
+
+    // B.1 LOG: 打印segments数量和详细信息
+    printf("[DEBUG] CWhisperEngine::extractResults: whisper_full_n_segments returned %d\n", n_segments);
+    printf("[DEBUG] CWhisperEngine::extractResults: m_ctx after call=%p\n", m_ctx);
+    fflush(stdout);
+
+    if (n_segments < 0) {
+        printf("[ERROR] CWhisperEngine::extractResults: whisper_full_n_segments returned error code %d\n", n_segments);
+        result.success = false;
+        return result;
+    }
+
+    result.segments.reserve(n_segments);
 
     // Extract language information
     const int lang_id = whisper_full_lang_id(m_ctx);
