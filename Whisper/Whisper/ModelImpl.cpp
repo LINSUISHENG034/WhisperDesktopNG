@@ -48,10 +48,12 @@ std::unique_ptr<iWhisperEncoder> ModelImpl::createEncoder()
 		catch( const std::exception& e )
 		{
 			printf("[DEBUG] ModelImpl::createEncoder: WhisperCppEncoder creation failed with std::exception: %s\n", e.what());
+			printf("[DEBUG] ModelImpl::createEncoder: CRITICAL - This is why WhisperCppEncoder failed!\n");
 		}
 		catch( ... )
 		{
 			printf("[DEBUG] ModelImpl::createEncoder: WhisperCppEncoder creation failed with unknown exception\n");
+			printf("[DEBUG] ModelImpl::createEncoder: CRITICAL - Unknown exception in WhisperCppEncoder!\n");
 		}
 	}
 
