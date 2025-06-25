@@ -19,8 +19,8 @@ namespace Whisper
     // H.3: Now implements iWhisperEncoder interface for Strangler Fig pattern
     class WhisperCppEncoder : public iWhisperEncoder {
     public:
-        // Constructor: receives model path and creates CWhisperEngine internally
-        WhisperCppEncoder(const std::string& modelPath);
+        // Constructor with model path only (uses default config)
+        explicit WhisperCppEncoder(const std::string& modelPath);
 
         // Constructor with configuration
         WhisperCppEncoder(const std::string& modelPath, const TranscriptionConfig& config);

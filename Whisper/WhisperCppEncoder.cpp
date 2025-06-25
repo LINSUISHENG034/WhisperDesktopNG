@@ -16,14 +16,21 @@ using namespace Whisper;
 WhisperCppEncoder::WhisperCppEncoder(const std::string& modelPath)
     : m_config{}
 {
+    printf("[DEBUG] WhisperCppEncoder::WhisperCppEncoder: Creating with path: %s\n", modelPath.c_str());
     try {
         m_engine = std::make_unique<CWhisperEngine>(modelPath, m_config);
+        printf("[DEBUG] WhisperCppEncoder::WhisperCppEncoder: CWhisperEngine created successfully\n");
     }
     catch (const CWhisperError& e) {
-        // Log error but don't throw exception, let caller handle error through encode method return value
+        printf("[DEBUG] WhisperCppEncoder::WhisperCppEncoder: CWhisperEngine creation failed: %s\n", e.what());
+        m_engine = nullptr;
+    }
+    catch (const std::exception& e) {
+        printf("[DEBUG] WhisperCppEncoder::WhisperCppEncoder: std::exception: %s\n", e.what());
         m_engine = nullptr;
     }
 }
+
 
 WhisperCppEncoder::WhisperCppEncoder(const std::string& modelPath, const TranscriptionConfig& config)
     : m_config(config)
