@@ -33,3 +33,15 @@ SampleClips/result/
 # Examples build outputs
 Examples/main/x64/
 Examples/WhisperDesktop/x64/
+
+# Debugging and testing artifacts
+*.pcm
+dumped_audio_*.pcm
+*_converted.wav
+
+# External dependencies and test directories
+whisper_cpp_official/
+golden_standard/
+
+# IDE and tool configurations
+.serena/
