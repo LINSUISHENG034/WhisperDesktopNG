@@ -283,8 +283,10 @@ int wmain( int argc, wchar_t* argv[] )
 		wparams.setFlag( eFullParamsFlags::PrintTimestamps, !params.no_timestamps );
 		wparams.setFlag( eFullParamsFlags::PrintSpecial, params.print_special );
 		wparams.setFlag( eFullParamsFlags::Translate, params.translate );
-		// When there're multiple input files, assuming they're independent clips
-		wparams.setFlag( eFullParamsFlags::NoContext );
+		// H.1 FIX: Don't force NoContext flag - this was causing empty transcription results
+		// Original comment: "When there're multiple input files, assuming they're independent clips"
+		// Problem: This unconditionally disabled context, preventing proper transcription
+		// wparams.setFlag( eFullParamsFlags::NoContext );
 		wparams.language = Whisper::makeLanguageKey( params.language.c_str() );
 		wparams.cpuThreads = params.n_threads;
 		if( params.max_context != UINT_MAX )
@@ -348,6 +350,24 @@ int wmain( int argc, wchar_t* argv[] )
 
 		if( params.output_txt )
 		{
+			// H.1 DEBUG: Check transcription results before writing
+			ComLight::CComPtr<iTranscribeResult> debugResult;
+			hr = context->getResults( eResultFlags::Timestamps, &debugResult );
+			if( SUCCEEDED( hr ) )
+			{
+				sTranscribeLength debugLen;
+				hr = debugResult->getSize( debugLen );
+				if( SUCCEEDED( hr ) )
+				{
+					printf("[DEBUG] main.cpp: Transcription results - countSegments=%zu\n", debugLen.countSegments);
+					if( debugLen.countSegments > 0 )
+					{
+						const sSegment* segments = debugResult->getSegments();
+						printf("[DEBUG] main.cpp: First segment text: '%s'\n", segments[0].text ? segments[0].text : "(null)");
+					}
+				}
+			}
+
 			bool timestamps = !params.no_timestamps;
 			hr = writeText( context, fname.c_str(), timestamps );
 			if( FAILED( hr ) )

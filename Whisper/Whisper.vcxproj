@@ -233,6 +233,7 @@
     <ClCompile Include="whisperCom.cpp" />
     <ClCompile Include="CWhisperEngine.cpp" />
     <ClCompile Include="WhisperCppEncoder.cpp" />
+    <ClCompile Include="DirectComputeEncoder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="API\iContext.h" />
@@ -347,6 +348,8 @@
     <ClInclude Include="ML\TensorEx.h" />
     <ClInclude Include="CWhisperEngine.h" />
     <ClInclude Include="WhisperCppEncoder.h" />
+    <ClInclude Include="iWhisperEncoder.h" />
+    <ClInclude Include="DirectComputeEncoder.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="D3D\shaderData-Debug.inl" />

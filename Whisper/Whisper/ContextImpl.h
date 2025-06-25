@@ -6,7 +6,7 @@
 #include "TranscribeResult.h"
 #include "sTokenData.h"
 #include "../ML/Device.h"
-#include "../WhisperCppEncoder.h"
+#include "../iWhisperEncoder.h"
 
 namespace Whisper
 {
@@ -22,8 +22,8 @@ namespace Whisper
 		class CurrentSpectrogramRaii;
 		ProfileCollection profiler;
 
-		// WhisperCppEncoder for new transcription engine
-		std::unique_ptr<WhisperCppEncoder> whisperCppEncoder;
+		// H.4: Encoder interface for new transcription engine (Strangler Fig pattern)
+		std::unique_ptr<iWhisperEncoder> encoder;
 
 		HRESULT COMLIGHTCALL getModel( iModel** pp ) override final;
 		HRESULT COMLIGHTCALL timingsPrint() override final;
@@ -84,6 +84,6 @@ namespace Whisper
 	public:
 
 		ContextImpl( const DirectCompute::Device& dev, const WhisperModel& modelData, iModel* modelPointer );
-		ContextImpl( const DirectCompute::Device& dev, const WhisperModel& modelData, iModel* modelPointer, std::unique_ptr<WhisperCppEncoder> encoder );
+		ContextImpl( const DirectCompute::Device& dev, const WhisperModel& modelData, iModel* modelPointer, std::unique_ptr<iWhisperEncoder> encoder );
 	};
 }

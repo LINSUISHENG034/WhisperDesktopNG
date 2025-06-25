@@ -4,6 +4,9 @@
 #include <intrin.h>
 #include "../Utils/ReadStream.h"
 #include "../modelFactory.h"
+#include "../iWhisperEncoder.h"
+#include "../WhisperCppEncoder.h"
+#include "../DirectComputeEncoder.h"
 using namespace Whisper;
 
 void ModelImpl::FinalRelease()
@@ -11,8 +14,100 @@ void ModelImpl::FinalRelease()
 	device.destroy();
 }
 
+// H.4: Factory function to create appropriate encoder implementation
+std::unique_ptr<iWhisperEncoder> ModelImpl::createEncoder()
+{
+	// Strategy: Try WhisperCpp first, fall back to DirectCompute if needed
+	if( !modelPath.empty() )
+	{
+		try
+		{
+			// Convert wide string to UTF-8 for WhisperCppEncoder
+			std::string utf8Path;
+			int len = WideCharToMultiByte( CP_UTF8, 0, modelPath.c_str(), -1, nullptr, 0, nullptr, nullptr );
+			if( len > 0 )
+			{
+				utf8Path.resize( len - 1 );
+				WideCharToMultiByte( CP_UTF8, 0, modelPath.c_str(), -1, &utf8Path[0], len, nullptr, nullptr );
+			}
+
+			printf("[DEBUG] ModelImpl::createEncoder: Attempting WhisperCppEncoder with path: %s\n", utf8Path.c_str());
+			auto encoder = std::make_unique<WhisperCppEncoder>( utf8Path );
+
+			// Test if encoder is ready
+			if( encoder->isReady() )
+			{
+				printf("[DEBUG] ModelImpl::createEncoder: WhisperCppEncoder created successfully\n");
+				return std::move(encoder);
+			}
+			else
+			{
+				printf("[DEBUG] ModelImpl::createEncoder: WhisperCppEncoder not ready, falling back to DirectCompute\n");
+			}
+		}
+		catch( const std::exception& e )
+		{
+			printf("[DEBUG] ModelImpl::createEncoder: WhisperCppEncoder creation failed with std::exception: %s\n", e.what());
+		}
+		catch( ... )
+		{
+			printf("[DEBUG] ModelImpl::createEncoder: WhisperCppEncoder creation failed with unknown exception\n");
+		}
+	}
+
+	// Fallback to DirectCompute implementation
+	printf("[DEBUG] ModelImpl::createEncoder: Creating DirectComputeEncoder\n");
+	try
+	{
+		auto encoder = std::make_unique<DirectComputeEncoder>( device, model );
+		printf("[DEBUG] ModelImpl::createEncoder: DirectComputeEncoder created successfully\n");
+		return std::move(encoder);
+	}
+	catch( const std::exception& e )
+	{
+		printf("[ERROR] ModelImpl::createEncoder: DirectComputeEncoder creation failed: %s\n", e.what());
+		return nullptr;
+	}
+	catch( ... )
+	{
+		printf("[ERROR] ModelImpl::createEncoder: DirectComputeEncoder creation failed with unknown exception\n");
+		return nullptr;
+	}
+}
+
 HRESULT COMLIGHTCALL ModelImpl::createContext( iContext** pp )
 {
+	// H.5: Unified factory-based approach using encoder interface
+	printf("=== [DEBUG] ModelImpl::createContext ENTRY ===\n");
+	fflush(stdout);
+
+	auto ts = device.setForCurrentThread();
+	ComLight::CComPtr<ComLight::Object<ContextImpl>> obj;
+	iModel* m = this;
+
+	// H.5: Create encoder using factory method with detailed logging
+	printf("=== [DEBUG] ModelImpl::createContext: Calling createEncoder() factory method ===\n");
+	fflush(stdout);
+	auto encoder = createEncoder();
+	if( encoder )
+	{
+		printf("[DEBUG] ModelImpl::createContext: Factory created encoder implementation: %s\n", encoder->getImplementationName());
+		printf("[DEBUG] ModelImpl::createContext: Creating ContextImpl with encoder\n");
+		CHECK( ComLight::Object<ContextImpl>::create( obj, device, model, m, std::move( encoder ) ) );
+		printf("[DEBUG] ModelImpl::createContext: ContextImpl created successfully with encoder\n");
+	}
+	else
+	{
+		printf("[DEBUG] ModelImpl::createContext: Factory returned null, using original DirectCompute implementation\n");
+		CHECK( ComLight::Object<ContextImpl>::create( obj, device, model, m ) );
+		printf("[DEBUG] ModelImpl::createContext: ContextImpl created successfully without encoder\n");
+	}
+
+	obj.detach( pp );
+	return S_OK;
+
+#if 0 // H.4: Legacy code preserved for reference
+	// Original implementation with fallback logic
 	auto ts = device.setForCurrentThread();
 	ComLight::CComPtr<ComLight::Object<ContextImpl>> obj;
 
@@ -69,6 +164,7 @@ HRESULT COMLIGHTCALL ModelImpl::createContext( iContext** pp )
 
 	obj.detach( pp );
 	return S_OK;
+#endif
 }
 
 
@@ -165,6 +261,12 @@ HRESULT __stdcall Whisper::loadGpuModel( const wchar_t* path, const sModelSetup&
 	if( nullptr == path || nullptr == pp )
 		return E_POINTER;
 
+#if WHISPER_NG_USE_ONLY_CPP_IMPLEMENTATION
+	// Simplified path: No CPU feature validation needed for WhisperCppEncoder
+	printf("[DEBUG] loadGpuModel: Using simplified path - skipping CPU feature validation\n");
+	const bool hybrid = false; // Force non-hybrid mode
+#else
+	// Original implementation with CPU feature validation
 	const bool hybrid = setup.impl == eModelImplementation::Hybrid;
 	if( hybrid )
 	{
@@ -184,6 +286,7 @@ HRESULT __stdcall Whisper::loadGpuModel( const wchar_t* path, const sModelSetup&
 		logError( u8"eModelImplementation.GPU model requires a CPU with SSE 4.1 and F16C support" );
 		return ERROR_HV_CPUID_FEATURE_VALIDATION;
 	}
+#endif
 
 	ComLight::Object<ReadStream> stream;
 	HRESULT hr = stream.open( path );

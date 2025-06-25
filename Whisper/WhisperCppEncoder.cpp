@@ -41,11 +41,17 @@ WhisperCppEncoder::~WhisperCppEncoder() = default;
 // Data conversion: from iSpectrogram -> std::vector<float>
 HRESULT WhisperCppEncoder::extractMelData(iSpectrogram& spectrogram, std::vector<float>& audioFeatures)
 {
+    // D.2 LOG: extractMelData入口
+    printf("[DEBUG] WhisperCppEncoder::extractMelData ENTRY\n");
+    fflush(stdout);
+
     try
     {
         // Get spectrogram length (number of time steps)
         const size_t melLength = spectrogram.getLength();
+        printf("[DEBUG] WhisperCppEncoder::extractMelData: melLength=%zu\n", melLength);
         if (melLength == 0) {
+            printf("[DEBUG] WhisperCppEncoder::extractMelData ERROR: melLength is 0\n");
             return E_INVALIDARG;
         }
 
@@ -218,8 +224,12 @@ HRESULT WhisperCppEncoder::encode(iSpectrogram& spectrogram, iTranscribeResult**
         // B.1 LOG: 打印提取的MEL数据大小
         printf("[DEBUG] WhisperCppEncoder::encode: extracted audioFeatures.size()=%zu\n", audioFeatures.size());
 
-        // 2. Call new engine's core transcription method
-        TranscriptionResult engineResult = m_engine->transcribe(audioFeatures, m_config);
+        // B.1 LOG: 打印即将调用的方法
+        printf("[DEBUG] WhisperCppEncoder::encode: About to call m_engine->transcribe(audioFeatures, m_config)\n");
+        fflush(stdout);
+
+        // 2. Call new engine's core transcription method with empty progress sink
+        TranscriptionResult engineResult = m_engine->transcribe(audioFeatures, m_config, Whisper::sProgressSink{});
 
         // B.1 LOG: 打印引擎返回的结果
         printf("[DEBUG] WhisperCppEncoder::encode: engine returned success=%s, segments.size()=%zu\n", engineResult.success ? "true" : "false", engineResult.segments.size());
@@ -269,11 +279,16 @@ HRESULT WhisperCppEncoder::encode(iSpectrogram& spectrogram, iTranscribeResult**
 // Enhanced encode method with progress callback support
 HRESULT WhisperCppEncoder::encode(iSpectrogram& spectrogram, const sProgressSink& progress, iTranscribeResult** resultSink)
 {
+    // B.1 LOG: WhisperCppEncoder::encode(progress)入口
+    printf("[DEBUG] WhisperCppEncoder::encode(progress) ENTRY\n");
+
     if (resultSink == nullptr) {
+        printf("[DEBUG] WhisperCppEncoder::encode(progress) ERROR: resultSink is NULL\n");
         return E_POINTER;
     }
 
     if (m_engine == nullptr) {
+        printf("[DEBUG] WhisperCppEncoder::encode(progress) ERROR: m_engine is NULL\n");
         return E_FAIL; // Engine initialization failed
     }
 
@@ -283,12 +298,26 @@ HRESULT WhisperCppEncoder::encode(iSpectrogram& spectrogram, const sProgressSink
         std::vector<float> audioFeatures;
         HRESULT hr = extractMelData(spectrogram, audioFeatures);
         if (FAILED(hr)) {
+            printf("[DEBUG] WhisperCppEncoder::encode(progress) ERROR: extractMelData failed, hr=0x%08X\n", hr);
             return hr;
         }
+
+        // B.1 LOG: 打印提取的MEL数据大小
+        printf("[DEBUG] WhisperCppEncoder::encode(progress): extracted audioFeatures.size()=%zu\n", audioFeatures.size());
+
+        // B.1 LOG: 打印即将调用的方法
+        printf("[DEBUG] WhisperCppEncoder::encode(progress): About to call m_engine->transcribe(audioFeatures, m_config, progress)\n");
+        printf("[DEBUG] WhisperCppEncoder::encode(progress): m_engine=%p, audioFeatures.size()=%zu\n", m_engine.get(), audioFeatures.size());
+        fflush(stdout);
 
         // 2. Call new engine's transcription method with progress callback
         // Pass the progress callback to the engine for progress reporting and cancellation support
         TranscriptionResult engineResult = m_engine->transcribe(audioFeatures, m_config, progress);
+
+        // B.1 LOG: 打印调用后的结果
+        printf("[DEBUG] WhisperCppEncoder::encode(progress): m_engine->transcribe returned, engineResult.success=%s, segments.size()=%zu\n",
+               engineResult.success ? "true" : "false", engineResult.segments.size());
+        fflush(stdout);
 
         // 3. Create COM object for result
         ComLight::CComPtr<ComLight::Object<TranscribeResult>> resultObj;
@@ -412,4 +441,16 @@ HRESULT WhisperCppEncoder::decodeOnly(iTranscribeResult** resultSink)
         // Catch other unknown exceptions
         return E_UNEXPECTED;
     }
+}
+
+// Interface required methods implementation
+
+const char* WhisperCppEncoder::getImplementationName() const
+{
+    return "WhisperCpp";
+}
+
+bool WhisperCppEncoder::isReady() const
+{
+    return m_engine != nullptr;
 }

@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include "iWhisperEncoder.h" // Include the abstract interface
 #include "CWhisperEngine.h" // Include our own engine
 #include "Whisper/iSpectrogram.h" // Include original project's spectrogram interface
 #include "API/iTranscribeResult.cl.h" // Include ComLight version of result interface
@@ -15,7 +16,8 @@
 namespace Whisper
 {
     // Adapter class: connects new CWhisperEngine with original Whisper interfaces
-    class WhisperCppEncoder {
+    // H.3: Now implements iWhisperEncoder interface for Strangler Fig pattern
+    class WhisperCppEncoder : public iWhisperEncoder {
     public:
         // Constructor: receives model path and creates CWhisperEngine internally
         WhisperCppEncoder(const std::string& modelPath);
@@ -24,36 +26,44 @@ namespace Whisper
         WhisperCppEncoder(const std::string& modelPath, const TranscriptionConfig& config);
 
         // Destructor
-        ~WhisperCppEncoder();
+        virtual ~WhisperCppEncoder();
 
-        // Core "encode" method
+        // iWhisperEncoder interface implementation
+
+        // Core "encode" method - implements iWhisperEncoder::encode
         // Will be called by ContextImpl
         // HRESULT is a common Windows return type indicating success or failure
-        HRESULT encode(
+        virtual HRESULT encode(
             iSpectrogram& spectrogram,      // Input: original project's spectrogram object
             iTranscribeResult** resultSink  // Output: pointer to store result object
-        );
+        ) override;
 
-        // Enhanced "encode" method with progress callback support
+        // Enhanced "encode" method with progress callback support - implements iWhisperEncoder::encode
         // This version supports progress reporting and cancellation
-        HRESULT encode(
+        virtual HRESULT encode(
             iSpectrogram& spectrogram,      // Input: original project's spectrogram object
             const sProgressSink& progress,  // Input: progress reporting and cancellation callbacks
             iTranscribeResult** resultSink  // Output: pointer to store result object
-        );
+        ) override;
 
-        // Encode-only method that matches ContextImpl::encode signature
+        // Encode-only method that matches ContextImpl::encode signature - implements iWhisperEncoder::encodeOnly
         // This method only performs encoding without full transcription
-        HRESULT encodeOnly(
+        virtual HRESULT encodeOnly(
             iSpectrogram& spectrogram,      // Input: original project's spectrogram object
             int seek                        // Seek offset parameter
-        );
+        ) override;
 
-        // Decode-only method that performs decoding after encoding
+        // Decode-only method that performs decoding after encoding - implements iWhisperEncoder::decodeOnly
         // This method uses the previously encoded state to generate transcription results
-        HRESULT decodeOnly(
+        virtual HRESULT decodeOnly(
             iTranscribeResult** resultSink  // Output: pointer to store result object
-        );
+        ) override;
+
+        // Interface required methods - implements iWhisperEncoder::getImplementationName
+        virtual const char* getImplementationName() const override;
+
+        // Interface required methods - implements iWhisperEncoder::isReady
+        virtual bool isReady() const override;
 
         // Get engine information
         std::string getModelType() const;

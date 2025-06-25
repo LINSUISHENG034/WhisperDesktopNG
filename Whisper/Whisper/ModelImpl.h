@@ -4,9 +4,13 @@
 #include "WhisperModel.h"
 #include "../ComLightLib/streams.h"
 #include "../ML/Device.h"
+#include <memory>
 
 namespace Whisper
 {
+	// Forward declaration for encoder interface
+	class iWhisperEncoder;
+
 	using ComLight::iReadStream;
 
 	class ModelImpl : public ComLight::ObjectRoot<iModel>
@@ -47,6 +51,9 @@ namespace Whisper
 
 		HRESULT createClone( const ModelImpl& source );
 		HRESULT COMLIGHTCALL clone( iModel** rdi ) override final;
+
+		// H.4: Factory method to create appropriate encoder implementation
+		std::unique_ptr<iWhisperEncoder> createEncoder();
 
 	public:
 		void setModelPath( const wchar_t* path ) {

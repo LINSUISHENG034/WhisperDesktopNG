@@ -106,13 +106,13 @@ ContextImpl::ContextImpl( const DirectCompute::Device& dev, const WhisperModel& 
 	profiler( modelData )
 { }
 
-ContextImpl::ContextImpl( const DirectCompute::Device& dev, const WhisperModel& modelData, iModel* modelPointer, std::unique_ptr<WhisperCppEncoder> encoder ) :
+ContextImpl::ContextImpl( const DirectCompute::Device& dev, const WhisperModel& modelData, iModel* modelPointer, std::unique_ptr<iWhisperEncoder> encoderImpl ) :
 	device( dev ),
 	model( modelData ),
 	modelPtr( modelPointer ),
 	context( modelData, profiler ),
 	profiler( modelData ),
-	whisperCppEncoder( std::move( encoder ) )
+	encoder( std::move( encoderImpl ) )
 { }
 
 #define WHISPER_CHUNK_SIZE  30
@@ -121,10 +121,16 @@ HRESULT ContextImpl::encode( iSpectrogram& mel, int seek )
 {
 	auto prof = profiler.cpuBlock( eCpuBlock::Encode );
 
-	// If we have WhisperCppEncoder, use it; otherwise fall back to original implementation
-	if( whisperCppEncoder )
+	// H.5: Always use encoder interface with fallback logic (removed conditional compilation)
+	// If we have an encoder implementation, use it; otherwise fall back to original implementation
+	if( encoder )
 	{
-		return whisperCppEncoder->encodeOnly( mel, seek );
+		printf("[DEBUG] ContextImpl::encode: Using encoder interface (%s)\n", encoder->getImplementationName());
+		return encoder->encodeOnly( mel, seek );
+	}
+	else
+	{
+		printf("[DEBUG] ContextImpl::encode: No encoder available, using original DirectCompute implementation\n");
 	}
 
 	// Original implementation as fallback
@@ -565,44 +571,38 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 	auto ts = device.setForCurrentThread();
 	const Whisper::Vocabulary& vocab = model.shared->vocab;
 
-	// B.1 LOG: runFullImpl入口，检查whisperCppEncoder状态
-	printf("[DEBUG] ContextImpl::runFullImpl ENTRY: whisperCppEncoder=%p\n", whisperCppEncoder.get());
-	fflush(stdout);
-
-	// If we have WhisperCppEncoder, use it for complete transcription
-	if( whisperCppEncoder )
+	// H.5: Always use encoder interface with fallback logic (removed conditional compilation)
+	if( encoder )
 	{
-		// B.1 LOG: runFullImpl使用WhisperCppEncoder路径
-		printf("[DEBUG] ContextImpl::runFullImpl: Using WhisperCppEncoder path\n");
+		printf("[DEBUG] ContextImpl::runFullImpl: Using encoder interface path (%s)\n", encoder->getImplementationName());
 
 		result_all.clear();
 
-		// Use WhisperCppEncoder for complete transcription with progress callback support
+		// Use encoder interface for complete transcription with progress callback support
 		ComLight::CComPtr<iTranscribeResult> transcribeResult;
-		HRESULT hr = whisperCppEncoder->encode( mel, progress, &transcribeResult );
+		HRESULT hr = encoder->encode( mel, progress, &transcribeResult );
 		if( FAILED( hr ) )
 		{
-			printf("[DEBUG] ContextImpl::runFullImpl ERROR: whisperCppEncoder->encode failed, hr=0x%08X\n", hr);
+			printf("[DEBUG] ContextImpl::runFullImpl ERROR: encoder->encode failed, hr=0x%08X\n", hr);
 			return hr;
 		}
 
-		// B.1 LOG: WhisperCppEncoder返回成功，准备转换结果
-		printf("[DEBUG] ContextImpl::runFullImpl: WhisperCppEncoder->encode succeeded, converting results\n");
+		printf("[DEBUG] ContextImpl::runFullImpl: encoder->encode succeeded, converting results\n");
 
-		// --- NEW CRITICAL STEP ---
-		// Call conversion function to populate internal data structures with results from new engine
-		hr = this->convertResult(transcribeResult, result_all);
-		if (FAILED(hr))
-		{
-			printf("[DEBUG] ContextImpl::runFullImpl ERROR: convertResult failed, hr=0x%08X\n", hr);
-			return hr;
-		}
-		// --- END OF CRITICAL STEP ---
+	// Convert results from WhisperCppEncoder to internal format
+	hr = this->convertResult(transcribeResult, result_all);
+	if (FAILED(hr))
+	{
+		printf("[DEBUG] ContextImpl::runFullImpl ERROR: convertResult failed, hr=0x%08X\n", hr);
+		return hr;
+	}
 
-		// B.1 LOG: 转换完成，打印最终的result_all大小
-		printf("[DEBUG] ContextImpl::runFullImpl: Conversion completed, result_all.size()=%zu\n", result_all.size());
-
-		return S_OK;
+	printf("[DEBUG] ContextImpl::runFullImpl: Conversion completed, result_all.size()=%zu\n", result_all.size());
+	return S_OK;
+	}
+	else
+	{
+		printf("[DEBUG] ContextImpl::runFullImpl: No encoder available, using original DirectCompute implementation\n");
 	}
 
 	// Ported from whisper_full() function
