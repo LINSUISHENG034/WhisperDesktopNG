@@ -41,7 +41,7 @@ HRESULT DirectComputeEncoder::encode(
     // For DirectCompute implementation, we perform complete transcription
     // This is a simplified implementation that calls the full pipeline
     // TODO: Implement full transcription logic similar to ContextImpl::runFullImpl
-    
+
     // For now, delegate to encode-only + decode-only pattern
     HRESULT hr = encodeOnly(spectrogram, 0);
     if (FAILED(hr)) {
@@ -155,6 +155,25 @@ bool DirectComputeEncoder::isReady() const
     return true; // Assume ready if constructor succeeded
 }
 
+// PCM direct input support implementation
+bool DirectComputeEncoder::supportsPcmInput() const
+{
+    // DirectCompute implementation does not support PCM direct input
+    // It requires MEL spectrogram data for GPU processing
+    return false;
+}
+
+// PCM direct transcription implementation (not supported)
+HRESULT DirectComputeEncoder::transcribePcm(
+    const iAudioBuffer* buffer,
+    const sProgressSink& progress,
+    iTranscribeResult** resultSink)
+{
+    // DirectCompute implementation does not support PCM direct input
+    // Always return E_NOTIMPL to indicate this feature is not implemented
+    return E_NOTIMPL;
+}
+
 // Private implementation methods
 
 HRESULT DirectComputeEncoder::internalEncode(iSpectrogram& mel, int seek)
@@ -218,3 +237,5 @@ DirectCompute::sDecodeParams DirectComputeEncoder::createDecodeParams(int n_past
     dp.n_vocab = m_model.parameters.n_vocab;
     return dp;
 }
+
+

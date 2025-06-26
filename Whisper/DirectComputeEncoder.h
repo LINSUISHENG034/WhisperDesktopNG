@@ -76,10 +76,10 @@ namespace Whisper
 
         /**
          * @brief Complete transcription without progress callbacks
-         * 
+         *
          * Performs full encode+decode cycle using DirectCompute pipeline.
          * This method maintains compatibility with the original implementation.
-         * 
+         *
          * @param spectrogram Input MEL spectrogram data
          * @param resultSink Output pointer to store transcription results
          * @return HRESULT S_OK on success, error code on failure
@@ -91,10 +91,10 @@ namespace Whisper
 
         /**
          * @brief Complete transcription with progress support
-         * 
+         *
          * Performs full encode+decode cycle with progress reporting.
          * Note: DirectCompute implementation has limited progress granularity.
-         * 
+         *
          * @param spectrogram Input MEL spectrogram data
          * @param progress Progress reporting and cancellation callbacks
          * @param resultSink Output pointer to store transcription results
@@ -108,10 +108,10 @@ namespace Whisper
 
         /**
          * @brief Encode-only operation for streaming pipeline
-         * 
+         *
          * Performs only the encoding phase using DirectCompute shaders.
          * Stores encoded state for later decoding.
-         * 
+         *
          * @param spectrogram Input MEL spectrogram data
          * @param seek Seek offset parameter for audio positioning
          * @return HRESULT S_OK on success, error code on failure
@@ -143,12 +143,39 @@ namespace Whisper
 
         /**
          * @brief Check if the encoder is ready for operation
-         * 
+         *
          * Verifies DirectCompute device and context are properly initialized.
-         * 
+         *
          * @return bool true if ready, false if not initialized
          */
         virtual bool isReady() const override;
+
+        /**
+         * @brief Check if the encoder supports PCM direct input
+         *
+         * DirectCompute implementation does not support PCM direct input,
+         * as it requires MEL spectrogram data for GPU processing.
+         *
+         * @return bool Always returns false for DirectCompute implementation
+         */
+        virtual bool supportsPcmInput() const override;
+
+        /**
+         * @brief Direct PCM transcription method (not supported)
+         *
+         * DirectCompute implementation does not support PCM direct input.
+         * This method always returns E_NOTIMPL.
+         *
+         * @param buffer Input audio buffer (ignored)
+         * @param progress Progress callbacks (ignored)
+         * @param resultSink Output pointer (ignored)
+         * @return HRESULT Always returns E_NOTIMPL
+         */
+        virtual HRESULT transcribePcm(
+            const iAudioBuffer* buffer,
+            const sProgressSink& progress,
+            iTranscribeResult** resultSink
+        ) override;
 
     private:
         /**
@@ -197,6 +224,8 @@ namespace Whisper
          * @return sDecodeParams Configured parameters
          */
         DirectCompute::sDecodeParams createDecodeParams(int n_past) const;
+
+
     };
 
 } // namespace Whisper
