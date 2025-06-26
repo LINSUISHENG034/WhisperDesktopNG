@@ -9,6 +9,7 @@
 #include <vector>
 #include <memory>
 #include <cstring>
+#include <cmath>
 
 using namespace Whisper;
 
@@ -45,26 +46,25 @@ WhisperCppEncoder::WhisperCppEncoder(const std::string& modelPath, const Transcr
 
 WhisperCppEncoder::~WhisperCppEncoder() = default;
 
-// Data conversion: from iSpectrogram -> std::vector<float>
-HRESULT WhisperCppEncoder::extractMelData(iSpectrogram& spectrogram, std::vector<float>& audioFeatures)
+// Data conversion: from iSpectrogram -> std::vector<float> (MEL data)
+HRESULT WhisperCppEncoder::extractPcmFromMel(iSpectrogram& spectrogram, std::vector<float>& melData)
 {
-    // D.2 LOG: extractMelData入口
-    printf("[DEBUG] WhisperCppEncoder::extractMelData ENTRY\n");
+    printf("[DEBUG] *** NEW VERSION *** WhisperCppEncoder::extractPcmFromMel ENTRY\n");
     fflush(stdout);
 
     try
     {
         // Get spectrogram length (number of time steps)
         const size_t melLength = spectrogram.getLength();
-        printf("[DEBUG] WhisperCppEncoder::extractMelData: melLength=%zu\n", melLength);
+        printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel: melLength=%zu\n", melLength);
         if (melLength == 0) {
-            printf("[DEBUG] WhisperCppEncoder::extractMelData ERROR: melLength is 0\n");
+            printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel ERROR: melLength is 0\n");
             return E_INVALIDARG;
         }
 
         // Calculate total number of floats: time steps * MEL bands
         const size_t totalFloats = melLength * N_MEL;
-        audioFeatures.resize(totalFloats);
+        melData.resize(totalFloats);
 
         // Get complete MEL data from iSpectrogram
         const float* pBuffer = nullptr;
@@ -73,40 +73,79 @@ HRESULT WhisperCppEncoder::extractMelData(iSpectrogram& spectrogram, std::vector
         // Call makeBuffer to get complete spectrogram data
         HRESULT hr = spectrogram.makeBuffer(0, melLength, &pBuffer, stride);
         if (FAILED(hr)) {
-            return hr; // If extraction fails, return error code directly
+            printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel ERROR: makeBuffer failed, hr=0x%08X\n", hr);
+            return hr;
         }
 
         if (pBuffer == nullptr) {
+            printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel ERROR: pBuffer is null\n");
             return E_POINTER;
         }
 
         // Understand data layout:
-        // - iSpectrogram data layout: each time step contains N_MEL bands
-        // - stride represents step size between each band (in float units)
-        // - We need to rearrange data into continuous format for new engine
+        // - iSpectrogram data layout: time-first format (time steps x mel bands)
+        // - stride represents the total length in time steps
+        // - Data is already in the correct format for whisper.cpp (time-first)
+
+        printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel: stride=%zu, melLength=%zu, N_MEL=%d\n", stride, melLength, N_MEL);
+        printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel: totalFloats=%zu\n", totalFloats);
+
+        // Based on analysis of Spectrogram.cpp, the data layout should be:
+        // - If stride == melLength: data is time-first (correct for whisper.cpp)
+        // - If stride == N_MEL: data is band-first (needs transposition)
 
         if (stride == melLength) {
-            // Data is stored band-first (each band is a continuous time series)
-            // Need to transpose to time-first format
+            // Data is time-first: [time0_mel0, time0_mel1, ..., time0_mel79, time1_mel0, ...]
+            printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel: Data is time-first, copying directly\n");
+            std::memcpy(melData.data(), pBuffer, totalFloats * sizeof(float));
+        }
+        else if (stride == N_MEL) {
+            // Data is band-first: [mel0_time0, mel0_time1, ..., mel1_time0, mel1_time1, ...]
+            printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel: Data is band-first, transposing to time-first\n");
             for (size_t t = 0; t < melLength; t++) {
                 for (size_t mel = 0; mel < N_MEL; mel++) {
-                    audioFeatures[t * N_MEL + mel] = pBuffer[mel * stride + t];
+                    melData[t * N_MEL + mel] = pBuffer[mel * stride + t];
                 }
             }
         }
         else {
-            // Assume data is already in time-first continuous format
-            std::memcpy(audioFeatures.data(), pBuffer, totalFloats * sizeof(float));
+            // Unknown layout, try to handle it
+            printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel: WARNING: Unknown stride=%zu, assuming time-first\n", stride);
+            std::memcpy(melData.data(), pBuffer, totalFloats * sizeof(float));
+        }
+
+        printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel: Successfully extracted %zu MEL floats\n", melData.size());
+
+        // Debug: Print some sample MEL values to check data validity
+        if (melData.size() >= 10) {
+            printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel: Sample MEL values: ");
+            for (int i = 0; i < 10; i++) {
+                printf("%.6f ", melData[i]);
+            }
+            printf("\n");
+
+            // Check for NaN or infinite values
+            bool hasInvalidValues = false;
+            for (size_t i = 0; i < melData.size(); i++) {
+                if (!std::isfinite(melData[i])) {
+                    hasInvalidValues = true;
+                    break;
+                }
+            }
+            printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel: Has invalid values: %s\n",
+                   hasInvalidValues ? "YES" : "NO");
         }
 
         return S_OK;
     }
     catch (const std::bad_alloc&)
     {
+        printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel ERROR: Out of memory\n");
         return E_OUTOFMEMORY;
     }
     catch (...)
     {
+        printf("[DEBUG] WhisperCppEncoder::extractPcmFromMel ERROR: Unexpected exception\n");
         return E_UNEXPECTED;
     }
 }
@@ -212,6 +251,8 @@ HRESULT WhisperCppEncoder::encode(iSpectrogram& spectrogram, iTranscribeResult**
         return E_POINTER;
     }
 
+
+
     if (m_engine == nullptr) {
         printf("[DEBUG] WhisperCppEncoder::encode ERROR: m_engine is NULL\n");
         return E_FAIL; // Engine initialization failed
@@ -221,22 +262,26 @@ HRESULT WhisperCppEncoder::encode(iSpectrogram& spectrogram, iTranscribeResult**
     {
         // 1. Data conversion: from iSpectrogram -> std::vector<float>
         // This is the most critical step, need to extract complete MEL data from spectrogram
-        std::vector<float> audioFeatures;
-        HRESULT hr = extractMelData(spectrogram, audioFeatures);
+        std::vector<float> melData;
+        HRESULT hr = extractPcmFromMel(spectrogram, melData);
         if (FAILED(hr)) {
-            printf("[DEBUG] WhisperCppEncoder::encode ERROR: extractMelData failed, hr=0x%08X\n", hr);
+            printf("[DEBUG] WhisperCppEncoder::encode ERROR: extractPcmFromMel failed, hr=0x%08X\n", hr);
             return hr;
         }
 
         // B.1 LOG: 打印提取的MEL数据大小
-        printf("[DEBUG] WhisperCppEncoder::encode: extracted audioFeatures.size()=%zu\n", audioFeatures.size());
+        printf("[DEBUG] WhisperCppEncoder::encode: extracted melData.size()=%zu\n", melData.size());
 
         // B.1 LOG: 打印即将调用的方法
-        printf("[DEBUG] WhisperCppEncoder::encode: About to call m_engine->transcribe(audioFeatures, m_config)\n");
+        printf("[DEBUG] WhisperCppEncoder::encode: About to call m_engine->transcribeFromMel(melData, melLength, m_config)\n");
         fflush(stdout);
 
-        // 2. Call new engine's core transcription method with empty progress sink
-        TranscriptionResult engineResult = m_engine->transcribe(audioFeatures, m_config, Whisper::sProgressSink{});
+        // Calculate MEL length (time steps)
+        const size_t melLength = melData.size() / N_MEL;
+        printf("[DEBUG] WhisperCppEncoder::encode: melLength=%zu\n", melLength);
+
+        // 2. Call new engine's MEL transcription method with empty progress sink
+        TranscriptionResult engineResult = m_engine->transcribeFromMel(melData, melLength, m_config, Whisper::sProgressSink{});
 
         // B.1 LOG: 打印引擎返回的结果
         printf("[DEBUG] WhisperCppEncoder::encode: engine returned success=%s, segments.size()=%zu\n", engineResult.success ? "true" : "false", engineResult.segments.size());
@@ -294,6 +339,8 @@ HRESULT WhisperCppEncoder::encode(iSpectrogram& spectrogram, const sProgressSink
         return E_POINTER;
     }
 
+
+
     if (m_engine == nullptr) {
         printf("[DEBUG] WhisperCppEncoder::encode(progress) ERROR: m_engine is NULL\n");
         return E_FAIL; // Engine initialization failed
@@ -302,24 +349,28 @@ HRESULT WhisperCppEncoder::encode(iSpectrogram& spectrogram, const sProgressSink
     try
     {
         // 1. Data conversion: from iSpectrogram -> std::vector<float>
-        std::vector<float> audioFeatures;
-        HRESULT hr = extractMelData(spectrogram, audioFeatures);
+        std::vector<float> melData;
+        HRESULT hr = extractPcmFromMel(spectrogram, melData);
         if (FAILED(hr)) {
-            printf("[DEBUG] WhisperCppEncoder::encode(progress) ERROR: extractMelData failed, hr=0x%08X\n", hr);
+            printf("[DEBUG] WhisperCppEncoder::encode(progress) ERROR: extractPcmFromMel failed, hr=0x%08X\n", hr);
             return hr;
         }
 
         // B.1 LOG: 打印提取的MEL数据大小
-        printf("[DEBUG] WhisperCppEncoder::encode(progress): extracted audioFeatures.size()=%zu\n", audioFeatures.size());
+        printf("[DEBUG] WhisperCppEncoder::encode(progress): extracted melData.size()=%zu\n", melData.size());
 
         // B.1 LOG: 打印即将调用的方法
-        printf("[DEBUG] WhisperCppEncoder::encode(progress): About to call m_engine->transcribe(audioFeatures, m_config, progress)\n");
-        printf("[DEBUG] WhisperCppEncoder::encode(progress): m_engine=%p, audioFeatures.size()=%zu\n", m_engine.get(), audioFeatures.size());
+        printf("[DEBUG] WhisperCppEncoder::encode(progress): About to call m_engine->transcribeFromMel(melData, melLength, m_config, progress)\n");
+        printf("[DEBUG] WhisperCppEncoder::encode(progress): m_engine=%p, melData.size()=%zu\n", m_engine.get(), melData.size());
         fflush(stdout);
 
-        // 2. Call new engine's transcription method with progress callback
+        // Calculate MEL length (time steps)
+        const size_t melLength = melData.size() / N_MEL;
+        printf("[DEBUG] WhisperCppEncoder::encode(progress): melLength=%zu\n", melLength);
+
+        // 2. Call new engine's MEL transcription method with progress callback
         // Pass the progress callback to the engine for progress reporting and cancellation support
-        TranscriptionResult engineResult = m_engine->transcribe(audioFeatures, m_config, progress);
+        TranscriptionResult engineResult = m_engine->transcribeFromMel(melData, melLength, m_config, progress);
 
         // B.1 LOG: 打印调用后的结果
         printf("[DEBUG] WhisperCppEncoder::encode(progress): m_engine->transcribe returned, engineResult.success=%s, segments.size()=%zu\n",
@@ -370,16 +421,25 @@ HRESULT WhisperCppEncoder::encodeOnly(iSpectrogram& spectrogram, int seek)
     try
     {
         // 1. Data conversion: from iSpectrogram -> std::vector<float>
-        std::vector<float> audioFeatures;
-        HRESULT hr = extractMelData(spectrogram, audioFeatures);
+        std::vector<float> melData;
+        HRESULT hr = extractPcmFromMel(spectrogram, melData);
         if (FAILED(hr)) {
             return hr;
         }
 
         // 2. Call the new CWhisperEngine::encode() method for true encode-only functionality
         // This will perform only the encoding phase and store the encoded state
-        bool success = m_engine->encode(audioFeatures);
-        if (!success) {
+        // Note: For MEL data, we need to use whisper_set_mel + whisper_encode instead of the PCM-based encode method
+        // For now, we'll use a simplified approach and call the full transcription
+        // TODO: Implement proper encode-only functionality for MEL data
+        printf("[DEBUG] WhisperCppEncoder::encodeOnly: encodeOnly not fully implemented for MEL data, using full transcription\n");
+
+        // Calculate MEL length (time steps)
+        const size_t melLength = melData.size() / N_MEL;
+
+        // Use transcribeFromMel as a temporary solution
+        TranscriptionResult result = m_engine->transcribeFromMel(melData, melLength, m_config, Whisper::sProgressSink{});
+        if (!result.success) {
             return E_FAIL;
         }
 
@@ -460,4 +520,75 @@ const char* WhisperCppEncoder::getImplementationName() const
 bool WhisperCppEncoder::isReady() const
 {
     return m_engine != nullptr;
+}
+
+// PCM direct input support implementation
+bool WhisperCppEncoder::supportsPcmInput() const
+{
+    // WhisperCppEncoder supports PCM direct input
+    return true;
+}
+
+// PCM direct transcription implementation
+HRESULT WhisperCppEncoder::transcribePcm(
+    const iAudioBuffer* buffer,
+    const sProgressSink& progress,
+    iTranscribeResult** resultSink)
+{
+    printf("[DEBUG] WhisperCppEncoder::transcribePcm ENTRY\n");
+    fflush(stdout);
+
+    if (!buffer || !resultSink) {
+        printf("[DEBUG] WhisperCppEncoder::transcribePcm ERROR: Invalid parameters\n");
+        return E_INVALIDARG;
+    }
+
+    if (!m_engine) {
+        printf("[DEBUG] WhisperCppEncoder::transcribePcm ERROR: Engine not initialized\n");
+        return E_FAIL;
+    }
+
+    try {
+        // Extract PCM data from iAudioBuffer
+        const float* pcmData = buffer->getPcmMono();
+        const uint32_t sampleCount = buffer->countSamples();
+
+        if (!pcmData || sampleCount == 0) {
+            printf("[DEBUG] WhisperCppEncoder::transcribePcm ERROR: No PCM data available\n");
+            return E_INVALIDARG;
+        }
+
+        printf("[DEBUG] WhisperCppEncoder::transcribePcm: Processing %u samples\n", sampleCount);
+
+        // Convert raw pointer data to std::vector for safety
+        std::vector<float> audioData(pcmData, pcmData + sampleCount);
+
+        // Call the verified successful PCM transcription engine
+        TranscriptionResult engineResult = m_engine->transcribe(audioData, m_config, progress);
+
+        printf("[DEBUG] WhisperCppEncoder::transcribePcm: Engine returned %zu segments\n",
+               engineResult.segments.size());
+
+        // Convert and return COM result object
+        ComLight::CComPtr<ComLight::Object<TranscribeResult>> resultObj;
+        CHECK(ComLight::Object<TranscribeResult>::create(resultObj));
+
+        HRESULT convertHr = convertResults(engineResult, *resultObj);
+        if (FAILED(convertHr)) {
+            printf("[DEBUG] WhisperCppEncoder::transcribePcm ERROR: convertResults failed, hr=0x%08X\n", convertHr);
+            return convertHr;
+        }
+
+        printf("[DEBUG] WhisperCppEncoder::transcribePcm: Conversion successful\n");
+        resultObj.detach(resultSink);
+        return S_OK;
+    }
+    catch (const std::exception& e) {
+        printf("[DEBUG] WhisperCppEncoder::transcribePcm ERROR: std::exception: %s\n", e.what());
+        return E_FAIL;
+    }
+    catch (...) {
+        printf("[DEBUG] WhisperCppEncoder::transcribePcm ERROR: Unknown exception\n");
+        return E_UNEXPECTED;
+    }
 }

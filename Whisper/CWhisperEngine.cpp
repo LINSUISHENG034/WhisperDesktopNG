@@ -17,13 +17,16 @@ extern "C" {
 #include <cstring>
 #include <fstream>
 
+// Include audio loading utilities
+#include "AudioUtils/common-whisper.h"
+
 CWhisperEngine::CWhisperEngine(const std::string& modelPath, const TranscriptionConfig& config)
     : m_defaultConfig(config), m_isEncoded(false), m_encodedOffset(0) {
 
     // Create context parameters with latest API
     auto cparams = whisper_context_default_params();
-    // E.2 TASK: 强制设置GPU模式以对齐黄金标准环境
-    cparams.use_gpu = true;  // 强制启用GPU，无论config.useGpu设置如何
+    // CRITICAL FIX: 强制使用CPU模式，避免GPU初始化问题
+    cparams.use_gpu = false;  // 强制CPU模式，与官方whisper-cli.exe一致
     cparams.gpu_device = config.gpuDevice;
 
     // E.2 LOG: 打印context参数设置
@@ -92,8 +95,60 @@ TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioDa
 
     validateAudioData(audioData);
 
-    // Create whisper parameters using latest API
-    auto params = createWhisperParams(config);
+    // J.1 TASK: 使用官方"黄金标准"参数，完全复制whisper.cpp官方main.cpp的参数创建逻辑
+    // 注释掉我们自己的createWhisperParams方法
+    // auto params = createWhisperParams(config);
+
+    // 直接复制官方whisper_full_default_params的完整逻辑
+    // CRITICAL FIX: 使用BEAM_SEARCH策略，与官方whisper-cli.exe保持一致
+    printf("[DEBUG] BEFORE whisper_full_default_params: WHISPER_SAMPLING_BEAM_SEARCH=%d\n", WHISPER_SAMPLING_BEAM_SEARCH);
+    whisper_full_params params = whisper_full_default_params(WHISPER_SAMPLING_BEAM_SEARCH);
+    printf("[DEBUG] AFTER whisper_full_default_params: params.strategy=%d\n", params.strategy);
+
+    // 应用官方cli.cpp中的参数设置逻辑
+    params.print_realtime   = false;
+    params.print_progress   = false;  // 不打印进度
+    params.print_timestamps = false; // 不打印时间戳到控制台
+    params.print_special    = false;
+    params.translate        = config.translate;
+    params.language         = config.language.c_str();
+    params.detect_language  = (config.language == "auto" || config.language.empty());
+    params.n_threads        = config.numThreads > 0 ? config.numThreads :
+                              std::min(4, (int32_t) std::thread::hardware_concurrency());
+
+    printf("[DEBUG] *** CHECKPOINT: About to apply CRITICAL FIX ***\n");
+    fflush(stdout);
+
+    // CRITICAL FIX: 修正关键参数以确保转录成功
+    params.no_context = false;        // 官方默认值是false，不是true！
+    params.suppress_blank = false;    // 不抑制空白，让模型自由输出
+    params.no_speech_thold = 0.1f;    // 进一步降低阈值，强制语音检测（默认0.6太高）
+
+    // CRITICAL FIX: 使用官方whisper-cli.exe的默认参数值
+    params.entropy_thold = 2.40f;     // 官方默认值：2.40
+    params.logprob_thold = -1.00f;    // 官方默认值：-1.00
+    params.no_speech_thold = 0.60f;   // 官方默认值：0.60
+    params.single_segment = false;    // 允许多个分段
+    params.max_len = 0;               // 不限制长度
+    params.no_timestamps = false;    // 启用时间戳
+    params.print_special = false;     // 官方默认值：false
+
+    // CRITICAL FIX: 设置BEAM_SEARCH参数，与官方whisper-cli.exe保持一致
+    params.beam_search.beam_size = 5;  // 5 beams，与官方工具一致
+    params.greedy.best_of = 5;          // best of 5，与官方工具一致
+
+    printf("[DEBUG] J.1 TASK: Using OFFICIAL DEFAULT whisper.cpp parameters - no_context=%s, suppress_blank=%s, no_speech_thold=%.2f, entropy_thold=%.2f, logprob_thold=%.2f, single_segment=%s\n",
+           params.no_context ? "true" : "false",
+           params.suppress_blank ? "true" : "false",
+           params.no_speech_thold, params.entropy_thold, params.logprob_thold,
+           params.single_segment ? "true" : "false");
+
+    // VERIFY: Print parameters again after our modifications
+    printf("[DEBUG] VERIFY: After ULTRA AGGRESSIVE modifications - no_context=%s, suppress_blank=%s, no_speech_thold=%.2f, entropy_thold=%.2f, logprob_thold=%.2f, single_segment=%s\n",
+           params.no_context ? "true" : "false",
+           params.suppress_blank ? "true" : "false",
+           params.no_speech_thold, params.entropy_thold, params.logprob_thold,
+           params.single_segment ? "true" : "false");
 
     // Set up progress callback if provided
     if (progress.pfn != nullptr) {
@@ -151,6 +206,17 @@ TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioDa
     // Reset timings for this transcription
     whisper_reset_timings(m_ctx);
 
+    // CRITICAL DEBUG: 检查音频数据统计 - BEFORE whisper_full
+    {
+        float min_val = *std::min_element(audioData.begin(), audioData.end());
+        float max_val = *std::max_element(audioData.begin(), audioData.end());
+        float avg_val = std::accumulate(audioData.begin(), audioData.end(), 0.0f) / audioData.size();
+
+        printf("[DEBUG] CWhisperEngine::transcribe: Audio stats BEFORE whisper_full - min=%.6f, max=%.6f, avg=%.6f, size=%zu\n",
+               min_val, max_val, avg_val, audioData.size());
+        fflush(stdout);
+    }
+
     // D.2 TASK: 转储音频数据到磁盘用于黄金标准验证
     {
         std::ofstream pcm_dump("dumped_audio_progress.pcm", std::ios::binary);
@@ -163,19 +229,33 @@ TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioDa
         }
     }
 
+    // CRITICAL FIX: 重置whisper状态，确保干净的开始
+    printf("[DEBUG] CWhisperEngine::transcribe: Resetting whisper state...\n");
+    whisper_reset_timings(m_ctx);
+
+    // CRITICAL FIX: 验证音频数据长度
+    const int audio_len = static_cast<int>(audioData.size());
+    printf("[DEBUG] CWhisperEngine::transcribe: Audio length validation - samples=%d, duration=%.2fs\n",
+           audio_len, audio_len / 16000.0f);
+
+    if (audio_len < 1600) {  // 至少0.1秒的音频
+        printf("[ERROR] CWhisperEngine::transcribe: Audio too short (%d samples)\n", audio_len);
+        return TranscriptionResult{};  // 返回空结果
+    }
+
     // Call the core transcription function with latest API
-    int whisper_result = whisper_full(m_ctx, params, audioData.data(), static_cast<int>(audioData.size()));
+    int whisper_result = whisper_full(m_ctx, params, audioData.data(), audio_len);
 
     // B.1 LOG: 打印whisper_full返回值和音频数据统计
     printf("[DEBUG] CWhisperEngine::transcribe: whisper_full returned %d\n", whisper_result);
 
-    // 检查音频数据统计
-    float min_val = *std::min_element(audioData.begin(), audioData.end());
-    float max_val = *std::max_element(audioData.begin(), audioData.end());
-    float avg_val = std::accumulate(audioData.begin(), audioData.end(), 0.0f) / audioData.size();
+    // 检查音频数据统计 - AFTER whisper_full
+    float min_val_after = *std::min_element(audioData.begin(), audioData.end());
+    float max_val_after = *std::max_element(audioData.begin(), audioData.end());
+    float avg_val_after = std::accumulate(audioData.begin(), audioData.end(), 0.0f) / audioData.size();
 
-    printf("[DEBUG] CWhisperEngine::transcribe: Audio stats - min=%.6f, max=%.6f, avg=%.6f, size=%zu\n",
-           min_val, max_val, avg_val, audioData.size());
+    printf("[DEBUG] CWhisperEngine::transcribe: Audio stats AFTER whisper_full - min=%.6f, max=%.6f, avg=%.6f, size=%zu\n",
+           min_val_after, max_val_after, avg_val_after, audioData.size());
     fflush(stdout);
 
     if (whisper_result != 0) {
@@ -640,5 +720,184 @@ void CWhisperEngine::resetTimings() {
 void CWhisperEngine::printTimings() const {
     if (m_ctx) {
         whisper_print_timings(m_ctx);
+    }
+}
+
+// NEW: Direct PCM transcription method - using audio file path
+TranscriptionResult CWhisperEngine::transcribeFromFile(const std::string& audioFilePath,
+                                                       const TranscriptionConfig& config,
+                                                       const Whisper::sProgressSink& progress)
+{
+    printf("[DEBUG] CWhisperEngine::transcribeFromFile ENTRY: %s\n", audioFilePath.c_str());
+    fflush(stdout);
+
+    TranscriptionResult result;
+
+    try {
+        // Load PCM audio data directly from file using official whisper.cpp function
+        std::vector<float> pcmData;
+        std::vector<std::vector<float>> pcmStereoData;
+
+        printf("[DEBUG] CWhisperEngine::transcribeFromFile: Loading audio file...\n");
+        fflush(stdout);
+
+        if (!read_audio_data(audioFilePath, pcmData, pcmStereoData, false)) {
+            printf("[ERROR] CWhisperEngine::transcribeFromFile: Failed to load audio file\n");
+            fflush(stdout);
+            return result; // Return empty result on failure
+        }
+
+        printf("[DEBUG] CWhisperEngine::transcribeFromFile: Loaded %zu PCM samples\n", pcmData.size());
+        fflush(stdout);
+
+        // Check PCM data statistics
+        if (!pcmData.empty()) {
+            float min_val = *std::min_element(pcmData.begin(), pcmData.end());
+            float max_val = *std::max_element(pcmData.begin(), pcmData.end());
+            float avg_val = std::accumulate(pcmData.begin(), pcmData.end(), 0.0f) / pcmData.size();
+
+            printf("[DEBUG] CWhisperEngine::transcribeFromFile: PCM stats - min=%.6f, max=%.6f, avg=%.6f, size=%zu\n",
+                   min_val, max_val, avg_val, pcmData.size());
+            fflush(stdout);
+        }
+
+        // Set up whisper parameters
+        whisper_full_params params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY);
+
+        // Apply our configuration
+        params.language = config.language.empty() ? "auto" : config.language.c_str();
+        params.translate = config.translate;
+        params.print_progress = false;
+        params.print_timestamps = false;
+        params.print_realtime = false;
+        params.print_special = false;
+
+        // CRITICAL FIX: 修正关键参数以确保转录成功
+        params.no_context = false;        // 官方默认值是false，不是true！
+        params.suppress_blank = false;    // 不抑制空白，让模型自由输出
+        params.no_speech_thold = 0.1f;    // 进一步降低阈值，强制语音检测（默认0.6太高）
+
+        // ULTRA AGGRESSIVE FIX: 完全禁用过滤，强制输出
+        params.entropy_thold = 100.0f;    // 极高熵阈值，禁用熵过滤
+        params.logprob_thold = -100.0f;   // 极低对数概率阈值，禁用概率过滤
+        params.single_segment = false;    // 允许多个分段
+        params.max_len = 0;               // 不限制长度
+        params.no_timestamps = false;    // 启用时间戳
+        params.print_special = true;      // 打印特殊标记
+
+        printf("[DEBUG] CWhisperEngine::transcribeFromFile: Using ULTRA AGGRESSIVE whisper.cpp parameters - no_context=%s, suppress_blank=%s, no_speech_thold=%.2f, entropy_thold=%.2f, logprob_thold=%.2f, single_segment=%s\n",
+               params.no_context ? "true" : "false",
+               params.suppress_blank ? "true" : "false",
+               params.no_speech_thold, params.entropy_thold, params.logprob_thold,
+               params.single_segment ? "true" : "false");
+        fflush(stdout);
+
+        // Call whisper_full with PCM data
+        printf("[DEBUG] CWhisperEngine::transcribeFromFile: Calling whisper_full with %zu PCM samples...\n", pcmData.size());
+        fflush(stdout);
+
+        int result_code = whisper_full(m_ctx, params, pcmData.data(), static_cast<int>(pcmData.size()));
+
+        printf("[DEBUG] CWhisperEngine::transcribeFromFile: whisper_full returned: %d\n", result_code);
+        fflush(stdout);
+
+        if (result_code != 0) {
+            printf("[ERROR] CWhisperEngine::transcribeFromFile: whisper_full failed with code %d\n", result_code);
+            fflush(stdout);
+            return result; // Return empty result on failure
+        }
+
+        // Extract results
+        result = extractResults();
+
+        printf("[DEBUG] CWhisperEngine::transcribeFromFile: Extracted %zu segments\n", result.segments.size());
+        fflush(stdout);
+
+        return result;
+    }
+    catch (const std::exception& e) {
+        printf("[ERROR] CWhisperEngine::transcribeFromFile: Exception: %s\n", e.what());
+        fflush(stdout);
+        return result; // Return empty result on exception
+    }
+}
+
+// Static progress callback function for whisper.cpp
+static void whisper_progress_callback_impl(struct whisper_context* /*ctx*/, struct whisper_state* /*state*/, int progress, void* user_data) {
+    const Whisper::sProgressSink* sink = static_cast<const Whisper::sProgressSink*>(user_data);
+    if (sink && sink->pfn) {
+        float progressFloat = static_cast<float>(progress) / 100.0f;
+        HRESULT hr = sink->pfn(progressFloat, nullptr, sink->pv);
+        // Note: whisper_progress_callback doesn't support cancellation via return value
+        // The original callback returns HRESULT but we can't use it here
+    }
+}
+
+// NEW: Direct MEL transcription method
+TranscriptionResult CWhisperEngine::transcribeFromMel(const std::vector<float>& melData,
+                                                     size_t melLength,
+                                                     const TranscriptionConfig& config,
+                                                     const Whisper::sProgressSink& progress) {
+    printf("[DEBUG] CWhisperEngine::transcribeFromMel ENTRY: melData.size()=%zu, melLength=%zu\n",
+           melData.size(), melLength);
+    fflush(stdout);
+
+    TranscriptionResult result;
+    result.success = false;
+
+    if (!m_ctx) {
+        printf("[ERROR] CWhisperEngine::transcribeFromMel: Context not initialized\n");
+        return result;
+    }
+
+    try {
+        // 1. Set MEL data directly into whisper context
+        const int n_mel = 80; // Whisper standard MEL bands
+        if (whisper_set_mel(m_ctx, melData.data(), static_cast<int>(melLength), n_mel) != 0) {
+            printf("[ERROR] CWhisperEngine::transcribeFromMel: whisper_set_mel failed\n");
+            return result;
+        }
+
+        printf("[DEBUG] CWhisperEngine::transcribeFromMel: MEL data set successfully\n");
+
+        // Debug: Check MEL data statistics
+        float minVal = *std::min_element(melData.begin(), melData.end());
+        float maxVal = *std::max_element(melData.begin(), melData.end());
+        float avgVal = std::accumulate(melData.begin(), melData.end(), 0.0f) / melData.size();
+        printf("[DEBUG] CWhisperEngine::transcribeFromMel: MEL stats - min=%.6f, max=%.6f, avg=%.6f\n",
+               minVal, maxVal, avgVal);
+
+        // Calculate expected audio duration
+        float audioDurationSec = (float)melLength * 0.02f; // Each MEL frame = 20ms
+        printf("[DEBUG] CWhisperEngine::transcribeFromMel: Expected audio duration: %.2f seconds\n", audioDurationSec);
+
+        // 2. Create whisper parameters
+        whisper_full_params params = createWhisperParams(config);
+
+        // 3. Set up progress callback if provided
+        if (progress.pfn) {
+            // Use static function for progress callback
+            params.progress_callback = whisper_progress_callback_impl;
+            params.progress_callback_user_data = const_cast<void*>(static_cast<const void*>(&progress));
+        }
+
+        // 4. Run full transcription pipeline (encode + decode)
+        printf("[DEBUG] CWhisperEngine::transcribeFromMel: Starting whisper_full\n");
+        if (whisper_full(m_ctx, params, nullptr, 0) != 0) {
+            printf("[ERROR] CWhisperEngine::transcribeFromMel: whisper_full failed\n");
+            return result;
+        }
+
+        // 5. Extract results
+        result = extractResults();
+        printf("[DEBUG] CWhisperEngine::transcribeFromMel: Transcription completed, segments=%zu\n",
+               result.segments.size());
+
+        return result;
+    }
+    catch (const std::exception& e) {
+        printf("[ERROR] CWhisperEngine::transcribeFromMel: Exception: %s\n", e.what());
+        fflush(stdout);
+        return result; // Return empty result on exception
     }
 }

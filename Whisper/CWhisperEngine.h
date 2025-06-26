@@ -89,6 +89,12 @@ public:
                                    const TranscriptionConfig& config,
                                    const Whisper::sProgressSink& progress);
 
+    // NEW: Direct PCM transcription method - using audio file path
+    // This method loads PCM data directly from file and calls whisper_full
+    TranscriptionResult transcribeFromFile(const std::string& audioFilePath,
+                                          const TranscriptionConfig& config,
+                                          const Whisper::sProgressSink& progress);
+
     // Separate encoding and decoding methods for streaming pipeline integration
 
     // Encode method: process MEL spectrogram data and store encoded state
@@ -96,6 +102,13 @@ public:
     // Returns: true on success, false on failure
     // Note: Encoded state is stored internally in whisper_context for later decoding
     bool encode(const std::vector<float>& audioFeatures);
+
+    // NEW: Direct MEL transcription method - using pre-computed MEL spectrogram
+    // This method accepts MEL data directly and calls whisper_set_mel + whisper_full
+    TranscriptionResult transcribeFromMel(const std::vector<float>& melData,
+                                         size_t melLength,
+                                         const TranscriptionConfig& config,
+                                         const Whisper::sProgressSink& progress);
 
     // Decode method: perform decoding using previously encoded state
     // Returns: TranscriptionResult with decoded text segments

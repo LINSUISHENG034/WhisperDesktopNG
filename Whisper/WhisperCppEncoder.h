@@ -65,6 +65,16 @@ namespace Whisper
         // Interface required methods - implements iWhisperEncoder::isReady
         virtual bool isReady() const override;
 
+        // PCM direct input support - implements iWhisperEncoder::supportsPcmInput
+        virtual bool supportsPcmInput() const override;
+
+        // PCM direct transcription - implements iWhisperEncoder::transcribePcm
+        virtual HRESULT transcribePcm(
+            const iAudioBuffer* buffer,
+            const sProgressSink& progress,
+            iTranscribeResult** resultSink
+        ) override;
+
         // Get engine information
         std::string getModelType() const;
         bool isMultilingual() const;
@@ -82,8 +92,8 @@ namespace Whisper
 
         // Private helper methods
 
-        // Data conversion: from iSpectrogram -> std::vector<float>
-        HRESULT extractMelData(iSpectrogram& spectrogram, std::vector<float>& audioFeatures);
+        // Data conversion: from iSpectrogram -> std::vector<float> (PCM data)
+        HRESULT extractPcmFromMel(iSpectrogram& spectrogram, std::vector<float>& pcmData);
 
         // Result conversion: from TranscriptionResult -> TranscribeResult
         HRESULT convertResults(const TranscriptionResult& engineResult, TranscribeResult& result);
