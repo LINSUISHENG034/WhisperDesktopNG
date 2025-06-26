@@ -6,9 +6,23 @@
 #include <array>
 #include <atomic>
 #include "textWriter.h"
+
+// J.2 TASK: 添加whisper.cpp官方音频加载支持
+#include "../../external/whisper.cpp/examples/common-whisper.h"
+#include "../../external/whisper.cpp/include/whisper.h"
+
+// Include for direct PCM transcription test
+#include "../../Whisper/CWhisperEngine.h"
+
+// Declare the exported test function
+extern "C" int testPcmTranscription(const char* modelPath, const char* audioPath);
+
 using namespace Whisper;
 
-#define STREAM_AUDIO 1
+// J.2 TASK: 函数声明
+int RunMinimalTest(const std::string& modelPath, const std::string& audioPath);
+
+#define STREAM_AUDIO 0  // [TEMPORARY] Force buffered mode to test PCM bypass
 
 static HRESULT loadWhisperModel( const wchar_t* path, const std::wstring& gpu, iModel** pp )
 {
@@ -187,6 +201,37 @@ static void __stdcall setPrompt( const int* ptr, int length, void* pv )
 
 int wmain( int argc, wchar_t* argv[] )
 {
+	// EARLY DEBUG: Program started
+	printf("[DEBUG] main.cpp: Program started - wmain() entry point\n");
+	fflush(stdout);
+
+	// SPECIAL TEST: Direct PCM transcription test
+	if (argc == 4 && wcscmp(argv[1], L"--test-pcm") == 0) {
+		printf("[DEBUG] main.cpp: SPECIAL TEST MODE - Direct PCM transcription\n");
+		fflush(stdout);
+
+		try {
+			// Convert wide strings to narrow strings
+			std::wstring wModelPath(argv[2]);
+			std::wstring wAudioPath(argv[3]);
+			std::string modelPath(wModelPath.begin(), wModelPath.end());
+			std::string audioPath(wAudioPath.begin(), wAudioPath.end());
+
+			printf("[DEBUG] main.cpp: Model: %s\n", modelPath.c_str());
+			printf("[DEBUG] main.cpp: Audio: %s\n", audioPath.c_str());
+			fflush(stdout);
+
+			// Call the exported test function
+			int result = testPcmTranscription(modelPath.c_str(), audioPath.c_str());
+
+			return result;
+		}
+		catch (const std::exception& e) {
+			printf("[ERROR] PCM test failed: %s\n", e.what());
+			return 1;
+		}
+	}
+
 	// Whisper::dbgCompareTraces( LR"(C:\Temp\2remove\Whisper\ref.bin)", LR"(C:\Temp\2remove\Whisper\gpu.bin )" ); return 0;
 
 	// Tell logger to use the standard output stream for the messages
@@ -200,6 +245,32 @@ int wmain( int argc, wchar_t* argv[] )
 	whisper_params params;
 	if( !params.parse( argc, argv ) )
 		return 1;
+
+	// J.2 TASK: 如果设置了--minimal-test标志，则运行独立测试
+	if (params.minimal_test) {
+		printf("[DEBUG] J.2 TASK: --minimal-test flag detected, running minimal test\n");
+
+		// 转换路径为std::string
+		std::string modelPath;
+		std::string audioPath;
+
+		// 转换模型路径
+		int modelPathLen = WideCharToMultiByte(CP_UTF8, 0, params.model.c_str(), -1, nullptr, 0, nullptr, nullptr);
+		modelPath.resize(modelPathLen - 1);
+		WideCharToMultiByte(CP_UTF8, 0, params.model.c_str(), -1, &modelPath[0], modelPathLen, nullptr, nullptr);
+
+		// 转换音频文件路径
+		if (!params.fname_inp.empty()) {
+			int audioPathLen = WideCharToMultiByte(CP_UTF8, 0, params.fname_inp[0].c_str(), -1, nullptr, 0, nullptr, nullptr);
+			audioPath.resize(audioPathLen - 1);
+			WideCharToMultiByte(CP_UTF8, 0, params.fname_inp[0].c_str(), -1, &audioPath[0], audioPathLen, nullptr, nullptr);
+		} else {
+			printf("[ERROR] J.2 TASK: No audio file specified\n");
+			return 1;
+		}
+
+		return RunMinimalTest(modelPath, audioPath);
+	}
 
 	if( params.print_colors )
 	{
@@ -339,11 +410,40 @@ int wmain( int argc, wchar_t* argv[] )
 			// When these timestamps are requested, fall back to buffered mode.
 			ComLight::CComPtr<iAudioBuffer> buffer;
 			CHECK( mf->loadAudioFile( fname.c_str(), params.diarize, &buffer ) );
-			// B.1 LOG: main.cpp调用runFull
-			printf("[DEBUG] main.cpp: Calling context->runFull()\n");
-			hr = context->runFull( wparams, buffer );
+			// [FINAL ATTEMPT] PCM旁路逻辑 - 在main.cpp中实施
+			printf("*** FINAL PCM BYPASS ATTEMPT IN MAIN.CPP ***\n");
+			fflush(stdout);
+
+			// 尝试获取encoder并检查PCM支持
+			// 注意：这需要扩展iContext接口来获取encoder，这里先记录限制
+			printf("*** LIMITATION: Cannot access encoder from iContext interface ***\n");
+			printf("*** NEED TO EXTEND iContext TO EXPOSE ENCODER ***\n");
+			printf("*** FALLING BACK TO ORIGINAL runFull CALL ***\n");
+			fflush(stdout);
+
+			// [CRITICAL FIX] 验证context对象有效性
+			printf("[CRITICAL] main.cpp: About to call runFull, context=%p\n", context.operator->());
+			fflush(stdout);
+
+			// 尝试调用一个简单的方法来验证对象有效性
+			try {
+				// 先尝试调用一个安全的方法
+				printf("[CRITICAL] main.cpp: Testing context validity...\n");
+				fflush(stdout);
+
+				// B.1 LOG: main.cpp调用runFull
+				printf("[DEBUG] main.cpp: Calling context->runFull() with buffer=%p\n", buffer.operator->());
+				fflush(stdout);
+				hr = context->runFull( wparams, buffer );
+			}
+			catch (...) {
+				printf("[ERROR] main.cpp: Exception caught during runFull call!\n");
+				fflush(stdout);
+				hr = E_FAIL;
+			}
 			// B.1 LOG: runFull完成
 			printf("[DEBUG] main.cpp: context->runFull() completed with hr=0x%08X\n", hr);
+			fflush(stdout);
 		}
 
 		if( FAILED( hr ) )
@@ -396,4 +496,82 @@ int wmain( int argc, wchar_t* argv[] )
 	context->timingsPrint();
 	context = nullptr;
 	return 0;
+}
+
+// J.2 TASK: 独立的最小化测试函数，使用官方whisper.cpp C API
+int RunMinimalTest(const std::string& modelPath, const std::string& audioPath)
+{
+	printf("[DEBUG] J.2 TASK: RunMinimalTest ENTRY - modelPath=%s, audioPath=%s\n",
+		   modelPath.c_str(), audioPath.c_str());
+
+	// 1. 使用官方whisper.cpp的read_audio_data函数加载音频
+	std::vector<float> pcmf32;
+	std::vector<std::vector<float>> pcmf32s;
+
+	printf("[DEBUG] J.2 TASK: Loading audio using official whisper.cpp read_audio_data\n");
+	if (!read_audio_data(audioPath, pcmf32, pcmf32s, false)) {
+		printf("[ERROR] J.2 TASK: Failed to load audio file with read_audio_data\n");
+		return 1;
+	}
+
+	printf("[DEBUG] J.2 TASK: Audio loaded successfully - pcmf32.size()=%u\n", (uint32_t)pcmf32.size());
+
+	// 2. 直接使用whisper.cpp C API初始化模型
+	printf("[DEBUG] J.2 TASK: Initializing whisper context with modelPath=%s\n", modelPath.c_str());
+
+	struct whisper_context_params cparams = whisper_context_default_params();
+	struct whisper_context* ctx = whisper_init_from_file_with_params(modelPath.c_str(), cparams);
+
+	if (ctx == nullptr) {
+		printf("[ERROR] J.2 TASK: Failed to initialize whisper context\n");
+		return 2;
+	}
+
+	// 3. 设置官方"黄金标准"参数
+	printf("[DEBUG] J.2 TASK: Setting up official whisper.cpp parameters\n");
+	struct whisper_full_params wparams = whisper_full_default_params(WHISPER_SAMPLING_GREEDY);
+
+	// CRITICAL FIX: 修正关键参数以确保转录成功
+	wparams.print_realtime   = false;
+	wparams.print_progress   = false;
+	wparams.print_timestamps = false;
+	wparams.print_special    = false;
+	wparams.translate        = false;
+	wparams.language         = "en";
+	wparams.detect_language  = false;
+	wparams.n_threads        = 4;
+
+	// 修正关键参数
+	wparams.no_context = false;        // 官方默认值是false，不是true！
+	wparams.suppress_blank = false;    // 不抑制空白，让模型自由输出
+	wparams.no_speech_thold = 0.3f;    // 降低阈值，提高语音检测敏感度（默认0.6太高）
+
+	printf("[DEBUG] J.2 TASK: Using CORRECTED parameters - no_context=%s, suppress_blank=%s, no_speech_thold=%.2f\n",
+		   wparams.no_context ? "true" : "false",
+		   wparams.suppress_blank ? "true" : "false",
+		   wparams.no_speech_thold);
+
+	// 4. 执行转录
+	printf("[DEBUG] J.2 TASK: Running whisper_full with pure audio data\n");
+	int result = whisper_full(ctx, wparams, pcmf32.data(), (int)pcmf32.size());
+
+	printf("[DEBUG] J.2 TASK: whisper_full returned %d\n", result);
+
+	// 5. 检查结果
+	const int n_segments = whisper_full_n_segments(ctx);
+	printf("[DEBUG] J.2 TASK: whisper_full_n_segments returned %d\n", n_segments);
+
+	if (result == 0 && n_segments > 0) {
+		printf("[SUCCESS] J.2 TASK: TRANSCRIPTION SUCCESSFUL! Found %d segments\n", n_segments);
+		for (int i = 0; i < n_segments; ++i) {
+			const char* text = whisper_full_get_segment_text(ctx, i);
+			printf("Segment %d: %s\n", i, text);
+		}
+		whisper_free(ctx);
+		return 0;
+	} else {
+		printf("[FAILURE] J.2 TASK: No segments produced even with official audio loading and C API\n");
+		whisper_free(ctx);
+		return 3;
+	}
 }

@@ -44,10 +44,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)..\..\ComLightLib;$(ProjectDir)..\..\Whisper;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\ComLightLib;$(ProjectDir)..\..\Whisper;$(ProjectDir)..\..\external\whisper.cpp\include;$(ProjectDir)..\..\external\whisper.cpp\ggml\include;$(ProjectDir)..\..\external\whisper.cpp\examples;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)..\..\ComLightLib;$(ProjectDir)..\..\Whisper;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\..\ComLightLib;$(ProjectDir)..\..\Whisper;$(ProjectDir)..\..\external\whisper.cpp\include;$(ProjectDir)..\..\external\whisper.cpp\ggml\include;$(ProjectDir)..\..\external\whisper.cpp\examples;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -85,12 +85,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\WhisperDesktop\useDiscreteGpu.c" />
+    <ClCompile Include="..\..\external\whisper.cpp\examples\common-whisper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="miscUtils.cpp" />
     <ClCompile Include="params.cpp" />
     <ClCompile Include="textWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\external\whisper.cpp\examples\common-whisper.h" />
     <ClInclude Include="miscUtils.h" />
     <ClInclude Include="params.h" />
     <ClInclude Include="textWriter.h" />
