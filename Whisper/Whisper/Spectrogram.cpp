@@ -166,3 +166,29 @@ HRESULT Spectrogram::copyStereoPcm( size_t offset, size_t length, std::vector<St
 	memset( &buffer[ lengthToCopy ], 0, ( buffer.size() - lengthToCopy ) * 8 );
 	return S_OK;
 }
+
+// Copy mel data from external source (for WhisperCppSpectrogram integration)
+HRESULT Spectrogram::copyFromExternalMel( const float* melData, size_t melLength, size_t stride )
+{
+	if( !melData || melLength == 0 )
+		return E_POINTER;
+
+	// Update our length and resize data storage
+	length = (uint32_t)melLength;
+	data.resize( N_MEL * length );
+
+	// Copy mel data from external source
+	// The external data is organized as mel bands x time steps
+	// Our internal data is organized as time steps x mel bands
+	for( size_t t = 0; t < melLength; t++ )
+	{
+		for( size_t m = 0; m < N_MEL; m++ )
+		{
+			// External: melData[m * stride + t]
+			// Internal: data[t * N_MEL + m]
+			data[ t * N_MEL + m ] = melData[ m * stride + t ];
+		}
+	}
+
+	return S_OK;
+}

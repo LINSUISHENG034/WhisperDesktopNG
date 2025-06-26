@@ -36,6 +36,9 @@ namespace Whisper
 		}
 		HRESULT pcmToMel( const iAudioBuffer* buffer, const Filters& filters, int threads = 1 );
 
+		// Copy mel data from external source (for WhisperCppSpectrogram integration)
+		HRESULT copyFromExternalMel( const float* melData, size_t melLength, size_t stride );
+
 		size_t memoryUsage() const
 		{
 			return data.size() * 4;
