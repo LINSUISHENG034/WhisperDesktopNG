@@ -160,6 +160,7 @@
     <ClCompile Include="Whisper\ContextImpl.capture.cpp" />
     <ClCompile Include="Whisper\MelStreamer.cpp" />
     <ClCompile Include="Whisper\melSpectrogram.cpp" />
+    <ClCompile Include="Whisper\WhisperCppSpectrogram.cpp" />
     <ClCompile Include="modelFactory.cpp" />
     <ClCompile Include="MF\AudioBuffer.cpp" />
     <ClCompile Include="MF\PcmReader.cpp" />
@@ -234,6 +235,12 @@
     <ClCompile Include="CWhisperEngine.cpp" />
     <ClCompile Include="WhisperCppEncoder.cpp" />
     <ClCompile Include="DirectComputeEncoder.cpp" />
+    <ClCompile Include="AudioUtils\common-whisper.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="AudioUtils\common.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="API\iContext.h" />
@@ -283,6 +290,7 @@
     <ClInclude Include="Whisper\voiceActivityDetection.h" />
     <ClInclude Include="Whisper\MelStreamer.h" />
     <ClInclude Include="Whisper\melSpectrogram.h" />
+    <ClInclude Include="Whisper\WhisperCppSpectrogram.h" />
     <ClInclude Include="modelFactory.h" />
     <ClInclude Include="MF\AudioBuffer.h" />
     <ClInclude Include="MF\PcmReader.h" />
@@ -350,6 +358,10 @@
     <ClInclude Include="WhisperCppEncoder.h" />
     <ClInclude Include="iWhisperEncoder.h" />
     <ClInclude Include="DirectComputeEncoder.h" />
+    <ClInclude Include="AudioUtils\common-whisper.h" />
+    <ClInclude Include="AudioUtils\common.h" />
+    <ClInclude Include="AudioUtils\dr_wav.h" />
+    <ClInclude Include="AudioUtils\miniaudio.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="D3D\shaderData-Debug.inl" />

@@ -103,3 +103,6 @@ EXPORTS whisper_bench_memcpy
 EXPORTS whisper_bench_memcpy_str
 EXPORTS whisper_bench_ggml_mul_mat
 EXPORTS whisper_bench_ggml_mul_mat_str
+
+; Test function for direct PCM transcription
+EXPORTS testPcmTranscription

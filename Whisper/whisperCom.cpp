@@ -7,6 +7,9 @@
 #include "ML/testUtils.h"
 #include "Utils/Trace/tracing.h"
 #include "modelFactory.h"
+
+// Include for direct PCM transcription test
+#include "CWhisperEngine.h"
 #if BUILD_BOTH_VERSIONS
 #ifndef __AVX__
 #error Reference version requires AVX build, and AVX2 CPU
@@ -1087,3 +1090,76 @@ HRESULT __stdcall Whisper::loadReferenceCpuModel( const wchar_t* path, Whisper::
 	return E_NOTIMPL;
 }
 #endif
+
+// Test function for direct PCM transcription
+extern "C" __declspec(dllexport) int testPcmTranscription(const char* modelPath, const char* audioPath)
+{
+	printf("[DEBUG] testPcmTranscription: Entry - model=%s, audio=%s\n", modelPath, audioPath);
+	fflush(stdout);
+
+	try {
+		// Create configuration
+		TranscriptionConfig config;
+		config.language = "en";
+		config.translate = false;
+		config.numThreads = 4;
+		config.enableTimestamps = true;
+		config.useGpu = true;
+		config.gpuDevice = 0;
+
+		printf("[DEBUG] testPcmTranscription: Creating CWhisperEngine...\n");
+		fflush(stdout);
+
+		// Create engine
+		CWhisperEngine engine(std::string(modelPath), config);
+
+		printf("[DEBUG] testPcmTranscription: Engine created successfully\n");
+		fflush(stdout);
+
+		// Create progress sink (empty for now)
+		Whisper::sProgressSink progress = {};
+
+		printf("[DEBUG] testPcmTranscription: Starting transcription...\n");
+		fflush(stdout);
+
+		// Call the new transcribeFromFile method
+		TranscriptionResult result = engine.transcribeFromFile(std::string(audioPath), config, progress);
+
+		printf("[DEBUG] testPcmTranscription: Transcription completed\n");
+		fflush(stdout);
+
+		// Print results
+		printf("\n=== PCM TRANSCRIPTION TEST RESULTS ===\n");
+		printf("Success: %s\n", result.success ? "true" : "false");
+		printf("Detected Language: %s (ID: %d)\n",
+			   result.detectedLanguage.c_str(), result.detectedLanguageId);
+		printf("Number of segments: %zu\n", result.segments.size());
+
+		for (size_t i = 0; i < result.segments.size(); ++i) {
+			const auto& segment = result.segments[i];
+			printf("\nSegment %zu:\n", i + 1);
+			printf("  Time: %lld - %lld ms\n", segment.startTime, segment.endTime);
+			printf("  Confidence: %.3f\n", segment.confidence);
+			printf("  Text: \"%s\"\n", segment.text.c_str());
+		}
+
+		printf("\n=== PERFORMANCE TIMINGS ===\n");
+		printf("Sample time: %.2f ms\n", result.timings.sampleMs);
+		printf("Encode time: %.2f ms\n", result.timings.encodeMs);
+		printf("Decode time: %.2f ms\n", result.timings.decodeMs);
+		printf("=======================================\n");
+
+		printf("[DEBUG] testPcmTranscription: Test completed successfully\n");
+		return result.success ? 0 : 1;
+
+	} catch (const CWhisperError& e) {
+		printf("[ERROR] CWhisperError: %s\n", e.what());
+		return 1;
+	} catch (const std::exception& e) {
+		printf("[ERROR] Exception: %s\n", e.what());
+		return 1;
+	} catch (...) {
+		printf("[ERROR] Unknown exception occurred\n");
+		return 1;
+	}
+}
