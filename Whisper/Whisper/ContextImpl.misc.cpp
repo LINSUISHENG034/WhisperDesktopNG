@@ -358,15 +358,154 @@ int ContextImpl::wrapSegment( int max_len )
 
 HRESULT COMLIGHTCALL ContextImpl::runFull( const sFullParams& params, const iAudioBuffer* buffer )
 {
+	// [CRITICAL FIX] 立即检查对象有效性
+	printf("*** RUNFULL ENTRY - CHECKING OBJECT VALIDITY ***\n");
+	fflush(stdout);
+
+	// 检查this指针
+	if (this == nullptr) {
+		printf("[FATAL ERROR] this pointer is null!\n");
+		fflush(stdout);
+		return E_POINTER;
+	}
+
+	// 检查this指针是否指向有效内存
+	uintptr_t thisAddr = reinterpret_cast<uintptr_t>(this);
+	if (thisAddr == 0xcccccccccccccccc || thisAddr == 0xdddddddddddddddd || thisAddr == 0xfeeefeeefeeefeee) {
+		printf("[FATAL ERROR] this pointer is invalid: %p\n", this);
+		fflush(stdout);
+		return E_POINTER;
+	}
+
+	printf("[SUCCESS] this pointer appears valid: %p\n", this);
+	fflush(stdout);
+
+	// 尝试访问成员变量
+	try {
+		printf("[TESTING] Attempting to access encoder member...\n");
+		fflush(stdout);
+
+		// 小心地访问encoder成员
+		bool hasEncoder = (encoder != nullptr);
+		printf("[SUCCESS] encoder access successful, hasEncoder=%s\n", hasEncoder ? "true" : "false");
+		fflush(stdout);
+	}
+	catch (...) {
+		printf("[FATAL ERROR] Exception when accessing encoder member!\n");
+		fflush(stdout);
+		return E_FAIL;
+	}
+
 #if SAVE_DEBUG_TRACE
 	Tracing::vector( "runFull.pcm.in", buffer->getPcmMono(), buffer->countSamples() );
 #endif
 	CHECK( buffer->getTime( mediaTimeOffset ) );
 
+	// [核心修改] PCM旁路逻辑 - 添加详细调试
+	printf("[CRITICAL DEBUG] Checking encoder availability...\n");
+	if( encoder )
+	{
+		printf("[CRITICAL DEBUG] Encoder found: %s\n", encoder->getImplementationName());
+		bool supportsPcm = encoder->supportsPcmInput();
+		printf("[CRITICAL DEBUG] supportsPcmInput() = %s\n", supportsPcm ? "TRUE" : "FALSE");
+		fflush(stdout);
+
+
+		if( supportsPcm )
+		{
+			printf("=== [SUCCESS] ENGAGING PCM DIRECT PATH ===\n");
+			fflush(stdout);
+
+			result_all.clear();
+
+			ComLight::CComPtr<iTranscribeResult> transcribeResult;
+			sProgressSink progressSink{ nullptr, nullptr };
+
+			printf("[CRITICAL DEBUG] Calling encoder->transcribePcm()...\n");
+			fflush(stdout);
+
+			HRESULT hr = encoder->transcribePcm( buffer, progressSink, &transcribeResult );
+
+			if( FAILED( hr ) )
+			{
+				printf("[CRITICAL DEBUG] ERROR: transcribePcm failed, hr=0x%08X\n", hr);
+				fflush(stdout);
+				return hr;
+			}
+
+			printf("[CRITICAL DEBUG] transcribePcm succeeded, converting results...\n");
+			fflush(stdout);
+
+			HRESULT convertHr = this->convertResult( transcribeResult, result_all );
+			if( FAILED( convertHr ) )
+			{
+				printf("[CRITICAL DEBUG] ERROR: convertResult failed, hr=0x%08X\n", convertHr);
+				fflush(stdout);
+				return convertHr;
+			}
+
+			printf("=== [SUCCESS] PCM DIRECT PATH COMPLETED: %zu segments ===\n", result_all.size());
+			fflush(stdout);
+
+			return S_OK;
+		}
+		else
+		{
+			printf("[CRITICAL DEBUG] Encoder does not support PCM input, using legacy path\n");
+			fflush(stdout);
+		}
+	}
+	else
+	{
+		printf("[CRITICAL DEBUG] No encoder available, using legacy path\n");
+		fflush(stdout);
+	}
+
+	// [保持不变] 为旧引擎保留的MEL转换路径
+	printf("[CRITICAL DEBUG] Proceeding with legacy MEL conversion path\n");
+	fflush(stdout);
+
 	auto profCompleteCpu = profiler.cpuBlock( eCpuBlock::RunComplete );
 	{
 		auto p = profiler.cpuBlock( eCpuBlock::Spectrogram );
-		CHECK( spectrogram.pcmToMel( buffer, model.shared->filters, params.cpuThreads ) );
+
+		// This replaces the problematic audio processing with official whisper.cpp audio loading
+		try
+		{
+			WhisperCppSpectrogram newSpectrogram( buffer, model.shared->filters );
+			if( newSpectrogram.isValid() )
+			{
+				// Replace the old spectrogram data with new one
+				// We need to copy the mel data to the existing spectrogram object
+				// to maintain compatibility with the rest of the pipeline
+
+				// Get mel data from new spectrogram
+				const float* melBuffer = nullptr;
+				size_t stride = 0;
+				HRESULT hr = newSpectrogram.makeBuffer( 0, newSpectrogram.getLength(), &melBuffer, stride );
+				if( SUCCEEDED(hr) && melBuffer )
+				{
+					// Copy mel data to existing spectrogram
+					// This is a compatibility layer to avoid changing the entire pipeline
+					spectrogram.copyFromExternalMel( melBuffer, newSpectrogram.getLength(), stride );
+				}
+				else
+				{
+					// Fallback to original implementation
+					CHECK( spectrogram.pcmToMel( buffer, model.shared->filters, params.cpuThreads ) );
+				}
+			}
+			else
+			{
+				// Fallback to original implementation
+				CHECK( spectrogram.pcmToMel( buffer, model.shared->filters, params.cpuThreads ) );
+			}
+		}
+		catch( ... )
+		{
+			// Fallback to original implementation if new one fails
+			CHECK( spectrogram.pcmToMel( buffer, model.shared->filters, params.cpuThreads ) );
+		}
 	}
 
 	if( params.flag( eFullParamsFlags::TokenTimestamps ) )
@@ -377,11 +516,44 @@ HRESULT COMLIGHTCALL ContextImpl::runFull( const sFullParams& params, const iAud
 		computeSignalEnergy( energy, buffer, 32 );
 	}
 
+	printf("*** BEFORE TRY BLOCK *** BEFORE TRY BLOCK *** BEFORE TRY BLOCK ***\n");
+	fflush(stdout);
+
 	try
 	{
+		printf("*** INSIDE TRY BLOCK *** INSIDE TRY BLOCK *** INSIDE TRY BLOCK ***\n");
+		fflush(stdout);
+
 		// B.1 LOG: runFull准备调用runFullImpl
 		printf("[DEBUG] ContextImpl::runFull: About to call runFullImpl\n");
 		fflush(stdout);
+
+		printf("*** IMMEDIATELY AFTER FLUSH ***\n");
+		fflush(stdout);
+
+		// [CRITICAL FIX] PCM旁路逻辑 - 在这里实施，因为前面的代码没有被执行
+		printf("*** CRITICAL PCM BYPASS CHECK ***\n");
+		fflush(stdout);
+
+		if( encoder )
+		{
+			printf("*** ENCODER FOUND: %s ***\n", encoder->getImplementationName());
+			bool supportsPcm = encoder->supportsPcmInput();
+			printf("*** SUPPORTS PCM: %s ***\n", supportsPcm ? "TRUE" : "FALSE");
+			fflush(stdout);
+
+			if( supportsPcm )
+			{
+				printf("*** ENGAGING PCM DIRECT PATH ***\n");
+				fflush(stdout);
+
+				// 我们需要获取原始的PCM数据，但是这里只有spectrogram
+				// 作为临时解决方案，我们记录这个限制并继续使用原有路径
+				printf("*** LIMITATION: Only spectrogram available, need original PCM buffer ***\n");
+				printf("*** FALLING BACK TO SPECTROGRAM PATH ***\n");
+				fflush(stdout);
+			}
+		}
 
 		sProgressSink progressSink{ nullptr, nullptr };
 		HRESULT hr = runFullImpl( params, progressSink, spectrogram );
@@ -400,11 +572,52 @@ HRESULT COMLIGHTCALL ContextImpl::runFull( const sFullParams& params, const iAud
 
 HRESULT COMLIGHTCALL ContextImpl::runStreamed( const sFullParams& params, const sProgressSink& progress, const iAudioReader* reader )
 {
+
 	if( params.flag( eFullParamsFlags::TokenTimestamps ) )
 	{
 		logError( u8"eFullParamsFlags.TokenTimestamps flag is not supported in streaming mode" );
 		return E_NOTIMPL;
 	}
+
+	// [核心修改] PCM旁路逻辑 - 添加详细调试
+	printf("[CRITICAL DEBUG] Checking encoder availability for streaming...\n");
+	if( encoder )
+	{
+		printf("[CRITICAL DEBUG] Encoder found: %s\n", encoder->getImplementationName());
+		bool supportsPcm = encoder->supportsPcmInput();
+		printf("[CRITICAL DEBUG] supportsPcmInput() = %s\n", supportsPcm ? "TRUE" : "FALSE");
+		fflush(stdout);
+
+		if( supportsPcm )
+		{
+			printf("=== [SUCCESS] ENGAGING PCM DIRECT PATH FOR STREAMING ===\n");
+			fflush(stdout);
+
+			// 对于流式音频，我们需要先将音频数据加载到缓冲区
+			// 然后使用PCM直通路径进行转录
+			//
+			// 注意：这里需要音频文件路径，但iAudioReader接口没有提供获取路径的方法
+			// 作为临时解决方案，我们回退到流式处理，但记录这个限制
+			printf("[CRITICAL DEBUG] LIMITATION: Cannot get file path from iAudioReader\n");
+			printf("[CRITICAL DEBUG] Need to extend iAudioReader interface or use different approach\n");
+			printf("[CRITICAL DEBUG] Falling back to legacy streaming path for now\n");
+			fflush(stdout);
+		}
+		else
+		{
+			printf("[CRITICAL DEBUG] Encoder does not support PCM input, using legacy streaming path\n");
+			fflush(stdout);
+		}
+	}
+	else
+	{
+		printf("[CRITICAL DEBUG] No encoder available, using legacy streaming path\n");
+		fflush(stdout);
+	}
+
+	// [保持不变] 为旧引擎保留的MEL流式处理路径
+	printf("[CRITICAL DEBUG] Proceeding with legacy MEL streaming path\n");
+	fflush(stdout);
 
 	mediaTimeOffset = 0;
 	auto profCompleteCpu = profiler.cpuBlock( eCpuBlock::RunComplete );

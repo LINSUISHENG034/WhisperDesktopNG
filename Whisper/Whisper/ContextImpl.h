@@ -3,6 +3,7 @@
 #include "../ComLightLib/comLightServer.h"
 #include "WhisperContext.h"
 #include "Spectrogram.h"
+#include "WhisperCppSpectrogram.h"
 #include "TranscribeResult.h"
 #include "sTokenData.h"
 #include "../ML/Device.h"

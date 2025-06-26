@@ -16,6 +16,7 @@
 #include "Whisper/iSpectrogram.h"           // Original project's spectrogram interface
 #include "API/iTranscribeResult.cl.h"       // ComLight version of result interface
 #include "API/sFullParams.h"                // Progress sink and parameter definitions
+#include "API/iMediaFoundation.cl.h"        // For iAudioBuffer interface
 #include <windows.h>                        // For HRESULT
 #include <memory>                           // For std::unique_ptr
 #include <string>                           // For std::string
@@ -24,11 +25,11 @@ namespace Whisper
 {
     /**
      * @brief Abstract interface for Whisper encoder implementations
-     * 
+     *
      * This interface abstracts the encoding functionality, allowing different
      * implementations (DirectCompute GPU, whisper.cpp CPU/GPU, etc.) to be
      * used interchangeably through the same interface.
-     * 
+     *
      * The interface follows the existing patterns in the codebase:
      * - Uses HRESULT for error handling (Windows COM convention)
      * - Accepts iSpectrogram for input (existing interface)
@@ -42,10 +43,10 @@ namespace Whisper
 
         /**
          * @brief Complete transcription with progress support
-         * 
+         *
          * This is the primary method for full transcription with progress reporting
          * and cancellation support. It performs both encoding and decoding phases.
-         * 
+         *
          * @param spectrogram Input MEL spectrogram data
          * @param progress Progress reporting and cancellation callbacks
          * @param resultSink Output pointer to store transcription results
@@ -59,10 +60,10 @@ namespace Whisper
 
         /**
          * @brief Complete transcription without progress callbacks
-         * 
+         *
          * Simplified version for cases where progress reporting is not needed.
          * Equivalent to calling encode() with empty progress sink.
-         * 
+         *
          * @param spectrogram Input MEL spectrogram data
          * @param resultSink Output pointer to store transcription results
          * @return HRESULT S_OK on success, error code on failure
@@ -74,15 +75,15 @@ namespace Whisper
 
         /**
          * @brief Encode-only operation for streaming pipeline
-         * 
+         *
          * Performs only the encoding phase, storing the encoded state internally
          * for later decoding. This method is used in streaming scenarios where
          * encoding and decoding are separated.
-         * 
+         *
          * @param spectrogram Input MEL spectrogram data
          * @param seek Seek offset parameter for audio positioning
          * @return HRESULT S_OK on success, error code on failure
-         * 
+         *
          * @note Must be followed by a call to decodeOnly() to get results
          */
         virtual HRESULT encodeOnly(
@@ -118,14 +119,45 @@ namespace Whisper
 
         /**
          * @brief Check if the encoder is ready for operation
-         * 
+         *
          * Verifies that the encoder is properly initialized and ready to process
          * audio data. This can be used to validate the encoder state before
          * attempting transcription.
-         * 
+         *
          * @return bool true if ready, false if not initialized or in error state
          */
         virtual bool isReady() const = 0;
+
+        /**
+         * @brief Check if the encoder supports PCM direct input
+         *
+         * Queries whether this encoder implementation can process PCM audio data
+         * directly without requiring MEL spectrogram conversion. This enables
+         * the PCM bypass path for compatible encoders.
+         *
+         * @return bool true if PCM direct input is supported, false otherwise
+         */
+        virtual bool supportsPcmInput() const = 0;
+
+        /**
+         * @brief Direct PCM transcription method
+         *
+         * Performs complete transcription using raw PCM audio data directly,
+         * bypassing the MEL spectrogram conversion step. This method is only
+         * available for encoders that return true from supportsPcmInput().
+         *
+         * @param buffer Input audio buffer containing PCM data
+         * @param progress Progress reporting and cancellation callbacks
+         * @param resultSink Output pointer to store transcription results
+         * @return HRESULT S_OK on success, E_NOTIMPL if not supported, error code on failure
+         *
+         * @note This method should only be called if supportsPcmInput() returns true
+         */
+        virtual HRESULT transcribePcm(
+            const iAudioBuffer* buffer,
+            const sProgressSink& progress,
+            iTranscribeResult** resultSink
+        ) = 0;
     };
 
     /**
