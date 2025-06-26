@@ -117,6 +117,7 @@ bool whisper_params::parse( int argc, wchar_t* argv[] )
 		else if( arg == L"-gpu" || arg == L"--use-gpu" ) { gpu = argv[ ++i ]; }
 		else if( arg == L"--prompt" ) { prompt = utf8( argv[ ++i ] ); }
 		else if( arg == L"--minimal-test" ) { minimal_test = true; }  // J.2 TASK
+		else if( arg == L"--golden-playback-test" ) { golden_playback_test = true; }  // 1.2 TASK
 		else
 		{
 			fprintf( stderr, "error: unknown argument: %S\n", arg.c_str() );

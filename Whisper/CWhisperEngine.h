@@ -127,6 +127,11 @@ public:
     void resetTimings();
     void printTimings() const;
 
+    // === GOLDEN DATA PLAYBACK TEST FOR DEBUGGING ===
+    // Load golden standard PCM data from disk and transcribe it
+    // This method is used for debugging to test with known-good PCM data
+    TranscriptionResult transcribeWithGoldenPcm(const std::string& goldenPcmPath);
+
     // Disable copy constructor and copy assignment to prevent resource management confusion
     CWhisperEngine(const CWhisperEngine&) = delete;
     CWhisperEngine& operator=(const CWhisperEngine&) = delete;

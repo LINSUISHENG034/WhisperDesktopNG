@@ -1163,3 +1163,64 @@ extern "C" __declspec(dllexport) int testPcmTranscription(const char* modelPath,
 		return 1;
 	}
 }
+
+// === GOLDEN DATA PLAYBACK TEST FUNCTION ===
+// Export function for golden data playback test
+extern "C" __declspec(dllexport) int testGoldenDataPlayback(const char* modelPath, const char* goldenPcmPath)
+{
+	printf("[GOLDEN_TEST] testGoldenDataPlayback: Entry - model=%s, golden_pcm=%s\n", modelPath, goldenPcmPath);
+	fflush(stdout);
+
+	try {
+		// Create configuration
+		TranscriptionConfig config;
+		config.language = "en";
+		config.translate = false;
+		config.numThreads = 4;
+		config.enableTimestamps = true;
+		config.useGpu = false;  // Force CPU mode to match official tool
+		config.gpuDevice = 0;
+
+		printf("[GOLDEN_TEST] testGoldenDataPlayback: Creating CWhisperEngine...\n");
+		fflush(stdout);
+
+		// Create engine
+		CWhisperEngine engine(std::string(modelPath), config);
+
+		printf("[GOLDEN_TEST] testGoldenDataPlayback: Engine created successfully\n");
+		fflush(stdout);
+
+		// Call the golden data playback test method
+		printf("[GOLDEN_TEST] testGoldenDataPlayback: Calling transcribeWithGoldenPcm...\n");
+		fflush(stdout);
+
+		TranscriptionResult result = engine.transcribeWithGoldenPcm(std::string(goldenPcmPath));
+
+		// Output test results
+		printf("\n=== GOLDEN DATA PLAYBACK TEST RESULTS ===\n");
+		printf("Success: %s\n", result.success ? "TRUE" : "FALSE");
+		printf("Detected Language: %s\n", result.detectedLanguage.c_str());
+		printf("Number of segments: %zu\n", result.segments.size());
+
+		if (!result.segments.empty()) {
+			printf("Transcription text:\n");
+			for (size_t i = 0; i < result.segments.size(); ++i) {
+				printf("  [%zu]: %s\n", i, result.segments[i].text.c_str());
+			}
+		}
+		printf("==========================================\n");
+
+		// Return test result: success and has segments = 0, otherwise = 1
+		return (result.success && !result.segments.empty()) ? 0 : 1;
+
+	} catch (const CWhisperError& e) {
+		printf("[GOLDEN_TEST] ERROR: CWhisperError: %s\n", e.what());
+		return 1;
+	} catch (const std::exception& e) {
+		printf("[GOLDEN_TEST] ERROR: Exception: %s\n", e.what());
+		return 1;
+	} catch (...) {
+		printf("[GOLDEN_TEST] ERROR: Unknown exception occurred\n");
+		return 1;
+	}
+}

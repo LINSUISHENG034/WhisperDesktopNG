@@ -111,8 +111,17 @@ TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioDa
     params.print_timestamps = false; // 不打印时间戳到控制台
     params.print_special    = false;
     params.translate        = config.translate;
+
+    // CRITICAL DEBUG: 打印config.language的值来诊断问题
+    printf("[CRITICAL_DEBUG] CWhisperEngine::transcribe: config.language='%s'\n", config.language.c_str());
+    fflush(stdout);
+
     params.language         = config.language.c_str();
     params.detect_language  = (config.language == "auto" || config.language.empty());
+
+    printf("[CRITICAL_DEBUG] CWhisperEngine::transcribe: params.language='%s', detect_language=%s\n",
+           params.language, params.detect_language ? "true" : "false");
+    fflush(stdout);
     params.n_threads        = config.numThreads > 0 ? config.numThreads :
                               std::min(4, (int32_t) std::thread::hardware_concurrency());
 
@@ -899,5 +908,65 @@ TranscriptionResult CWhisperEngine::transcribeFromMel(const std::vector<float>& 
         printf("[ERROR] CWhisperEngine::transcribeFromMel: Exception: %s\n", e.what());
         fflush(stdout);
         return result; // Return empty result on exception
+    }
+}
+
+// === GOLDEN DATA PLAYBACK TEST IMPLEMENTATION ===
+TranscriptionResult CWhisperEngine::transcribeWithGoldenPcm(const std::string& goldenPcmPath) {
+    printf("[GOLDEN_TEST] CWhisperEngine::transcribeWithGoldenPcm: Loading golden PCM data from %s\n", goldenPcmPath.c_str());
+    fflush(stdout);
+
+    TranscriptionResult result;
+    result.success = false;
+
+    try {
+        // 1. Load golden PCM data from disk
+        std::ifstream goldenFile(goldenPcmPath, std::ios::binary);
+        if (!goldenFile.is_open()) {
+            printf("[GOLDEN_TEST] ERROR: Failed to open golden PCM file: %s\n", goldenPcmPath.c_str());
+            return result;
+        }
+
+        // Get file size
+        goldenFile.seekg(0, std::ios::end);
+        size_t sizeInBytes = goldenFile.tellg();
+        goldenFile.seekg(0, std::ios::beg);
+
+        // Calculate number of float samples
+        size_t numSamples = sizeInBytes / sizeof(float);
+        printf("[GOLDEN_TEST] Golden PCM file size: %zu bytes, %zu float samples\n", sizeInBytes, numSamples);
+
+        // Read PCM data into vector
+        std::vector<float> goldenAudio(numSamples);
+        goldenFile.read(reinterpret_cast<char*>(goldenAudio.data()), sizeInBytes);
+        goldenFile.close();
+
+        printf("[GOLDEN_TEST] Successfully loaded %zu samples from golden PCM file\n", goldenAudio.size());
+        printf("[GOLDEN_TEST] Audio duration: %.2f seconds (assuming 16kHz sample rate)\n",
+               float(goldenAudio.size()) / 16000.0f);
+
+        // 2. Use the existing transcribe method with golden data
+        // Use default config and empty progress sink for testing
+        TranscriptionConfig testConfig = m_defaultConfig;
+        Whisper::sProgressSink emptyProgress = {};
+
+        printf("[GOLDEN_TEST] Calling transcribe() with golden data...\n");
+        fflush(stdout);
+
+        result = transcribe(goldenAudio, testConfig, emptyProgress);
+
+        printf("[GOLDEN_TEST] Transcription completed. Success: %s, Segments: %zu\n",
+               result.success ? "true" : "false", result.segments.size());
+
+        if (result.success && !result.segments.empty()) {
+            printf("[GOLDEN_TEST] First segment: \"%s\"\n", result.segments[0].text.c_str());
+        }
+
+        return result;
+    }
+    catch (const std::exception& e) {
+        printf("[GOLDEN_TEST] ERROR: Exception during golden data transcription: %s\n", e.what());
+        fflush(stdout);
+        return result;
     }
 }

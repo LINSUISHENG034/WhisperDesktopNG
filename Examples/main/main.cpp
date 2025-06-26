@@ -14,8 +14,9 @@
 // Include for direct PCM transcription test
 #include "../../Whisper/CWhisperEngine.h"
 
-// Declare the exported test function
+// Declare the exported test functions
 extern "C" int testPcmTranscription(const char* modelPath, const char* audioPath);
+extern "C" int testGoldenDataPlayback(const char* modelPath, const char* goldenPcmPath);
 
 using namespace Whisper;
 
@@ -270,6 +271,27 @@ int wmain( int argc, wchar_t* argv[] )
 		}
 
 		return RunMinimalTest(modelPath, audioPath);
+	}
+
+	// 1.2 TASK: 如果设置了--golden-playback-test标志，则运行黄金数据回放测试
+	if (params.golden_playback_test) {
+		printf("[GOLDEN_TEST] --golden-playback-test flag detected, running golden data playback test\n");
+
+		// 转换模型路径为std::string
+		std::string modelPath;
+		int modelPathLen = WideCharToMultiByte(CP_UTF8, 0, params.model.c_str(), -1, nullptr, 0, nullptr, nullptr);
+		modelPath.resize(modelPathLen - 1);
+		WideCharToMultiByte(CP_UTF8, 0, params.model.c_str(), -1, &modelPath[0], modelPathLen, nullptr, nullptr);
+
+		// 调用导出的黄金数据回放测试函数
+		const std::string goldenPcmPath = "golden_standard.pcm";
+		printf("[GOLDEN_TEST] Calling testGoldenDataPlayback with model: %s, golden PCM: %s\n",
+		       modelPath.c_str(), goldenPcmPath.c_str());
+
+		int result = testGoldenDataPlayback(modelPath.c_str(), goldenPcmPath.c_str());
+
+		printf("[GOLDEN_TEST] testGoldenDataPlayback returned: %d\n", result);
+		return result;
 	}
 
 	if( params.print_colors )

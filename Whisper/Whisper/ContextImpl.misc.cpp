@@ -402,9 +402,11 @@ HRESULT COMLIGHTCALL ContextImpl::runFull( const sFullParams& params, const iAud
 	CHECK( buffer->getTime( mediaTimeOffset ) );
 
 	// [核心修改] PCM旁路逻辑 - 添加详细调试
+	printf("[CALL_PATH] ContextImpl::runFull - Starting PCM branch check...\n");
 	printf("[CRITICAL DEBUG] Checking encoder availability...\n");
 	if( encoder )
 	{
+		printf("[CALL_PATH] ContextImpl::runFull - Encoder found, checking PCM support...\n");
 		printf("[CRITICAL DEBUG] Encoder found: %s\n", encoder->getImplementationName());
 		bool supportsPcm = encoder->supportsPcmInput();
 		printf("[CRITICAL DEBUG] supportsPcmInput() = %s\n", supportsPcm ? "TRUE" : "FALSE");
@@ -413,6 +415,7 @@ HRESULT COMLIGHTCALL ContextImpl::runFull( const sFullParams& params, const iAud
 
 		if( supportsPcm )
 		{
+			printf("[CALL_PATH] ContextImpl::runFull - PCM path selected. Calling transcribePcm...\n");
 			printf("=== [SUCCESS] ENGAGING PCM DIRECT PATH ===\n");
 			fflush(stdout);
 
@@ -451,12 +454,14 @@ HRESULT COMLIGHTCALL ContextImpl::runFull( const sFullParams& params, const iAud
 		}
 		else
 		{
+			printf("[CALL_PATH] ContextImpl::runFull - NON-PCM path selected. Bypassing transcribePcm!\n");
 			printf("[CRITICAL DEBUG] Encoder does not support PCM input, using legacy path\n");
 			fflush(stdout);
 		}
 	}
 	else
 	{
+		printf("[CALL_PATH] ContextImpl::runFull - No encoder available. Using legacy path!\n");
 		printf("[CRITICAL DEBUG] No encoder available, using legacy path\n");
 		fflush(stdout);
 	}

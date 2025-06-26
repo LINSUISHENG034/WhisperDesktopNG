@@ -26,6 +26,7 @@ struct whisper_params
 	bool print_colors = true;
 	bool no_timestamps = false;
 	bool minimal_test = false;  // J.2 TASK: 运行最小化测试
+	bool golden_playback_test = false;  // 1.2 TASK: 黄金数据回放测试
 
 	std::string language = "en";
 	std::wstring model = L"models/ggml-base.en.bin";

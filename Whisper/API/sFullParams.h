@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <stdint.h>
 #include <assert.h>
-#include "../ComLightLib/comLightCommon.h"
+#include "../../ComLightLib/comLightCommon.h"
 
 namespace Whisper
 {
