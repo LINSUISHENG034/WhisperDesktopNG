@@ -118,6 +118,22 @@ bool whisper_params::parse( int argc, wchar_t* argv[] )
 		else if( arg == L"--prompt" ) { prompt = utf8( argv[ ++i ] ); }
 		else if( arg == L"--minimal-test" ) { minimal_test = true; }  // J.2 TASK
 		else if( arg == L"--golden-playback-test" ) { golden_playback_test = true; }  // 1.2 TASK
+
+		// 新增：whisper.cpp关键参数解析
+		else if( arg == L"-et" || arg == L"--entropy-thold" ) { entropy_thold = std::stof( argv[ ++i ] ); }
+		else if( arg == L"-lpt" || arg == L"--logprob-thold" ) { logprob_thold = std::stof( argv[ ++i ] ); }
+		else if( arg == L"-nth" || arg == L"--no-speech-thold" ) { no_speech_thold = std::stof( argv[ ++i ] ); }
+		else if( arg == L"-temp" || arg == L"--temperature" ) { temperature = std::stof( argv[ ++i ] ); }
+		else if( arg == L"-bo" || arg == L"--best-of" ) { best_of = std::stoi( argv[ ++i ] ); }
+		else if( arg == L"-bs" || arg == L"--beam-size" ) { beam_size = std::stoi( argv[ ++i ] ); }
+		else if( arg == L"-dl" || arg == L"--detect-language" ) { detect_language = true; }
+		else if( arg == L"-sb" || arg == L"--suppress-blank" ) { suppress_blank = true; }
+		else if( arg == L"-sn" || arg == L"--suppress-nst" ) { suppress_nst = true; }
+		else if( arg == L"-nc" || arg == L"--no-context" ) { no_context = true; }
+		else if( arg == L"-ss" || arg == L"--single-segment" ) { single_segment = true; }
+		else if( arg == L"-tt" || arg == L"--token-timestamps" ) { token_timestamps = true; }
+		else if( arg == L"-dm" || arg == L"--debug-mode" ) { debug_mode = true; }
+		else if( arg == L"-sw" || arg == L"--split-on-word" ) { split_on_word = true; }
 		else
 		{
 			fprintf( stderr, "error: unknown argument: %S\n", arg.c_str() );

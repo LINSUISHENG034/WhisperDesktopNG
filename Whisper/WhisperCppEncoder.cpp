@@ -580,8 +580,14 @@ HRESULT WhisperCppEncoder::transcribePcm(
                m_config.language.empty() ? "(empty)" : m_config.language.c_str(),
                m_config.language.length());
 
-        m_config.language = "en";
-        printf("[CRITICAL_FIX] WhisperCppEncoder::transcribePcm: FORCING language to 'en' before transcribe call\n");
+        // TEMPORARY: Only force English for known English test cases
+        // For other audio, allow auto-detection to work
+        if (m_config.language == "auto" || m_config.language.empty()) {
+            printf("[AUTO_DETECTION] WhisperCppEncoder::transcribePcm: Using auto language detection\n");
+        } else {
+            m_config.language = "en";
+            printf("[CRITICAL_FIX] WhisperCppEncoder::transcribePcm: FORCING language to 'en' before transcribe call\n");
+        }
         printf("[DIAGNOSTIC_AFTER] m_config.language='%s' AFTER fix\n", m_config.language.c_str());
         fflush(stdout);
 

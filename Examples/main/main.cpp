@@ -338,9 +338,8 @@ int wmain( int argc, wchar_t* argv[] )
 	printf("[DEBUG] main.cpp: Calling model->createContext()\n");
 	hr = model->createContext( &context );
 
-	// CRITICAL FIX: 强制设置语言为英语，避免自动检测的不确定性
-	printf("[DEBUG] main.cpp: FORCING language to English to avoid auto-detection uncertainty\n");
-	params.language = "en";  // 强制英语
+	// FIXED: 不再强制设置语言，使用用户指定的语言参数
+	printf("[DEBUG] main.cpp: Using user-specified language: '%s'\n", params.language.c_str());
 	if( FAILED( hr ) )
 	{
 		printError( "failed to initialize whisper context", hr );

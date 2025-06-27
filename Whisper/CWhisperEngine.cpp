@@ -131,12 +131,19 @@ TranscriptionResult CWhisperEngine::transcribe(const std::vector<float>& audioDa
     // CRITICAL FIX: 修正关键参数以确保转录成功
     params.no_context = false;        // 官方默认值是false，不是true！
     params.suppress_blank = false;    // 不抑制空白，让模型自由输出
-    params.no_speech_thold = 0.1f;    // 进一步降低阈值，强制语音检测（默认0.6太高）
 
     // CRITICAL FIX: 使用官方whisper-cli.exe的默认参数值
     params.entropy_thold = 2.40f;     // 官方默认值：2.40
     params.logprob_thold = -1.00f;    // 官方默认值：-1.00
-    params.no_speech_thold = 0.60f;   // 官方默认值：0.60
+
+    // DYNAMIC FIX: 根据语言调整语音检测阈值
+    if (config.language == "auto" || config.language == "zh" || config.language == "zh-cn") {
+        params.no_speech_thold = 0.1f;    // 中文和自动检测使用更低阈值
+        printf("[DEBUG] Using LOWER no_speech_thold=0.1 for Chinese/auto detection\n");
+    } else {
+        params.no_speech_thold = 0.60f;   // 英文使用官方默认值：0.60
+        printf("[DEBUG] Using STANDARD no_speech_thold=0.6 for English\n");
+    }
     params.single_segment = false;    // 允许多个分段
     params.max_len = 0;               // 不限制长度
     params.no_timestamps = false;    // 启用时间戳
