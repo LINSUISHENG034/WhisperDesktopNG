@@ -183,33 +183,72 @@ __interface iContext : public IUnknown {
 
 ## 原生升级开发计划
 
-### 阶段0: 技术可行性验证 (2-3天)
+### 阶段0: 技术可行性验证 - 端到端Spike实现 (3-4天)
 
-#### 目标: 验证原生升级的技术可行性
+#### 目标: 通过最小化端到端PoC验证核心技术风险
 
-**关键验证点:**
-1. **格式解析**: 验证GGUF格式解析的实现难度
-2. **量化算法**: 评估量化解压算法的GPU实现复杂度
-3. **内存布局**: 确认新格式与现有内存管理的兼容性
-4. **着色器扩展**: 评估新增HLSL着色器的工作量
+**⚠️ 关键原则**: 这是防止重复错误假设的最后防线！
 
-**验证方法:**
+**Spike目标**: "加载单个量化张量并在GPU上成功解量化"
+
+**核心验证组件:**
+1. **GGUF解析**: 读取文件元数据和张量信息
+2. **张量加载**: 将原始量化字节加载到GPU缓冲区
+3. **HLSL开发**: 编写最小化的DequantizeQ4_0.hlsl着色器
+4. **GPU调度**: 成功调用新着色器的Dispatch()
+5. **结果验证**: 将GPU结果与CPU参考实现对比
+
+**Spike实现:**
 ```cpp
-// 原型验证：GGUF格式解析
-class GGUFFormatValidator {
-    bool validateGGUFParsing(const std::string& ggufFile) {
-        // 1. 解析GGUF文件头
-        // 2. 提取模型元数据
-        // 3. 验证与现有架构的兼容性
-        return isCompatibleWithConstMe();
+class QuantizationSpike {
+public:
+    // 端到端概念验证
+    HRESULT proveQuantizationConcept(const std::string& ggufFile) {
+        // 1. 最小化GGUF解析
+        GGUFHeader header;
+        CHECK_HR(parseGGUFHeader(ggufFile, header));
+
+        // 2. 加载单个Q4_0张量
+        QuantizedTensor tensor;
+        CHECK_HR(loadFirstQ4_0Tensor(ggufFile, tensor));
+
+        // 3. 创建GPU缓冲区
+        ComPtr<ID3D11Buffer> inputBuffer, outputBuffer;
+        CHECK_HR(createQuantizedBuffers(tensor, inputBuffer, outputBuffer));
+
+        // 4. 调用最小化解量化着色器
+        CHECK_HR(dispatchDequantizeShader(inputBuffer, outputBuffer));
+
+        // 5. 验证结果正确性
+        return verifyAgainstCPUReference(tensor, outputBuffer);
+    }
+
+private:
+    // 参考检查器 - 使用whisper.cpp CPU实现
+    HRESULT verifyAgainstCPUReference(const QuantizedTensor& tensor,
+                                    ID3D11Buffer* gpuResult) {
+        // 获取CPU"黄金标准"结果
+        std::vector<float> cpuReference = getCPUDequantization(tensor);
+
+        // 下载GPU结果
+        std::vector<float> gpuResult = downloadGPUBuffer(gpuResult);
+
+        // 逐位比较（允许浮点epsilon）
+        return compareResults(cpuReference, gpuResult) ? S_OK : E_FAIL;
     }
 };
 ```
 
+**成功标准:**
+- ✅ 成功解析GGUF文件头和元数据
+- ✅ 正确加载量化张量到GPU内存
+- ✅ HLSL着色器成功执行解量化
+- ✅ GPU结果与CPU参考实现一致（epsilon内）
+- ✅ 整个流程延迟在可接受范围内
+
 **风险评估:**
-- **低风险**: 基于现有成熟架构扩展
-- **中风险**: 量化算法GPU实现的性能优化
-- **低风险**: 新模型架构的适配工作
+- **极低风险**: Spike成功 → 技术路径完全可行
+- **高风险**: Spike失败 → 立即调整技术方案，避免重复错误
 
 ### 阶段1: 模型格式扩展 (1-2周)
 
@@ -278,37 +317,86 @@ private:
 - ✅ 用户无需修改任何使用方式
 - ✅ 性能保持在现有水平
 
-### 阶段2: 量化支持实现 (2-3周)
+### 阶段2: 量化支持实现 - 基于参考验证的开发 (2-3周)
 
-#### 目标: 实现量化模型的GPU加速支持
+#### 目标: 实现正确且高性能的量化模型GPU加速支持
 
-**核心组件:**
-1. **量化算法GPU实现**: 开发Q4_0, Q5_0等量化格式的HLSL着色器
-2. **内存布局优化**: 适配量化数据的GPU内存布局
-3. **计算图扩展**: 扩展现有计算图支持量化操作
-4. **性能优化**: 确保量化模型也能享受2.4倍性能提升
+**⚠️ 核心挑战**: 防止静默失败 - GPU解量化产生错误数据但不崩溃
 
-**实现策略:**
+**开发策略: 参考检查器驱动开发**
+
+**第一步: 建立参考检查器**
+```cpp
+class QuantizationReferenceChecker {
+public:
+    // 使用whisper.cpp CPU实现作为"黄金标准"
+    std::vector<float> getCPUReference(const std::string& ggufFile,
+                                     const std::string& tensorName) {
+        // 1. 链接whisper.cpp库
+        // 2. 使用CPU函数解量化指定张量
+        // 3. 返回"正确答案"向量
+        return whisper_dequantize_cpu(tensor);
+    }
+
+    bool verifyGPUResult(const std::vector<float>& gpuResult,
+                        const std::vector<float>& cpuReference,
+                        float epsilon = 1e-6f) {
+        // 逐位比较，允许浮点epsilon差异
+        for (size_t i = 0; i < gpuResult.size(); ++i) {
+            if (std::abs(gpuResult[i] - cpuReference[i]) > epsilon) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // 自动化测试套件
+    HRESULT runVerificationSuite(const std::string& testGGUFFile) {
+        // 对文件中的每个量化张量进行验证
+        // 确保GPU实现与CPU实现完全一致
+    }
+};
+```
+
+**第二步: 渐进式HLSL开发**
 ```cpp
 class QuantizedComputeEngine {
 public:
-    // 新增量化相关着色器
+    // 新增量化相关着色器（逐个验证）
     enum class QuantizedShader {
-        DequantizeQ4_0 = 42,    // Q4_0解压着色器
-        DequantizeQ5_0 = 43,    // Q5_0解压着色器
-        QuantizedMatMul = 44,   // 量化矩阵乘法
-        QuantizedAttention = 45 // 量化注意力机制
+        DequantizeQ4_0 = 42,    // 首先实现并验证
+        DequantizeQ5_0 = 43,    // 基于Q4_0成功后实现
+        DequantizeQ8_0 = 44,    // 最后实现
+        QuantizedMatMul = 45    // 在解量化验证后实现
     };
 
     HRESULT processQuantizedTensor(const QuantizedTensor& input,
                                  Tensor& output) {
         // 1. 选择合适的解压着色器
-        // 2. 执行GPU解压操作
+        auto result = executeGPUDequantization(input);
+
+        // 2. 立即验证结果正确性
+        if (!m_referenceChecker.verifyGPUResult(result, input)) {
+            return E_GPU_DEQUANTIZATION_FAILED;
+        }
+
         // 3. 与现有计算流程无缝集成
-        return S_OK;
+        return integrateWithExistingPipeline(result, output);
     }
+
+private:
+    QuantizationReferenceChecker m_referenceChecker;
 };
 ```
+
+**第三步: 测试驱动开发流程**
+1. **编写HLSL着色器** → 2. **GPU执行** → 3. **与CPU参考对比** → 4. **修复差异** → 5. **重复直到完全一致**
+
+**成功标准:**
+- ✅ 每个量化格式的GPU实现与CPU参考完全一致
+- ✅ 自动化测试套件100%通过
+- ✅ 性能达到或超过预期的2.4倍提升
+- ✅ 内存使用优化达到50%+节省目标
 
 ### 阶段3: 新模型架构支持 (1-2周)
 
@@ -320,15 +408,114 @@ public:
 3. **多语言增强**: 支持99种语言的改进版本
 4. **向后兼容**: 保持对所有现有模型的支持
 
-### 阶段4: 性能优化与完善 (1周)
+### 阶段4: 强化COM接口与错误处理 (1周)
 
-#### 目标: 优化整体性能和用户体验
+#### 目标: 为C#/.NET用户提供清晰、可操作的错误处理体验
 
-**优化方向:**
-1. **内存使用优化**: 进一步优化GPU内存使用效率
-2. **加载速度优化**: 优化模型加载和初始化速度
-3. **错误处理完善**: 提供清晰的错误信息和恢复建议
-4. **文档和示例**: 完善用户文档和使用示例
+**核心问题**: 当C#用户加载新模型失败时，应该得到明确的错误信息，而不是通用的E_FAIL
+
+**解决方案: 特定HRESULT错误码系统**
+
+**第一步: 定义特定错误码**
+```cpp
+// 在共享头文件中定义（如iContext.h）
+#define E_MODEL_FORMAT_NOT_SUPPORTED    MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x201)
+#define E_MODEL_QUANTIZATION_UNKNOWN    MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x202)
+#define E_GGUF_PARSING_FAILED          MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x203)
+#define E_GPU_DEQUANTIZATION_FAILED    MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x204)
+#define E_MODEL_ARCHITECTURE_MISMATCH  MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x205)
+#define E_INSUFFICIENT_GPU_MEMORY      MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x206)
+
+// 错误信息映射
+struct ErrorInfo {
+    HRESULT code;
+    const char* message;
+    const char* suggestion;
+};
+
+static const ErrorInfo ERROR_MAPPINGS[] = {
+    { E_MODEL_FORMAT_NOT_SUPPORTED,
+      "Model format is not supported",
+      "Please use GGML or GGUF format models" },
+    { E_GGUF_PARSING_FAILED,
+      "Failed to parse GGUF file",
+      "Check if the file is corrupted or incomplete" },
+    // ... 更多映射
+};
+```
+
+**第二步: C++端返回特定错误**
+```cpp
+class UniversalModelLoader {
+public:
+    HRESULT loadModel(const std::wstring& modelPath) {
+        ModelFormat format = detectModelFormat(modelPath);
+
+        if (format == ModelFormat::UNKNOWN) {
+            return E_MODEL_FORMAT_NOT_SUPPORTED;
+        }
+
+        if (format == ModelFormat::GGUF_QUANTIZED) {
+            auto result = loadQuantizedModel(modelPath);
+            if (FAILED(result)) {
+                return E_MODEL_QUANTIZATION_UNKNOWN;
+            }
+        }
+
+        return S_OK;
+    }
+};
+```
+
+**第三步: C#端处理特定错误**
+```csharp
+// 定义特定异常类型
+public class ModelFormatException : Exception {
+    public ModelFormatException(string message, Exception innerException)
+        : base(message, innerException) { }
+}
+
+public class QuantizationException : Exception {
+    public QuantizationException(string message, Exception innerException)
+        : base(message, innerException) { }
+}
+
+// 在C#包装器中处理
+public class WhisperContext {
+    public void LoadModel(string modelPath) {
+        try {
+            _nativeContext.LoadModel(modelPath);
+        }
+        catch (COMException ex) {
+            switch (ex.HResult) {
+                case unchecked((int)0x80070201): // E_MODEL_FORMAT_NOT_SUPPORTED
+                    throw new ModelFormatException(
+                        "The model format is not supported. Please use GGML or GGUF format models.",
+                        ex);
+
+                case unchecked((int)0x80070202): // E_MODEL_QUANTIZATION_UNKNOWN
+                    throw new QuantizationException(
+                        "Unknown quantization format. Supported: Q4_0, Q5_0, Q8_0.",
+                        ex);
+
+                case unchecked((int)0x80070203): // E_GGUF_PARSING_FAILED
+                    throw new ModelFormatException(
+                        "Failed to parse GGUF file. The file may be corrupted.",
+                        ex);
+
+                default:
+                    throw; // 重新抛出未知COM错误
+            }
+        }
+    }
+}
+```
+
+**用户体验改进:**
+- ✅ 清晰的错误类型和消息
+- ✅ 可操作的解决建议
+- ✅ 强类型异常便于程序处理
+- ✅ 保持向后兼容性
 
 ## 风险评估与缓解
 
@@ -381,7 +568,7 @@ public:
 - ✅ **文档完善**: 完整的用户文档和迁移指南
 - ✅ **部署简单**: 保持现有的轻量级部署优势
 
-## 关键技术决策
+## 关键技术决策与最佳实践
 
 ### 1. 架构选择: 原生升级 vs 混合架构
 
@@ -396,6 +583,25 @@ public:
 **替代方案对比:**
 - ❌ **混合架构**: 体验割裂，维护复杂，资源占用大
 - ❌ **完全替换**: 失去性能优势，重写工作量巨大
+
+### 2. 开发方法论: 防御性编程与验证驱动开发
+
+**核心原则**: 从之前的错误假设中吸取教训，建立多层验证机制
+
+#### **2.1 Spike驱动的风险验证**
+- **目标**: 通过最小化端到端PoC验证核心假设
+- **价值**: 在投入大量开发资源前验证技术可行性
+- **实施**: 阶段0的量化张量处理Spike
+
+#### **2.2 参考检查器驱动开发**
+- **目标**: 防止GPU实现的静默失败
+- **方法**: 使用whisper.cpp CPU实现作为"黄金标准"
+- **价值**: 确保每个GPU着色器的正确性
+
+#### **2.3 强化错误处理边界**
+- **目标**: 为C#用户提供清晰、可操作的错误信息
+- **方法**: 特定HRESULT错误码 + 强类型C#异常
+- **价值**: 提升整体系统的可调试性和用户体验
 
 ### 2. 实施策略: 渐进式升级
 
