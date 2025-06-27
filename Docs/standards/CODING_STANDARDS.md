@@ -12,9 +12,18 @@ This document establishes formal coding standards for the WhisperDesktopNG proje
 - **Implementation**: Configure your IDE to save files as UTF-8 by default
 
 ### Character Set Restrictions
+
+#### First-Party Code (WhisperDesktopNG Project Code)
 - **Console/Log Output**: All messages written to console or log files MUST use ASCII characters only
 - **Source Code**: Variable names, function names, and comments MUST be in English using ASCII characters
 - **Prohibited**: Unicode characters (including emoji) in source code and console output
+
+#### Third-Party Dependencies (Updated 2025-06-27)
+- **Exception**: Third-party libraries (e.g., GGML, whisper.cpp) may contain functional Unicode characters
+- **Rationale**: Some libraries use Unicode characters as part of their core functionality (e.g., musical notation tokens in whisper.cpp for non-speech token recognition)
+- **Compiler Requirement**: Projects including third-party code MUST use `/utf-8` compiler flag for proper encoding support
+- **Isolation**: Third-party code should be isolated in separate static library projects when possible
+- **Scope**: This exception applies only to unmodified third-party source code, not to project-specific modifications or integrations
 
 ## Logging Standards
 
@@ -69,10 +78,17 @@ std::cout << "[DEBUG]: Loaded 5 layers from ggml-tiny.en-q5_1.bin." << std::endl
 
 ## Build and Compilation Standards
 
+### Compiler Settings for Third-Party Dependencies
+- **UTF-8 Support**: Projects that include third-party libraries with Unicode content MUST use `/utf-8` compiler flag
+- **C++ Standard**: Consider using C++20 (`/std:c++20`) for better compatibility with modern libraries
+- **Deprecation Warnings**: For libraries using deprecated C++17 features, add `_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING` to preprocessor definitions
+- **Application**: These settings apply to projects like GGML.vcxproj that include whisper.cpp or similar libraries
+
 ### Compiler Warnings
-- **Unicode Warnings**: Address all Unicode-related compiler warnings (C4819)
+- **Unicode Warnings**: Address all Unicode-related compiler warnings (C4819) in first-party code
 - **Type Conversion**: Review and address type conversion warnings when safe
 - **Deprecation**: Address deprecated API warnings in new code
+- **Third-Party Warnings**: Third-party library warnings may be suppressed if they don't affect functionality
 
 ### Error Handling
 - **Robustness**: All file operations must include proper error handling
@@ -122,6 +138,7 @@ This document should be updated as the project evolves. All changes to coding st
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: 2025-06-27  
+**Document Version**: 1.1
+**Last Updated**: 2025-06-27
+**Major Changes**: Added third-party dependency exceptions for Unicode characters and compiler settings
 **Next Review**: As needed based on project evolution

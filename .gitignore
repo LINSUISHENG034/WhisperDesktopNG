@@ -40,3 +40,19 @@ obj/
 *.tmp
 *.temp
 *.log
+
+# Test models and benchmark results
+Tests/Models/*.bin
+benchmark_results_*.csv
+
+# GGML build artifacts
+GGML/x64/
+Tests/*/x64/
+
+# Visual Studio temporary files
+*.tlog
+*.idb
+*.pdb
+*.ilk
+*.exp
+*.lib.recipe

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="CPU Backend">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CPU Backend\Headers">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CPU Backend\Sources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Public Headers">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD04}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ggml-backend-impl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-impl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-quants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-threading.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ggml-alloc.h">
+      <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ggml-backend.h">
+      <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ggml-cpu.h">
+      <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ggml.h">
+      <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-cpu\arch-fallback.h">
+      <Filter>CPU Backend\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-cpu\binary-ops.h">
+      <Filter>CPU Backend\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-cpu\common.h">
+      <Filter>CPU Backend\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-cpu\ggml-cpu-impl.h">
+      <Filter>CPU Backend\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-cpu\hbm.h">
+      <Filter>CPU Backend\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-cpu\ops.h">
+      <Filter>CPU Backend\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-cpu\quants.h">
+      <Filter>CPU Backend\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-cpu\repack.h">
+      <Filter>CPU Backend\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-cpu\simd-mappings.h">
+      <Filter>CPU Backend\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-cpu\traits.h">
+      <Filter>CPU Backend\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-cpu\unary-ops.h">
+      <Filter>CPU Backend\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ggml-cpu\vec.h">
+      <Filter>CPU Backend\Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ggml-alloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-backend-reg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-backend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-quants.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-threading.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-cpu\binary-ops.cpp">
+      <Filter>CPU Backend\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-cpu\ggml-cpu.c">
+      <Filter>CPU Backend\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-cpu\ggml-cpu.cpp">
+      <Filter>CPU Backend\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-cpu\hbm.cpp">
+      <Filter>CPU Backend\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-cpu\ops.cpp">
+      <Filter>CPU Backend\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-cpu\quants.c">
+      <Filter>CPU Backend\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-cpu\repack.cpp">
+      <Filter>CPU Backend\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-cpu\traits.cpp">
+      <Filter>CPU Backend\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-cpu\unary-ops.cpp">
+      <Filter>CPU Backend\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ggml-cpu\vec.cpp">
+      <Filter>CPU Backend\Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

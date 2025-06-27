@@ -44,10 +44,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir)GGML\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir)GGML\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -94,6 +94,9 @@
   <ItemGroup>
     <ProjectReference Include="..\ComLightLib\ComLightLib.vcxproj">
       <Project>{52f486e7-830c-45d8-be47-e76b5aab2772}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\GGML\GGML.vcxproj">
+      <Project>{B12702AD-ABFB-343A-A199-8E24837244A3}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
