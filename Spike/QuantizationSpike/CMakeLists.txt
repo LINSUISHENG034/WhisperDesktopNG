@@ -19,6 +19,7 @@ set(SPIKE_SOURCES
     QuantizedBufferManager.cpp
     QuantizationDispatcher.cpp
     QuantizationSpike.cpp
+    WhisperModel.cpp
 )
 
 # Add headers
@@ -27,21 +28,50 @@ set(SPIKE_HEADERS
     QuantizedBufferManager.h
     QuantizationDispatcher.h
     QuantizationSpike.h
+    WhisperModel.h
 )
 
-# Create executable
+# Add test executable for WhisperModel
+set(TEST_WHISPER_SOURCES
+    test_whisper_model.cpp
+    WhisperModel.cpp
+)
+
+set(TEST_WHISPER_HEADERS
+    WhisperModel.h
+)
+
+# Create main executable
 add_executable(QuantizationSpike ${SPIKE_SOURCES} ${SPIKE_HEADERS})
 
-# Link libraries (we'll add these as we progress)
+# Create test executable for WhisperModel
+add_executable(TestWhisperModel ${TEST_WHISPER_SOURCES} ${TEST_WHISPER_HEADERS})
+
+# Link libraries
+# For main spike (will add D3D11 libraries later)
 # target_link_libraries(QuantizationSpike PRIVATE d3d11 dxgi)
+
+# For WhisperModel test - link with whisper library
+target_link_libraries(TestWhisperModel PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Whisper/x64/Release/Whisper.lib
+)
 
 # Set output directory
 set_target_properties(QuantizationSpike PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
+set_target_properties(TestWhisperModel PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
 # Add compile definitions
 target_compile_definitions(QuantizationSpike PRIVATE
+    WIN32_LEAN_AND_MEAN
+    NOMINMAX
+)
+
+target_compile_definitions(TestWhisperModel PRIVATE
     WIN32_LEAN_AND_MEAN
     NOMINMAX
 )

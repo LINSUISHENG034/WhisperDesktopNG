@@ -22,3 +22,21 @@ WhisperPS/obj/
 WhisperPS/bin/
 Tools/CompressTables/bin/
 Tools/CompressTables/obj/
+
+# Temporary downloads and extracted files
+temp_downloads/
+whisper.cpp-*/
+whisper-cpp-*/
+*.zip
+*.tar.gz
+*.tar.bz2
+
+# Build artifacts
+build_*/
+bin/
+obj/
+
+# Temporary files
+*.tmp
+*.temp
+*.log

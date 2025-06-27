@@ -1,0 +1,69 @@
+cmake_minimum_required(VERSION 3.20)
+project(WhisperCppTest)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Set build type
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+# Compiler flags
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+endif()
+
+# Include directories
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Whisper/source
+)
+
+# whisper.cpp source files
+set(WHISPER_CPP_SOURCES
+    ../../Whisper/source/ggml.c
+    ../../Whisper/source/whisper.cpp
+)
+
+# Our test sources
+set(TEST_SOURCES
+    test_whisper_model.cpp
+    WhisperModel.cpp
+)
+
+set(TEST_HEADERS
+    WhisperModel.h
+)
+
+# Create test executable
+add_executable(TestWhisperCppModel ${TEST_SOURCES} ${TEST_HEADERS} ${WHISPER_CPP_SOURCES})
+
+# Compile definitions
+target_compile_definitions(TestWhisperCppModel PRIVATE
+    WIN32_LEAN_AND_MEAN
+    NOMINMAX
+    _CRT_SECURE_NO_WARNINGS
+)
+
+# Set output directory
+set_target_properties(TestWhisperCppModel PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+# Platform-specific settings
+if(WIN32)
+    # Windows-specific settings
+    target_compile_definitions(TestWhisperCppModel PRIVATE
+        _WIN32_WINNT=0x0601
+    )
+endif()
+
+message(STATUS "Configured WhisperCpp test build")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Output directory: ${CMAKE_BINARY_DIR}/bin")
