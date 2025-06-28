@@ -47,6 +47,9 @@ namespace DirectCompute
 		softMaxFixed = 38,
 		softMaxLong = 39,
 		zeroMemory = 40,
+		dequantizeQ4_0 = 41,
+		dequantizeQ5_1 = 42,
+		dequantizeQ8_0 = 43,
 	};
 
 	const char* computeShaderName( eComputeShader cs );

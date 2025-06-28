@@ -413,6 +413,11 @@ extern "C" {
     WHISPER_API float * whisper_get_logits           (struct whisper_context * ctx);
     WHISPER_API float * whisper_get_logits_from_state(struct whisper_state * state);
 
+    // Get tensor by name from the loaded model
+    // Returns pointer to ggml_tensor if found, nullptr if not found or ctx is null
+    // This function provides safe access to model tensors for validation and debugging purposes
+    WHISPER_API struct ggml_tensor * whisper_get_tensor_by_name(struct whisper_context * ctx, const char * name);
+
     // Token Id -> String. Uses the vocabulary in the provided context
     WHISPER_API const char * whisper_token_to_str(struct whisper_context * ctx, whisper_token token);
     WHISPER_API const char * whisper_model_type_readable(struct whisper_context * ctx);

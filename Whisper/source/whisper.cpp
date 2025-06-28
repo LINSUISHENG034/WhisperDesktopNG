@@ -1,5 +1,7 @@
+#include "stdafx.h"
 #include "whisper.h"
 #include "whisper-arch.h"
+#include "Utils/stringUtils.h"
 
 #include "ggml.h"
 #include "ggml-cpp.h"
@@ -21,7 +23,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <climits>
-#include <codecvt>
+
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
@@ -3641,8 +3643,7 @@ struct whisper_context * whisper_init_from_file_with_params_no_state(const char 
     WHISPER_LOG_INFO("%s: loading model from '%s'\n", __func__, path_model);
 #ifdef _MSC_VER
     // Convert UTF-8 path to wide string (UTF-16) for Windows, resolving character encoding issues.
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    std::wstring path_model_wide = converter.from_bytes(path_model);
+    std::wstring path_model_wide = string_to_wstring(path_model);
     auto fin = std::ifstream(path_model_wide, std::ios::binary);
 #else
     auto fin = std::ifstream(path_model, std::ios::binary);
@@ -4733,8 +4734,7 @@ struct whisper_vad_context * whisper_vad_init_from_file_with_params(
         struct whisper_vad_context_params params) {
     WHISPER_LOG_INFO("%s: loading VAD model from '%s'\n", __func__, path_model);
 #ifdef _MSC_VER
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    std::wstring path_model_wide = converter.from_bytes(path_model);
+    std::wstring path_model_wide = string_to_wstring(path_model);
     auto fin = std::ifstream(path_model_wide, std::ios::binary);
 #else
     auto fin = std::ifstream(path_model, std::ios::binary);

@@ -54,6 +54,9 @@ namespace Whisper
 		const char* __stdcall stringFromToken( whisper_token token );
 
 		HRESULT __stdcall clone( iModel** rdi );
+
+		// Expose the underlying whisper_context for advanced operations like tensor inspection
+		HRESULT __stdcall getWhisperContext( struct whisper_context** pp );
 	};
 
 	HRESULT __stdcall setupLogger( const sLoggerSetup& setup );

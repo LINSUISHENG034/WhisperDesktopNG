@@ -49,7 +49,7 @@ public:
 
 static DirectCompute::Tensor gpuEncode( const whisper_context& wctx, const int mel_offset );
 
-#include "source/whisper.cpp"
+#include "source/whisper.h"
 #include "API/iContext.cl.h"
 #include "../ComLightLib/comLightServer.h"
 #include "Whisper/WhisperContext.h"
@@ -170,6 +170,14 @@ namespace Whisper
 				return E_POINTER;
 			*pp = this;
 			( *pp )->AddRef();
+			return S_OK;
+		}
+
+		virtual HRESULT COMLIGHTCALL getWhisperContext( struct whisper_context** pp ) override final
+		{
+			if( nullptr == pp )
+				return E_POINTER;
+			*pp = &ctx;
 			return S_OK;
 		}
 

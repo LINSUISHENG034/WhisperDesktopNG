@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "shaderNames.h"
 
-static const std::array<const char*, 41> s_shaderNames = 
+static const std::array<const char*, 44> s_shaderNames =
 {
 	"add",
 	"addInPlace",
@@ -45,6 +45,9 @@ static const std::array<const char*, 41> s_shaderNames =
 	"softMaxFixed",
 	"softMaxLong",
 	"zeroMemory",
+	"dequantizeQ4_0",
+	"dequantizeQ5_1",
+	"dequantizeQ8_0",
 };
 
 const char* DirectCompute::computeShaderName( eComputeShader cs )

@@ -4214,6 +4214,17 @@ float * whisper_get_logits_from_state(struct whisper_state * state) {
     return state->logits.data();
 }
 
+struct ggml_tensor * whisper_get_tensor_by_name(struct whisper_context * ctx, const char * name) {
+    if (!ctx) {
+        return nullptr;
+    }
+    auto it = ctx->model.tensors.find(name);
+    if (it == ctx->model.tensors.end()) {
+        return nullptr;
+    }
+    return it->second;
+}
+
 const char * whisper_token_to_str(struct whisper_context * ctx, whisper_token token) {
     return ctx->vocab.id_to_token.at(token).c_str();
 }

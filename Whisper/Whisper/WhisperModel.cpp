@@ -298,24 +298,60 @@ HRESULT WhisperModel::loadGpu( ComLight::iReadStream* stm, CallbacksImpl& callba
 
 		DirectCompute::eDataType dt;
 		size_t cbElement;
-		if( header.ftype == 0 )
+
+		// Map GGML ftype to DirectCompute data type
+		switch( header.ftype )
 		{
+		case 0:  // GGML_TYPE_F32
 			dt = DirectCompute::eDataType::FP32;
 			cbElement = 4;
-		}
-		else
-		{
+			break;
+		case 1:  // GGML_TYPE_F16
 			dt = DirectCompute::eDataType::FP16;
 			cbElement = 2;
+			break;
+		case 2:  // GGML_TYPE_Q4_0
+			dt = DirectCompute::eDataType::Q4_0;
+			cbElement = 18;  // 18 bytes per Q4_0 block (32 elements)
+			break;
+		case 7:  // GGML_TYPE_Q5_1
+			dt = DirectCompute::eDataType::Q5_1;
+			cbElement = 24;  // 24 bytes per Q5_1 block (32 elements)
+			break;
+		case 8:  // GGML_TYPE_Q8_0
+			dt = DirectCompute::eDataType::Q8_0;
+			cbElement = 34;  // 34 bytes per Q8_0 block (32 elements)
+			break;
+		default:
+			// For now, fall back to FP16 for unsupported types
+			logWarning( u8"Unsupported quantization type %d, falling back to FP16", header.ftype );
+			dt = DirectCompute::eDataType::FP16;
+			cbElement = 2;
+			break;
 		}
 
 		const size_t totalElts = (size_t)(uint32_t)ne[ 0 ] * (uint32_t)ne[ 1 ] * (uint32_t)ne[ 2 ];
-		if( totalElts * cbElement > UINT_MAX )
+
+		size_t totalBytes;
+		if( dt == DirectCompute::eDataType::Q4_0 || dt == DirectCompute::eDataType::Q5_1 || dt == DirectCompute::eDataType::Q8_0 )
+		{
+			// For quantized types, calculate based on blocks
+			const uint32_t elementsPerBlock = 32;  // All GGML quantization types use 32 elements per block
+			const uint32_t blockCount = (totalElts + elementsPerBlock - 1) / elementsPerBlock;
+			totalBytes = blockCount * cbElement;
+		}
+		else
+		{
+			// For non-quantized types, calculate based on elements
+			totalBytes = totalElts * cbElement;
+		}
+
+		if( totalBytes > UINT_MAX )
 			return DISP_E_OVERFLOW;
 
 		try
 		{
-			bytesVector.resize( cbElement * totalElts );
+			bytesVector.resize( totalBytes );
 		}
 		catch( const std::bad_alloc& )
 		{
@@ -387,24 +423,60 @@ HRESULT WhisperModel::loadHybrid( ComLight::iReadStream* stm, CallbacksImpl& cal
 
 		DirectCompute::eDataType dt;
 		size_t cbElement;
-		if( header.ftype == 0 )
+
+		// Map GGML ftype to DirectCompute data type
+		switch( header.ftype )
 		{
+		case 0:  // GGML_TYPE_F32
 			dt = DirectCompute::eDataType::FP32;
 			cbElement = 4;
-		}
-		else
-		{
+			break;
+		case 1:  // GGML_TYPE_F16
 			dt = DirectCompute::eDataType::FP16;
 			cbElement = 2;
+			break;
+		case 2:  // GGML_TYPE_Q4_0
+			dt = DirectCompute::eDataType::Q4_0;
+			cbElement = 18;  // 18 bytes per Q4_0 block (32 elements)
+			break;
+		case 7:  // GGML_TYPE_Q5_1
+			dt = DirectCompute::eDataType::Q5_1;
+			cbElement = 24;  // 24 bytes per Q5_1 block (32 elements)
+			break;
+		case 8:  // GGML_TYPE_Q8_0
+			dt = DirectCompute::eDataType::Q8_0;
+			cbElement = 34;  // 34 bytes per Q8_0 block (32 elements)
+			break;
+		default:
+			// For now, fall back to FP16 for unsupported types
+			logWarning( u8"Unsupported quantization type %d, falling back to FP16", header.ftype );
+			dt = DirectCompute::eDataType::FP16;
+			cbElement = 2;
+			break;
 		}
 
 		const size_t totalElts = (size_t)(uint32_t)ne[ 0 ] * (uint32_t)ne[ 1 ] * (uint32_t)ne[ 2 ];
-		if( totalElts * cbElement > UINT_MAX )
+
+		size_t totalBytes;
+		if( dt == DirectCompute::eDataType::Q4_0 || dt == DirectCompute::eDataType::Q5_1 || dt == DirectCompute::eDataType::Q8_0 )
+		{
+			// For quantized types, calculate based on blocks
+			const uint32_t elementsPerBlock = 32;  // All GGML quantization types use 32 elements per block
+			const uint32_t blockCount = (totalElts + elementsPerBlock - 1) / elementsPerBlock;
+			totalBytes = blockCount * cbElement;
+		}
+		else
+		{
+			// For non-quantized types, calculate based on elements
+			totalBytes = totalElts * cbElement;
+		}
+
+		if( totalBytes > UINT_MAX )
 			return DISP_E_OVERFLOW;
 
 		try
 		{
-			bytesVector.resize( cbElement * totalElts );
+			bytesVector.resize( totalBytes );
 		}
 		catch( const std::bad_alloc& )
 		{

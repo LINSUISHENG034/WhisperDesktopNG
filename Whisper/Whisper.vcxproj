@@ -89,6 +89,8 @@
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>whisper.def</ModuleDefinitionFile>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <AdditionalOptions>/VERBOSE %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -173,6 +175,7 @@
     <ClCompile Include="source.compat\ggmlMsvc.c">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Whisper\ContextImpl.misc.cpp" />
     <ClCompile Include="Utils\ProfileCollection.cpp" />
@@ -190,6 +193,7 @@
     <ClCompile Include="Whisper\DecoderResultBuffer.cpp" />
     <ClCompile Include="Whisper\DecoderInputBuffers.cpp" />
     <ClCompile Include="ML\mlUtils.cpp" />
+    <ClCompile Include="ML\QuantizationOps.cpp" />
     <ClCompile Include="Whisper\KeyValueBuffers.cpp" />
     <ClCompile Include="D3D\Binder.cpp" />
     <ClCompile Include="ML\LookupTables.cpp" />
@@ -212,10 +216,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="source\whisper.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="source\whisper.cpp" />
     <ClCompile Include="ML\TempBuffers.cpp" />
     <ClCompile Include="ML\tensorOpsTests.cpp" />
     <ClCompile Include="stdafx.cpp">
