@@ -130,6 +130,7 @@
 
     <ClCompile Include="ggml-cpu\ggml-cpu.c">
       <CompileAs>CompileAsC</CompileAs>
+      <ObjectFileName>$(IntDir)ggml-cpu-core.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="ggml-cpu\ggml-cpu.cpp">
       <CompileAs>CompileAsCpp</CompileAs>

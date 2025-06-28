@@ -19,11 +19,4 @@ HRESULT COMLIGHTCALL Whisper::loadModel( const wchar_t* path, const sModelSetup&
 	return E_INVALIDARG;
 }
 
-#if !BUILD_BOTH_VERSIONS
-// Provide a stub implementation for loadReferenceCpuModel when BUILD_BOTH_VERSIONS=0
-HRESULT __stdcall Whisper::loadReferenceCpuModel( const wchar_t* path, iModel** pp )
-{
-	logError( u8"This build of the DLL doesn't implement the reference CPU-running Whisper model." );
-	return E_NOTIMPL;
-}
-#endif
+// Note: loadReferenceCpuModel is implemented in whisperCom.cpp
