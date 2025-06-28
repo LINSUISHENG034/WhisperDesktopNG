@@ -203,11 +203,15 @@
     <FxCompile Include="softMaxFixed.hlsl" />
     <FxCompile Include="softMaxLong.hlsl" />
     <FxCompile Include="zeroMemory.hlsl" />
+    <FxCompile Include="dequantizeQ4_0.hlsl" />
+    <FxCompile Include="dequantizeQ5_1.hlsl" />
+    <FxCompile Include="dequantizeQ8_0.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="componentwiseBinaryOp.hlsli" />
     <None Include="flashAttentionCommon.hlsli" />
     <None Include="fp64Utils.hlsli" />
+    <None Include="ggmlQuantization.hlsli" />
     <None Include="groupReduce.hlsli" />
     <None Include="groupReduce64.hlsli" />
     <None Include="miscUtils.hlsli" />
