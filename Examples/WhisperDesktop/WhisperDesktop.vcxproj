@@ -154,6 +154,21 @@
   <ItemGroup>
     <Text Include="Readme.txt" />
   </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <PostBuildEvent>
+      <Command>echo Synchronizing Whisper.dll with latest build...
+robocopy "$(ProjectDir)..\..\Whisper\x64\$(Configuration)" "$(OutDir)" Whisper.dll /NP /NJH /NJS
+if %errorlevel% leq 1 (
+  echo SUCCESS: Whisper.dll synchronized
+) else (
+  echo WARNING: Whisper.dll sync had issues but continuing...
+)</Command>
+      <Message>Synchronizing Whisper.dll with latest build</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -30,6 +30,7 @@ struct whisper_params
 	std::wstring model = L"models/ggml-base.en.bin";
 	std::wstring gpu;
 	std::string prompt;
+	std::wstring output_pattern;  // Custom output filename pattern
 	std::vector<std::wstring> fname_inp;
 
 	whisper_params();

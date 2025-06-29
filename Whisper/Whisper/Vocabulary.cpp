@@ -41,6 +41,9 @@ void Vocabulary::completeBuild()
 		idFromToken.SetAt( tokens[ i ], (int)i );
 	idFromToken.Rehash();
 
+	// Adjust special token IDs for Large-v3 compatibility
+	adjustTokenIds();
+
 	// Log success message
 	int64_t cb = stringData.size();
 	cb += tokens.size() * sizeof( void* );

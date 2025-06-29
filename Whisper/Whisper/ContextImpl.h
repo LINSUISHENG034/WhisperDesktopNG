@@ -6,6 +6,8 @@
 #include "TranscribeResult.h"
 #include "sTokenData.h"
 #include "../ML/Device.h"
+#include "../ML/Sampler.h"
+#include <memory>
 
 namespace Whisper
 {
@@ -20,6 +22,10 @@ namespace Whisper
 		iSpectrogram* currentSpectrogram = nullptr;
 		class CurrentSpectrogramRaii;
 		ProfileCollection profiler;
+
+		// Advanced token sampler for handling repetition penalty and temperature
+		std::unique_ptr<WhisperSampler> m_sampler;
+		std::vector<int> m_recent_tokens; // Token history for repetition penalty
 
 		HRESULT COMLIGHTCALL getModel( iModel** pp ) override final;
 		HRESULT COMLIGHTCALL timingsPrint() override final;
@@ -53,8 +59,8 @@ namespace Whisper
 
 		HRESULT encode( iSpectrogram& mel, int seek );
 		HRESULT decode( const int* tokens, size_t length, int n_past, int threads );
-		sTokenData sampleBest( const float* probs, bool force_timestamp, bool is_initial );
-		sTokenData sampleBest();
+		sTokenData sampleBest( const float* probs, bool force_timestamp, bool is_initial, const std::vector<int>& previous_tokens = {} );
+		sTokenData sampleBest( const std::vector<int>& previous_tokens = {} );
 		sTokenData sampleTimestamp( bool initial );
 		int wrapSegment( int max_len );
 		void expComputeTokenLevelTimestamps( int i_segment, float thold_pt, float thold_ptsum );

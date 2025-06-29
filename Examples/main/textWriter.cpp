@@ -20,6 +20,57 @@ namespace
 		return hr;
 	}
 
+	HRESULT generateCustomPath( CString& path, LPCTSTR inputPath, LPCTSTR ext, LPCTSTR pattern, LPCTSTR modelPath, LPCTSTR gpu )
+	{
+		if( !pattern || wcslen( pattern ) == 0 )
+		{
+			// Fall back to default behavior
+			return replaceExtension( path, inputPath, ext );
+		}
+
+		// Extract input filename without extension
+		CString inputName = inputPath;
+		int lastSlash = inputName.ReverseFind( L'\\' );
+		if( lastSlash == -1 ) lastSlash = inputName.ReverseFind( L'/' );
+		if( lastSlash != -1 ) inputName = inputName.Mid( lastSlash + 1 );
+
+		int lastDot = inputName.ReverseFind( L'.' );
+		if( lastDot != -1 ) inputName = inputName.Left( lastDot );
+
+		// Extract model name from path
+		CString modelName = modelPath;
+		int modelSlash = modelName.ReverseFind( L'\\' );
+		if( modelSlash == -1 ) modelSlash = modelName.ReverseFind( L'/' );
+		if( modelSlash != -1 ) modelName = modelName.Mid( modelSlash + 1 );
+
+		int modelDot = modelName.ReverseFind( L'.' );
+		if( modelDot != -1 ) modelName = modelName.Left( modelDot );
+
+		// Generate timestamp
+		SYSTEMTIME st;
+		GetLocalTime( &st );
+		CString timestamp;
+		timestamp.Format( L"%04d%02d%02d_%02d%02d%02d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond );
+
+		// Determine backend type
+		CString backend = (gpu && wcslen( gpu ) > 0) ? L"gpu" : L"cpu";
+
+		// Replace placeholders in pattern
+		path = pattern;
+		path.Replace( L"{input}", inputName );
+		path.Replace( L"{model}", modelName );
+		path.Replace( L"{gpu}", backend );
+		path.Replace( L"{time}", timestamp );
+
+		// Add extension if not present
+		if( path.Find( L'.' ) == -1 )
+		{
+			path += ext;
+		}
+
+		return S_OK;
+	}
+
 	// Abstract base class for text writers
 	class Writer
 	{
@@ -28,10 +79,10 @@ namespace
 		virtual HRESULT impl( const Whisper::sSegment* const segments, const size_t length ) = 0;
 
 	public:
-		HRESULT write( Whisper::iContext* context, LPCTSTR audioPath, LPCTSTR ext )
+		HRESULT write( Whisper::iContext* context, LPCTSTR audioPath, LPCTSTR ext, LPCTSTR pattern = nullptr, LPCTSTR modelPath = nullptr, LPCTSTR gpu = nullptr )
 		{
 			CString path;
-			CHECK( replaceExtension( path, audioPath, ext ) );
+			CHECK( generateCustomPath( path, audioPath, ext, pattern, modelPath, gpu ) );
 			CHECK( file.Create( path, GENERIC_WRITE, 0, CREATE_ALWAYS ) );
 
 			using namespace Whisper;
@@ -182,20 +233,20 @@ namespace
 	};
 }
 
-HRESULT writeText( Whisper::iContext* context, LPCTSTR audioPath, bool timestamps )
+HRESULT writeText( Whisper::iContext* context, LPCTSTR audioPath, bool timestamps, LPCTSTR pattern, LPCTSTR modelPath, LPCTSTR gpu )
 {
 	TextWriter writer{ timestamps };
-	return writer.write( context, audioPath, L".txt" );
+	return writer.write( context, audioPath, L".txt", pattern, modelPath, gpu );
 }
 
-HRESULT writeSubRip( Whisper::iContext* context, LPCTSTR audioPath )
+HRESULT writeSubRip( Whisper::iContext* context, LPCTSTR audioPath, LPCTSTR pattern, LPCTSTR modelPath, LPCTSTR gpu )
 {
 	SubRipWriter writer;
-	return writer.write( context, audioPath, L".srt" );
+	return writer.write( context, audioPath, L".srt", pattern, modelPath, gpu );
 }
 
-HRESULT writeWebVTT( Whisper::iContext* context, LPCTSTR audioPath )
+HRESULT writeWebVTT( Whisper::iContext* context, LPCTSTR audioPath, LPCTSTR pattern, LPCTSTR modelPath, LPCTSTR gpu )
 {
 	VttWriter writer;
-	return writer.write( context, audioPath, L".vtt" );
+	return writer.write( context, audioPath, L".vtt", pattern, modelPath, gpu );
 }

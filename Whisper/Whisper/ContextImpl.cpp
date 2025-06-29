@@ -10,7 +10,11 @@ ContextImpl::ContextImpl( const DirectCompute::Device& dev, const WhisperModel& 
 	modelPtr( modelPointer ),
 	context( modelData, profiler ),
 	profiler( modelData )
-{ }
+{
+	// Initialize the advanced token sampler with default parameters
+	m_sampler = std::make_unique<WhisperSampler>(SamplingParams::defaultParams(), modelData.shared->vocab);
+	m_recent_tokens.reserve(20); // Reserve space for token history
+}
 
 #define WHISPER_CHUNK_SIZE  30
 
@@ -68,7 +72,7 @@ HRESULT ContextImpl::decode( const int* tokens, size_t length, int n_past, int t
 }
 
 // the most basic sampling scheme - select the top token
-sTokenData ContextImpl::sampleBest( const float* probs, bool force_timestamp, bool is_initial )
+sTokenData ContextImpl::sampleBest( const float* probs, bool force_timestamp, bool is_initial, const std::vector<int>& previous_tokens )
 {
 	// whisper_sample_best
 	const Vocabulary& vocab = model.shared->vocab;
@@ -79,8 +83,25 @@ sTokenData ContextImpl::sampleBest( const float* probs, bool force_timestamp, bo
 	probs_id.clear();
 	probs_id.reserve( n_logits );
 
+	// Use the advanced sampler with Top-K and adaptive repetition penalty
+	// This completely replaces the old probability modification logic
+	if( m_sampler ) {
+		// Let the advanced sampler handle everything: repetition penalty, temperature, and Top-K
+		int sampled_token = m_sampler->sample( const_cast<float*>(probs), n_logits, previous_tokens );
+
+		// Convert to the expected sTokenData format
+		sTokenData result;
+		result.id = sampled_token;
+		result.p = (sampled_token >= 0 && sampled_token < (int)n_logits) ? probs[sampled_token] : 0.0f;
+		return result;
+	}
+
+	// Fallback to original logic if sampler is not available
+	std::vector<float> modified_probs( probs, probs + n_logits );
+
+	// Use modified probabilities for token selection
 	for( size_t i = 0; i < n_logits; i++ )
-		probs_id.emplace_back( probs[ i ], (int)i );
+		probs_id.emplace_back( modified_probs[ i ], (int)i );
 
 	{
 		double sum_ts = 0.0;
@@ -156,10 +177,10 @@ sTokenData ContextImpl::sampleBest( const float* probs, bool force_timestamp, bo
 	return result;
 }
 
-sTokenData ContextImpl::sampleBest()
+sTokenData ContextImpl::sampleBest( const std::vector<int>& previous_tokens )
 {
 	const int n_vocab = model.shared->vocab.n_vocab;
-	return sampleBest( probs.data() + ( probs.size() - n_vocab ), false, false );
+	return sampleBest( probs.data() + ( probs.size() - n_vocab ), false, false, previous_tokens );
 }
 
 sTokenData ContextImpl::sampleTimestamp( bool initial )
@@ -420,6 +441,22 @@ void ContextImpl::expComputeTokenLevelTimestamps( int i_segment, float thold_pt,
 
 static std::string to_timestamp( int64_t t, bool comma = false )
 {
+	// Robustness check: handle invalid or extreme values
+	if( t < 0 )
+	{
+		// Negative timestamps are invalid, return zero timestamp
+		return "00:00:00.000";
+	}
+
+	// Check for potential overflow in multiplication
+	// Maximum safe value: INT64_MAX / 10 to avoid overflow in t * 10
+	const int64_t max_safe_timestamp = INT64_MAX / 10;
+	if( t > max_safe_timestamp )
+	{
+		// Extremely large timestamp, return a reasonable maximum
+		return "99:59:59.999";
+	}
+
 	int64_t msec = t * 10;
 	int64_t hr = msec / ( 1000 * 60 * 60 );
 	msec = msec - hr * ( 1000 * 60 * 60 );
@@ -427,6 +464,12 @@ static std::string to_timestamp( int64_t t, bool comma = false )
 	msec = msec - min * ( 1000 * 60 );
 	int64_t sec = msec / 1000;
 	msec = msec - sec * 1000;
+
+	// Additional safety check: ensure values are within reasonable ranges
+	if( hr > 99 ) hr = 99;  // Cap hours at 99
+	if( min > 59 ) min = 59;  // Cap minutes at 59
+	if( sec > 59 ) sec = 59;  // Cap seconds at 59
+	if( msec > 999 ) msec = 999;  // Cap milliseconds at 999
 
 	char buf[ 32 ];
 	snprintf( buf, sizeof( buf ), "%02d:%02d:%02d%s%03d", (int)hr, (int)min, (int)sec, comma ? "," : ".", (int)msec );
@@ -595,6 +638,10 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 		bool failed = false;
 		bool has_ts = false; // have we already sampled a non-beg timestamp token for the current segment?
 
+		// Maintain history of recent tokens for repetition penalty
+		std::vector<int> recent_tokens;
+		const int max_history = 10; // Keep track of last 10 tokens
+
 		{
 			// Measure "Decode" profiler value, both CPU and GPU times
 			auto prof = context.decodeProfiler();
@@ -625,12 +672,33 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 				//
 				{
 					auto p = profiler.cpuBlock( eCpuBlock::Sample );
-					const sTokenData token = ( i == 0 ) ? sampleTimestamp( true ) : sampleBest();
+
+					// Use our centralized token history for the sampler
+					const sTokenData token = ( i == 0 ) ? sampleTimestamp( true ) : sampleBest( m_recent_tokens );
+
+					// DEBUG: Log token information
+					const char* tokenText = vocab.string(token.id);
+					logDebug( u8"DEBUG: i=%d, token.id=%d ('%s'), vocab.token_beg=%d, token.p=%f, history_size=%d",
+						i, token.id, tokenText ? tokenText : "NULL", vocab.token_beg, token.p, (int)m_recent_tokens.size() );
+
+					// Update centralized token history for repetition penalty
+					m_recent_tokens.push_back( token.id );
+					if( m_recent_tokens.size() > max_history ) {
+						m_recent_tokens.erase( m_recent_tokens.begin() );
+					}
+
+					// Also update the local recent_tokens for backward compatibility
+					recent_tokens.push_back( token.id );
+					if( recent_tokens.size() > max_history ) {
+						recent_tokens.erase( recent_tokens.begin() );
+					}
 
 					// timestamp token - update sliding window
 					if( token.id > vocab.token_beg )
 					{
 						const int seek_delta_new = 2 * ( token.id - vocab.token_beg );
+
+						logDebug( u8"DEBUG: Timestamp token detected, seek_delta_new=%d", seek_delta_new );
 
 						// do not allow to go back in time
 						if( has_ts && seek_delta > seek_delta_new && result_len < i )
@@ -639,6 +707,11 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 						seek_delta = seek_delta_new;
 						result_len = i + 1;
 						has_ts = true;
+					}
+					else
+					{
+						logDebug( u8"DEBUG: Non-timestamp token, token.id=%d <= vocab.token_beg=%d",
+							token.id, vocab.token_beg );
 					}
 
 					// add it to the context
@@ -682,6 +755,8 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 				// the sliding window by 1 second
 				if( i == n_max - 1 && ( result_len == 0 || seek_delta < 100 * WHISPER_CHUNK_SIZE / 2 ) )
 				{
+					logDebug( u8"DEBUG: Failure condition met - i=%d, n_max=%d, result_len=%d, seek_delta=%d, threshold=%d",
+						i, n_max, result_len, seek_delta, 100 * WHISPER_CHUNK_SIZE / 2 );
 					failed = true;
 					break;
 				}

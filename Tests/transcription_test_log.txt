@@ -1,0 +1,134 @@
+[2025-06-29 17:53:22] [INFO] === Comprehensive Transcription Test Started ===
+[2025-06-29 17:53:22] [INFO] Test Mode: quick
+[2025-06-29 17:53:22] [INFO] Checking test prerequisites...
+[2025-06-29 17:53:22] [SUCCESS] All prerequisites satisfied
+[2025-06-29 17:53:22] [INFO] Cleaning previous test results...
+[2025-06-29 17:53:22] [INFO] Removed 3 .txt files from Audio directory
+[2025-06-29 17:53:22] [INFO] Results directory cleaned and recreated
+[2025-06-29 17:53:22] [INFO] Testing 3 models against 4 audio files
+[2025-06-29 17:53:22] [INFO] [1/12] Testing base-q5_1 + jfk
+[2025-06-29 17:53:22] [INFO] Testing: Base Q5_1 Quantized + Short English (11s)
+[2025-06-29 17:53:22] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\jfk.wav" -l en -otxt -nt
+[2025-06-29 17:53:27] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 17:53:27] [SUCCESS] Test report generated: F:\Projects\WhisperDesktopNG\Tests\TranscriptionResults\test_report.md
+[2025-06-29 17:53:27] [INFO] === Test Completed ===
+[2025-06-29 17:53:27] [INFO] Results saved to: F:\Projects\WhisperDesktopNG\Tests\TranscriptionResults
+[2025-06-29 17:53:27] [INFO] Log file: F:\Projects\WhisperDesktopNG\Tests\transcription_test_log.txt
+[2025-06-29 17:53:27] [ERROR] SUMMARY: 0/1 tests produced valid transcriptions
+[2025-06-29 17:54:18] [INFO] === Comprehensive Transcription Test Started ===
+[2025-06-29 17:54:18] [INFO] Test Mode: full
+[2025-06-29 17:54:18] [INFO] Checking test prerequisites...
+[2025-06-29 17:54:18] [SUCCESS] All prerequisites satisfied
+[2025-06-29 17:54:18] [INFO] Cleaning previous test results...
+[2025-06-29 17:54:18] [INFO] Removed 1 .txt files from Audio directory
+[2025-06-29 17:54:18] [INFO] Results directory cleaned and recreated
+[2025-06-29 17:54:18] [INFO] Testing 2 models against 5 audio files
+[2025-06-29 17:54:18] [INFO] [1/10] Testing base-q5_1 + jfk
+[2025-06-29 17:54:18] [INFO] Testing: Base Q5_1 Quantized + Short English (11s)
+[2025-06-29 17:54:18] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\jfk.wav" -l en -otxt -nt
+[2025-06-29 17:54:23] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 17:54:23] [INFO] [2/10] Testing base-q5_1 + columbia
+[2025-06-29 17:54:23] [INFO] Testing: Base Q5_1 Quantized + Chinese Audio (33min)
+[2025-06-29 17:54:23] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\columbia.wma" -l zh -otxt -nt
+[2025-06-29 17:54:27] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 17:54:27] [INFO] [3/10] Testing base-q5_1 + long_audio
+[2025-06-29 17:54:27] [INFO] Testing: Base Q5_1 Quantized + Long English (81min)
+[2025-06-29 17:54:27] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\long_audio_7517965755242105650.mp3" -l en -otxt -nt
+[2025-06-29 17:54:33] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 17:54:33] [INFO] [4/10] Testing base-q5_1 + medium_audio
+[2025-06-29 17:54:33] [INFO] Testing: Base Q5_1 Quantized + Medium English
+[2025-06-29 17:54:33] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\medium_audio_7509110973165226778.mp3" -l en -otxt -nt
+[2025-06-29 17:54:38] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 17:54:38] [INFO] [5/10] Testing base-q5_1 + short_audio
+[2025-06-29 17:54:38] [INFO] Testing: Base Q5_1 Quantized + Short English
+[2025-06-29 17:54:38] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\short_audio_7517965755242105650.mp3" -l en -otxt -nt
+[2025-06-29 17:54:43] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 17:54:43] [INFO] [6/10] Testing large-v3 + jfk
+[2025-06-29 17:54:43] [INFO] Testing: Large-v3 Full Precision + Short English (11s)
+[2025-06-29 17:54:43] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-large-v3.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\jfk.wav" -l en -otxt -nt
+[2025-06-29 18:26:38] [INFO] === Comprehensive Transcription Test Started ===
+[2025-06-29 18:26:38] [INFO] Test Mode: full
+[2025-06-29 18:26:38] [INFO] Checking test prerequisites...
+[2025-06-29 18:26:38] [SUCCESS] All prerequisites satisfied
+[2025-06-29 18:26:38] [INFO] Cleaning previous test results...
+[2025-06-29 18:26:38] [INFO] Removed 6 .txt files from Audio directory
+[2025-06-29 18:26:38] [INFO] Results directory cleaned and recreated
+[2025-06-29 18:26:38] [INFO] Testing 2 models against 5 audio files
+[2025-06-29 18:26:38] [INFO] [1/10] Testing base-q5_1 + jfk
+[2025-06-29 18:26:38] [INFO] Testing: Base Q5_1 Quantized + Short English (11s)
+[2025-06-29 18:26:43] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 18:26:43] [INFO] [2/10] Testing base-q5_1 + columbia
+[2025-06-29 18:26:43] [INFO] Testing: Base Q5_1 Quantized + Chinese Audio (33min)
+[2025-06-29 18:26:43] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\columbia.wma" -l zh -otxt -nt
+[2025-06-29 18:26:48] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 18:26:48] [INFO] [3/10] Testing base-q5_1 + long_audio
+[2025-06-29 18:26:48] [INFO] Testing: Base Q5_1 Quantized + Long English (81min)
+[2025-06-29 18:26:48] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\long_audio_7517965755242105650.mp3" -l en -otxt -nt
+[2025-06-29 18:26:54] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 18:26:54] [INFO] [4/10] Testing base-q5_1 + medium_audio
+[2025-06-29 18:26:54] [INFO] Testing: Base Q5_1 Quantized + Medium English
+[2025-06-29 18:26:54] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\medium_audio_7509110973165226778.mp3" -l en -otxt -nt
+[2025-06-29 18:26:59] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 18:26:59] [INFO] [5/10] Testing base-q5_1 + short_audio
+[2025-06-29 18:26:59] [INFO] Testing: Base Q5_1 Quantized + Short English
+[2025-06-29 18:26:59] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\short_audio_7517965755242105650.mp3" -l en -otxt -nt
+[2025-06-29 18:27:04] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 18:27:04] [INFO] [6/10] Testing large-v3 + jfk
+[2025-06-29 18:27:04] [INFO] Testing: Large-v3 Full Precision + Short English (11s)
+[2025-06-29 18:27:04] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-large-v3.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\jfk.wav" -l en -otxt -nt
+[2025-06-29 18:27:27] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 18:27:27] [INFO] [7/10] Testing large-v3 + columbia
+[2025-06-29 18:27:27] [INFO] Testing: Large-v3 Full Precision + Chinese Audio (33min)
+[2025-06-29 18:27:27] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-large-v3.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\columbia.wma" -l zh -otxt -nt
+[2025-06-29 18:42:16] [INFO] === Comprehensive Transcription Test Started ===
+[2025-06-29 18:42:16] [INFO] Test Mode: full
+[2025-06-29 18:42:16] [INFO] Checking test prerequisites...
+[2025-06-29 18:42:16] [SUCCESS] All prerequisites satisfied
+[2025-06-29 18:42:16] [INFO] Cleaning previous test results...
+[2025-06-29 18:42:16] [INFO] Removed 5 .txt files from Audio directory
+[2025-06-29 18:42:16] [INFO] Results directory cleaned and recreated
+[2025-06-29 18:42:16] [INFO] Testing 2 models against 5 audio files
+[2025-06-29 18:42:16] [INFO] [1/10] Testing base-q5_1 + jfk
+[2025-06-29 18:42:16] [INFO] Testing: Base Q5_1 Quantized + Short English (11s)
+[2025-06-29 18:42:16] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\jfk.wav" -l en -otxt -nt
+[2025-06-29 18:42:21] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 18:42:21] [INFO] [2/10] Testing base-q5_1 + columbia
+[2025-06-29 18:42:21] [INFO] Testing: Base Q5_1 Quantized + Chinese Audio (33min)
+[2025-06-29 18:42:21] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\columbia.wma" -l zh -otxt -nt
+[2025-06-29 18:42:25] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 18:42:25] [INFO] [3/10] Testing base-q5_1 + long_audio
+[2025-06-29 18:45:02] [INFO] === Comprehensive Transcription Test Started ===
+[2025-06-29 18:45:02] [INFO] Test Mode: quick
+[2025-06-29 18:45:02] [INFO] Checking test prerequisites...
+[2025-06-29 18:45:02] [SUCCESS] All prerequisites satisfied
+[2025-06-29 18:45:02] [INFO] Cleaning previous test results...
+[2025-06-29 18:45:02] [INFO] Results directory cleaned and recreated
+[2025-06-29 18:45:02] [INFO] Removed 2 .txt files from project root
+[2025-06-29 18:45:02] [INFO] Testing 3 models against 4 audio files
+[2025-06-29 18:45:02] [INFO] [1/12] Testing base-q5_1 + jfk
+[2025-06-29 18:45:02] [INFO] Testing: Base Q5_1 Quantized + Short English (11s)
+[2025-06-29 18:45:02] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\jfk.wav" -l en -otxt -nt -op "F:\Projects\WhisperDesktopNG\Tests\TranscriptionResults\{input}_{model}_cpu_{time}"
+[2025-06-29 18:45:07] [INFO] Found generated file: jfk_ggml-base-q5_1_cpu_20250629_184507.txt
+[2025-06-29 18:45:07] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 18:45:07] [SUCCESS] Test report generated: F:\Projects\WhisperDesktopNG\Tests\TranscriptionResults\test_report.md
+[2025-06-29 18:45:07] [INFO] === Test Completed ===
+[2025-06-29 18:45:07] [INFO] Results saved to: F:\Projects\WhisperDesktopNG\Tests\TranscriptionResults
+[2025-06-29 18:45:07] [INFO] Log file: F:\Projects\WhisperDesktopNG\Tests\transcription_test_log.txt
+[2025-06-29 18:45:07] [ERROR] SUMMARY: 0/1 tests produced valid transcriptions
+[2025-06-29 18:47:08] [INFO] === Comprehensive Transcription Test Started ===
+[2025-06-29 18:47:08] [INFO] Test Mode: quick
+[2025-06-29 18:47:08] [INFO] Checking test prerequisites...
+[2025-06-29 18:47:08] [SUCCESS] All prerequisites satisfied
+[2025-06-29 18:47:08] [INFO] Cleaning previous test results...
+[2025-06-29 18:47:08] [INFO] Results directory cleaned and recreated
+[2025-06-29 18:47:08] [INFO] Testing 3 models against 4 audio files
+[2025-06-29 18:47:08] [INFO] [1/12] Testing base-q5_1 + jfk
+[2025-06-29 18:47:08] [INFO] Testing: Base Q5_1 Quantized + Short English (11s)
+[2025-06-29 18:47:08] [DEBUG] Command: & "F:\Projects\WhisperDesktopNG\Examples\main\x64\Release\main.exe" -m "F:\Projects\WhisperDesktopNG\Tests\Models\ggml-base-q5_1.bin" -f "F:\Projects\WhisperDesktopNG\Tests\Audio\jfk.wav" -l en -otxt -nt -op "F:\Projects\WhisperDesktopNG\Tests\TranscriptionResults\{input}_{model}_cpu_{time}"
+[2025-06-29 18:47:13] [INFO] Found generated file: jfk_ggml-base-q5_1_cpu_20250629_184713.txt
+[2025-06-29 18:47:13] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-29 18:47:13] [SUCCESS] Test report generated: F:\Projects\WhisperDesktopNG\Tests\TranscriptionResults\test_report.md
+[2025-06-29 18:47:13] [INFO] === Test Completed ===
+[2025-06-29 18:47:13] [INFO] Results saved to: F:\Projects\WhisperDesktopNG\Tests\TranscriptionResults
+[2025-06-29 18:47:13] [INFO] Log file: F:\Projects\WhisperDesktopNG\Tests\transcription_test_log.txt
+[2025-06-29 18:47:13] [ERROR] SUMMARY: 0/1 tests produced valid transcriptions

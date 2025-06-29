@@ -31,13 +31,35 @@ namespace Whisper
 		id token_not = 50362; // no timestamps
 		id token_beg = 50363;
 
-		// available tasks
-		static const id token_translate = 50358;
-		static const id token_transcribe = 50359;
+		// available tasks (made non-const for Large-v3 compatibility)
+		id token_translate = 50358;
+		id token_transcribe = 50359;
 
 		bool is_multilingual() const
 		{
-			return n_vocab == 51865;
+			return n_vocab >= 51865;  // Support both 51865 and 51866 (Large-v3)
+		}
+
+		// Adjust special token IDs based on vocabulary size (for Large-v3 compatibility)
+		void adjustTokenIds()
+		{
+			if (is_multilingual()) {
+				// Calculate offset based on vocabulary expansion
+				const int dt = (n_vocab == 51866) ? 2 : 1;  // Large-v3 has +2 tokens
+
+				// Adjust all special tokens like whisper.cpp does
+				token_eot += dt;
+				token_sot += dt;
+				token_translate += dt;
+				token_transcribe += dt;
+				token_solm += dt;
+				token_prev += dt;
+				token_not += dt;
+				token_beg += dt;
+
+				logDebug(u8"Adjusted special tokens for n_vocab=%d, dt=%d, token_beg=%d",
+					n_vocab, dt, token_beg);
+			}
 		}
 
 		const char* string( int id ) const
@@ -59,6 +81,14 @@ namespace Whisper
 		}
 
 		void getSpecialTokens( SpecialTokens& rdi ) const;
+
+		// Check if a token is special (following whisper.cpp's whisper_is_special logic)
+		bool isSpecial( int token_id ) const
+		{
+			// All special tokens have IDs >= token_sot (Start of Transcription)
+			// This matches whisper.cpp's whisper_is_special() implementation
+			return token_id >= token_sot;
+		}
 
 		size_t getMemoryUse() const
 		{

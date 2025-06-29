@@ -327,21 +327,30 @@ int wmain( int argc, wchar_t* argv[] )
 		if( params.output_txt )
 		{
 			bool timestamps = !params.no_timestamps;
-			hr = writeText( context, fname.c_str(), timestamps );
+			hr = writeText( context, fname.c_str(), timestamps,
+				params.output_pattern.empty() ? nullptr : params.output_pattern.c_str(),
+				params.model.c_str(),
+				params.gpu.empty() ? nullptr : params.gpu.c_str() );
 			if( FAILED( hr ) )
 				printError( "Unable to produce the text file", hr );
 		}
 
 		if( params.output_srt )
 		{
-			hr = writeSubRip( context, fname.c_str() );
+			hr = writeSubRip( context, fname.c_str(),
+				params.output_pattern.empty() ? nullptr : params.output_pattern.c_str(),
+				params.model.c_str(),
+				params.gpu.empty() ? nullptr : params.gpu.c_str() );
 			if( FAILED( hr ) )
 				printError( "Unable to produce the text file", hr );
 		}
 
 		if( params.output_vtt )
 		{
-			hr = writeWebVTT( context, fname.c_str() );
+			hr = writeWebVTT( context, fname.c_str(),
+				params.output_pattern.empty() ? nullptr : params.output_pattern.c_str(),
+				params.model.c_str(),
+				params.gpu.empty() ? nullptr : params.gpu.c_str() );
 			if( FAILED( hr ) )
 				printError( "Unable to produce the text file", hr );
 		}

@@ -359,8 +359,37 @@ HRESULT WhisperModel::loadGpu( ComLight::iReadStream* stm, CallbacksImpl& callba
 		}
 		CHECK( readBytes( stm, bytesVector.data(), bytesVector.size() ) );
 		cb += bytesVector.size();
-		CHECK( p->m_value.dest->createImmutable( dt, ne, bytesVector.data() ) );
-		CHECK( p->m_value.postProcess( reshape, dt ) );
+
+#ifdef _DEBUG
+		logDebug( u8"About to call createImmutable for tensor '%s', type=%d", cstr( name ), (int)dt );
+#endif
+		{
+			HRESULT hr = p->m_value.dest->createImmutable( dt, ne, bytesVector.data() );
+			if( FAILED( hr ) )
+			{
+				logError( u8"createImmutable failed for tensor '%s', type=%d, hr=0x%08X", cstr( name ), (int)dt, hr );
+				return hr;
+			}
+#ifdef _DEBUG
+			logDebug( u8"createImmutable succeeded for tensor '%s'", cstr( name ) );
+#endif
+		}
+
+#ifdef _DEBUG
+		logDebug( u8"About to call postProcess for tensor '%s', type=%d", cstr( name ), (int)dt );
+#endif
+		{
+			HRESULT hr = p->m_value.postProcess( reshape, dt );
+			if( FAILED( hr ) )
+			{
+				logError( u8"postProcess failed for tensor '%s', type=%d, hr=0x%08X", cstr( name ), (int)dt, hr );
+				return hr;
+			}
+#ifdef _DEBUG
+			logDebug( u8"postProcess succeeded for tensor '%s'", cstr( name ) );
+#endif
+		}
+
 		countLoaded++;
 	}
 
@@ -547,16 +576,28 @@ HRESULT WhisperModel::load( ComLight::iReadStream* stm, bool hybrid, const sLoad
 	DirectCompute::GpuProfilerSimple gpuProfiler;
 	CHECK( gpuProfiler.create() );
 
+	logDebug( u8"WhisperModel::load - hybrid flag: %s", hybrid ? "true" : "false" );
+
 	if( hybrid )
 	{
 #if BUILD_HYBRID_VERSION
 		CHECK( loadHybrid( stm, cb ) )
 #else
+		logError( u8"Hybrid model implementation not available in this build (BUILD_HYBRID_VERSION=0)" );
 		return E_NOTIMPL;
 #endif
 	}
 	else
-		CHECK( loadGpu( stm, cb ) );
+	{
+		logDebug( u8"About to call loadGpu" );
+		HRESULT hr = loadGpu( stm, cb );
+		if( FAILED( hr ) )
+		{
+			logError( u8"loadGpu failed, hr=0x%08X", hr );
+			return hr;
+		}
+		logDebug( u8"loadGpu succeeded" );
+	}
 
 	CHECK( gpuProfiler.time( loadTimeGpu ) );
 	loadTimeCpu = cpuPerf.elapsed();

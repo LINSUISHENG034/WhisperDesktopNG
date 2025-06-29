@@ -148,6 +148,7 @@
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AdvancedVectorExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <ClCompile Include="ML\Reshaper.cpp" />
+    <ClCompile Include="ML\Sampler.cpp" />
     <ClCompile Include="Utils\Logger.cpp" />
     <ClCompile Include="MF\AudioCapture.cpp" />
     <ClCompile Include="Utils\LZ4\lz4.c">
@@ -241,6 +242,7 @@
     <ClInclude Include="API\sLanguageList.h" />
     <ClInclude Include="API\sLoadModelCallbacks.h" />
     <ClInclude Include="API\sModelSetup.h" />
+    <ClInclude Include="API\sParams.h" />
     <ClInclude Include="API\SpecialTokens.h" />
     <ClInclude Include="API\sFullParams.h" />
     <ClInclude Include="API\whisperComLight.h" />
@@ -270,6 +272,7 @@
     <ClInclude Include="CPU\mulMat.h" />
     <ClInclude Include="CPU\mulMatImpl.h" />
     <ClInclude Include="ML\Reshaper.h" />
+    <ClInclude Include="ML\Sampler.h" />
     <ClInclude Include="Utils\Logger.h" />
     <ClInclude Include="MF\AudioCapture.h" />
     <ClInclude Include="Utils\LZ4\lz4.h" />
