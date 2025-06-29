@@ -49,7 +49,12 @@ HRESULT DirectCompute::createBuffer( eBufferUse use, size_t totalBytes, ID3D11Bu
 		pSrd = &srd;
 	}
 
-	CHECK( device()->CreateBuffer( &bufferDesc, pSrd, ppGpuBuffer ) );
+	HRESULT hr = device()->CreateBuffer( &bufferDesc, pSrd, ppGpuBuffer );
+	if( FAILED( hr ) )
+	{
+		logError( u8"CreateBuffer failed: size=%zu, usage=%d, hr=0x%08X", totalBytes, (int)bufferDesc.Usage, hr );
+		return hr;
+	}
 
 	if( nullptr != ppStagingBuffer && use == eBufferUse::ReadWriteDownload )
 	{

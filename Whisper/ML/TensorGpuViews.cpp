@@ -10,8 +10,15 @@ HRESULT TensorGpuViews::create( ID3D11Buffer* gpuBuffer, DXGI_FORMAT format, siz
 	if( countElements > UINT_MAX )
 		return DISP_E_OVERFLOW;
 
+	// Standard typed buffer for all formats
 	CD3D11_SHADER_RESOURCE_VIEW_DESC viewDesc{ D3D11_SRV_DIMENSION_BUFFER, format, 0, (UINT)countElements };
-	CHECK( device()->CreateShaderResourceView( gpuBuffer, &viewDesc, &srv ) );
+	HRESULT hr = device()->CreateShaderResourceView( gpuBuffer, &viewDesc, &srv );
+	if( FAILED( hr ) )
+	{
+		logError( u8"CreateShaderResourceView failed: format=%d, elements=%zu, hr=0x%08X",
+			(int)format, countElements, hr );
+		return hr;
+	}
 
 	if( makeUav )
 	{

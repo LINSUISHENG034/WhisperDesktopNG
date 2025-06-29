@@ -140,13 +140,54 @@ HRESULT Tensor::createImmutable( eDataType type, const std::array<int, 4>& size,
 		format = DXGI_FORMAT_R32_FLOAT;
 		cbElement = 4;
 		break;
+	case eDataType::Q4_0:
+		format = DXGI_FORMAT_R8_UINT;  // Use byte format for quantized data
+		cbElement = 18;  // 18 bytes per Q4_0 block (32 elements)
+		logDebug( u8"Tensor::createImmutable - Q4_0 type, cbElement=%zu, elts=%zu", cbElement, elts );
+		break;
+	case eDataType::Q5_1:
+		format = DXGI_FORMAT_R8_UINT;  // Use byte format for quantized data
+		cbElement = 24;  // 24 bytes per Q5_1 block (32 elements)
+		logDebug( u8"Tensor::createImmutable - Q5_1 type, cbElement=%zu, elts=%zu", cbElement, elts );
+		break;
+	case eDataType::Q8_0:
+		format = DXGI_FORMAT_R8_UINT;  // Use byte format for quantized data
+		cbElement = 34;  // 34 bytes per Q8_0 block (32 elements)
+		logDebug( u8"Tensor::createImmutable - Q8_0 type, cbElement=%zu, elts=%zu", cbElement, elts );
+		break;
 	default:
+		logError( u8"Unsupported data type %d in createImmutable", (int)type );
 		return E_NOTIMPL;
 	}
 
 	CComPtr<ID3D11Buffer> buffer;
-	CHECK( createBuffer( eBufferUse::Immutable, cbElement * elts, &buffer, rsi, nullptr ) );
-	CHECK( TensorGpuViews::create( buffer, format, elts, false ) );
+
+	// Calculate correct buffer size and element count for quantized data
+	size_t bufferSizeBytes;
+	size_t viewElements;
+
+	if( type == eDataType::Q4_0 || type == eDataType::Q5_1 || type == eDataType::Q8_0 )
+	{
+		// For quantized data: calculate number of blocks and total bytes
+		const size_t elementsPerBlock = 32;
+		const size_t blockCount = (elts + elementsPerBlock - 1) / elementsPerBlock;  // Round up
+		bufferSizeBytes = blockCount * cbElement;
+
+		// For R8_UINT format, viewElements should be the number of bytes
+		viewElements = bufferSizeBytes;  // Each element is 1 byte
+
+		logDebug( u8"Quantized tensor: elts=%zu, blockCount=%zu, bufferSizeBytes=%zu, viewElements=%zu",
+			elts, blockCount, bufferSizeBytes, viewElements );
+	}
+	else
+	{
+		// For non-quantized data: use original calculation
+		bufferSizeBytes = cbElement * elts;
+		viewElements = elts;
+	}
+
+	CHECK( createBuffer( eBufferUse::Immutable, bufferSizeBytes, &buffer, rsi, nullptr ) );
+	CHECK( TensorGpuViews::create( buffer, format, viewElements, false ) );
 
 	__m128i v = _mm_loadu_si128( ( const __m128i* )size.data() );
 	_mm_storeu_si128( ( __m128i* )ne.data(), v );
@@ -188,7 +229,23 @@ HRESULT Tensor::create( eDataType type, std::initializer_list<uint32_t> sizeElem
 		format = DXGI_FORMAT_R32_UINT;
 		cbElement = 4;
 		break;
+	case eDataType::Q4_0:
+		format = DXGI_FORMAT_R8_UINT;  // Use byte format for quantized data
+		cbElement = 18;  // 18 bytes per Q4_0 block (32 elements)
+		logDebug( u8"Tensor::create - Q4_0 type, cbElement=%zu", cbElement );
+		break;
+	case eDataType::Q5_1:
+		format = DXGI_FORMAT_R8_UINT;  // Use byte format for quantized data
+		cbElement = 24;  // 24 bytes per Q5_1 block (32 elements)
+		logDebug( u8"Tensor::create - Q5_1 type, cbElement=%zu", cbElement );
+		break;
+	case eDataType::Q8_0:
+		format = DXGI_FORMAT_R8_UINT;  // Use byte format for quantized data
+		cbElement = 34;  // 34 bytes per Q8_0 block (32 elements)
+		logDebug( u8"Tensor::create - Q8_0 type, cbElement=%zu", cbElement );
+		break;
 	default:
+		logError( u8"Unsupported data type %d in Tensor::create", (int)type );
 		return E_NOTIMPL;
 	}
 
