@@ -7,6 +7,14 @@ namespace Whisper
 {
 	class Vocabulary;
 
+	// Forward declaration of DecoderState from ContextImpl.h
+	enum class DecoderState {
+		SeekingSOT,        // Looking for Start of Transcript token
+		SeekingLanguage,   // Looking for language token after SOT
+		Transcribing,      // Generating normal text content
+		SeekingTimestamp   // Looking for timestamp token
+	};
+
 	/// <summary>Advanced token sampler for Whisper models with support for various sampling strategies</summary>
 	class WhisperSampler
 	{
@@ -20,6 +28,14 @@ namespace Whisper
 		~WhisperSampler();
 
 		/// <summary>Samples the next token from logits using configured sampling strategy</summary>
+		/// <param name="logits">Array of logits for all tokens (will be modified in-place)</param>
+		/// <param name="logits_size">Size of the logits array</param>
+		/// <param name="history_tokens">Recent token history for repetition penalty</param>
+		/// <param name="state">Current decoder state for token suppression</param>
+		/// <returns>Selected token ID</returns>
+		int sample(float* logits, size_t logits_size, const std::vector<int>& history_tokens, DecoderState state);
+
+		/// <summary>Backward compatibility: Samples token with default Transcribing state</summary>
 		/// <param name="logits">Array of logits for all tokens (will be modified in-place)</param>
 		/// <param name="logits_size">Size of the logits array</param>
 		/// <param name="history_tokens">Recent token history for repetition penalty</param>
@@ -42,6 +58,12 @@ namespace Whisper
 		
 		/// <summary>Reference to vocabulary for token classification</summary>
 		const Vocabulary& m_vocab;
+
+		/// <summary>Suppresses inappropriate tokens based on current decoder state</summary>
+		/// <param name="logits">Array of logits to modify</param>
+		/// <param name="logits_size">Size of the logits array</param>
+		/// <param name="state">Current decoder state</param>
+		void suppress_tokens(float* logits, size_t logits_size, DecoderState state);
 
 		/// <summary>Applies repetition penalty to logits based on token history</summary>
 		/// <param name="logits">Array of logits to modify</param>

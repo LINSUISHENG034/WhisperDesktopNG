@@ -20,20 +20,23 @@ namespace Whisper
 	{
 	}
 
-	int WhisperSampler::sample(float* logits, size_t logits_size, const std::vector<int>& history_tokens)
+	int WhisperSampler::sample(float* logits, size_t logits_size, const std::vector<int>& history_tokens, DecoderState state)
 	{
 		if (!logits || logits_size == 0)
 		{
 			return 0; // Return safe default
 		}
 
-		// 1. Apply adaptive repetition penalty
+		// 1. Apply state-based token suppression (MOST IMPORTANT - do this first!)
+		suppress_tokens(logits, logits_size, state);
+
+		// 2. Apply adaptive repetition penalty
 		apply_repetition_penalty(logits, logits_size, history_tokens);
 
-		// 2. Apply temperature scaling
+		// 3. Apply temperature scaling
 		apply_temperature(logits, logits_size);
 
-		// 3. Find the best token directly (greedy sampling)
+		// 4. Find the best token directly (greedy sampling)
 		// Note: Top-K sampling disabled temporarily due to bug with tiny models
 		int best_token_id = 0;
 		float max_logit = -FLT_MAX;
@@ -47,6 +50,12 @@ namespace Whisper
 		}
 
 		return best_token_id;
+	}
+
+	// Backward compatibility method - defaults to Transcribing state
+	int WhisperSampler::sample(float* logits, size_t logits_size, const std::vector<int>& history_tokens)
+	{
+		return sample(logits, logits_size, history_tokens, DecoderState::Transcribing);
 	}
 
 
@@ -135,5 +144,81 @@ namespace Whisper
 	bool WhisperSampler::is_valid_token(int token_id, size_t logits_size) const
 	{
 		return token_id >= 0 && static_cast<size_t>(token_id) < logits_size;
+	}
+
+	void WhisperSampler::suppress_tokens(float* logits, size_t logits_size, DecoderState state)
+	{
+		// This is the CORE logic that prevents illegal token selections based on decoder state
+		// Reference: whisper.cpp's token suppression logic
+
+		switch (state)
+		{
+			case DecoderState::SeekingSOT:
+				// When seeking SOT, only allow SOT token
+				for (size_t i = 0; i < logits_size; ++i)
+				{
+					if (static_cast<int>(i) != m_vocab.token_sot)
+					{
+						logits[i] = -FLT_MAX;
+					}
+				}
+				break;
+
+			case DecoderState::SeekingLanguage:
+				// When seeking language, only allow language tokens
+				// Language tokens are typically in range [token_sot + 1, token_sot + 100]
+				for (size_t i = 0; i < logits_size; ++i)
+				{
+					int token_id = static_cast<int>(i);
+					if (token_id < m_vocab.token_sot + 1 || token_id >= m_vocab.token_sot + 100)
+					{
+						logits[i] = -FLT_MAX;
+					}
+				}
+				break;
+
+			case DecoderState::SeekingTimestamp:
+				// When seeking timestamp, only allow timestamp tokens (ID >= token_beg)
+				for (size_t i = 0; i < static_cast<size_t>(m_vocab.token_beg); ++i)
+				{
+					logits[i] = -FLT_MAX;
+				}
+				break;
+
+			case DecoderState::Transcribing:
+				// When transcribing text, suppress special tokens that shouldn't appear
+				// BUT allow timestamp tokens to naturally appear when needed!
+
+				// Suppress SOT token (shouldn't appear during transcription)
+				if (static_cast<size_t>(m_vocab.token_sot) < logits_size)
+				{
+					logits[m_vocab.token_sot] = -FLT_MAX;
+				}
+
+				// Suppress EOT token during normal transcription (prevents EOT loops!)
+				if (static_cast<size_t>(m_vocab.token_eot) < logits_size)
+				{
+					logits[m_vocab.token_eot] = -FLT_MAX;
+				}
+
+				// Suppress no-timestamps token
+				if (static_cast<size_t>(m_vocab.token_not) < logits_size)
+				{
+					logits[m_vocab.token_not] = -FLT_MAX;
+				}
+
+				// Suppress language tokens during transcription
+				for (int lang_token = m_vocab.token_sot + 1; lang_token < m_vocab.token_sot + 100; ++lang_token)
+				{
+					if (static_cast<size_t>(lang_token) < logits_size)
+					{
+						logits[lang_token] = -FLT_MAX;
+					}
+				}
+
+				// NOTE: We do NOT suppress timestamp tokens here!
+				// Timestamp tokens should be allowed during transcription to naturally end segments
+				break;
+		}
 	}
 }

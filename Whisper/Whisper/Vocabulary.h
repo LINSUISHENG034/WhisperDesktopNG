@@ -90,6 +90,9 @@ namespace Whisper
 			return token_id >= token_sot;
 		}
 
+		// Get language token ID from language code (e.g., "zh" -> token ID)
+		int languageTokenId( const char* lang_code ) const;
+
 		size_t getMemoryUse() const
 		{
 			return vectorMemoryUse( tokens ) + vectorMemoryUse( stringData );

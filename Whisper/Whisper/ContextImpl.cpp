@@ -2,6 +2,8 @@
 #include "ContextImpl.h"
 #include "Languages.h"
 #include "../Utils/Trace/tracing.h"
+#include "../ML/Sampler.h"
+#include <set>
 using namespace Whisper;
 
 ContextImpl::ContextImpl( const DirectCompute::Device& dev, const WhisperModel& modelData, iModel* modelPointer ) :
@@ -83,11 +85,19 @@ sTokenData ContextImpl::sampleBest( const float* probs, bool force_timestamp, bo
 	probs_id.clear();
 	probs_id.reserve( n_logits );
 
-	// Use the advanced sampler with Top-K and adaptive repetition penalty
+	// Use the advanced sampler with state-aware token suppression
 	// This completely replaces the old probability modification logic
 	if( m_sampler ) {
-		// Let the advanced sampler handle everything: repetition penalty, temperature, and Top-K
-		int sampled_token = m_sampler->sample( const_cast<float*>(probs), n_logits, previous_tokens );
+		// Determine the appropriate decoder state for sampling
+		DecoderState sampling_state = m_currentState;
+
+		// Override state for timestamp sampling
+		if( force_timestamp ) {
+			sampling_state = DecoderState::SeekingTimestamp;
+		}
+
+		// Let the advanced sampler handle everything: state suppression, repetition penalty, temperature
+		int sampled_token = m_sampler->sample( const_cast<float*>(probs), n_logits, previous_tokens, sampling_state );
 
 		// Convert to the expected sTokenData format
 		sTokenData result;
@@ -605,6 +615,9 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 		// encode audio features starting at offset seek
 		CHECK( encode( mel, seek ) );
 
+		// Reset quality detection for new audio segment
+		resetSegmentQuality();
+
 		int n_past = 0;
 		prompt.clear();
 
@@ -637,6 +650,9 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 
 		bool failed = false;
 		bool has_ts = false; // have we already sampled a non-beg timestamp token for the current segment?
+
+		// Initialize decoder state machine for this segment
+		m_currentState = DecoderState::SeekingSOT;
 
 		// Maintain history of recent tokens for repetition penalty
 		std::vector<int> recent_tokens;
@@ -678,8 +694,32 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 
 					// DEBUG: Log token information
 					const char* tokenText = vocab.string(token.id);
-					logDebug( u8"DEBUG: i=%d, token.id=%d ('%s'), vocab.token_beg=%d, token.p=%f, history_size=%d",
-						i, token.id, tokenText ? tokenText : "NULL", vocab.token_beg, token.p, (int)m_recent_tokens.size() );
+					logDebug( u8"DEBUG: i=%d, token.id=%d ('%s'), vocab.token_beg=%d, token.p=%f, history_size=%d, state=%d",
+						i, token.id, tokenText ? tokenText : "NULL", vocab.token_beg, token.p, (int)m_recent_tokens.size(), (int)m_currentState );
+
+					// Update decoder state based on the generated token
+					if( token.id == vocab.token_sot )
+					{
+						m_currentState = DecoderState::SeekingLanguage;
+						logDebug( u8"DEBUG: State transition to SeekingLanguage after SOT token" );
+					}
+					else if( m_currentState == DecoderState::SeekingLanguage &&
+							 token.id >= vocab.token_sot + 1 && token.id < vocab.token_sot + 100 ) // Language tokens range
+					{
+						m_currentState = DecoderState::SeekingTimestamp; // Go to timestamp seeking first
+						logDebug( u8"DEBUG: State transition to SeekingTimestamp after language token %d", token.id );
+					}
+					else if( token.id > vocab.token_beg ) // Timestamp token
+					{
+						m_currentState = DecoderState::Transcribing;
+						logDebug( u8"DEBUG: State transition to Transcribing after timestamp token" );
+					}
+					else if( m_currentState == DecoderState::Transcribing && token.id == vocab.token_eot )
+					{
+						// EOT token means end of segment, go back to seeking timestamp for next segment
+						m_currentState = DecoderState::SeekingTimestamp;
+						logDebug( u8"DEBUG: State transition to SeekingTimestamp after EOT token" );
+					}
 
 					// Update centralized token history for repetition penalty
 					m_recent_tokens.push_back( token.id );
@@ -712,6 +752,39 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 					{
 						logDebug( u8"DEBUG: Non-timestamp token, token.id=%d <= vocab.token_beg=%d",
 							token.id, vocab.token_beg );
+
+						// Add non-timestamp tokens to quality detection system
+						if( m_currentState == DecoderState::Transcribing )
+						{
+							const char* tokenText = vocab.string( token.id );
+							std::string tokenStr = tokenText ? tokenText : "";
+							addTokenToSegment( token.id, token.p, tokenStr );
+
+							// Check quality periodically or when segment gets too long
+							if( m_segment_logprobs.size() >= static_cast<size_t>(m_max_segment_length) )
+							{
+								if( !checkSegmentQuality() )
+								{
+									logDebug( u8"DEBUG: Quality check failed - resetting segment and seeking new timestamp" );
+									resetSegmentQuality();
+									// Force transition back to seeking timestamp to restart
+									m_currentState = DecoderState::SeekingTimestamp;
+									// Clear recent context to avoid repeating bad patterns
+									if( m_recent_tokens.size() > 5 )
+									{
+										// Keep only the last 5 tokens
+										std::vector<int> last_tokens( m_recent_tokens.end() - 5, m_recent_tokens.end() );
+										m_recent_tokens = std::move( last_tokens );
+									}
+									// Don't break here - let the normal flow continue
+								}
+								else
+								{
+									// Quality is good, reset for next segment
+									resetSegmentQuality();
+								}
+							}
+						}
 					}
 
 					// add it to the context
@@ -904,4 +977,78 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 		CHECK( progress.pfn( 1.0, this, progress.pv ) );
 	}
 	return S_OK;
+}
+
+// Quality detection methods implementation
+void ContextImpl::addTokenToSegment( int token_id, float logprob, const std::string& token_text )
+{
+	m_segment_logprobs.push_back( logprob );
+	m_segment_text += token_text;
+
+	logDebug( u8"DEBUG: Added token %d ('%s') with logprob %.6f to segment", token_id, token_text.c_str(), logprob );
+}
+
+bool ContextImpl::checkSegmentQuality()
+{
+	if( m_segment_logprobs.empty() || m_segment_text.empty() )
+		return true; // Empty segment is considered good
+
+	// Calculate average log probability
+	float avg_logprob = calculateAverageLogProb();
+
+	// Calculate compression ratio
+	float compression_ratio = calculateCompressionRatio( m_segment_text );
+
+	logDebug( u8"DEBUG: Quality check - avg_logprob=%.6f (threshold=%.6f), compression_ratio=%.6f (threshold=%.6f)",
+			  avg_logprob, m_logprob_threshold, compression_ratio, m_compression_ratio_threshold );
+
+	// Check if quality is below thresholds
+	bool quality_good = true;
+	if( avg_logprob < m_logprob_threshold )
+	{
+		logDebug( u8"DEBUG: Quality check FAILED - low average log probability" );
+		quality_good = false;
+	}
+	if( compression_ratio > m_compression_ratio_threshold )
+	{
+		logDebug( u8"DEBUG: Quality check FAILED - high compression ratio (likely repetitive text)" );
+		quality_good = false;
+	}
+
+	if( quality_good )
+		logDebug( u8"DEBUG: Quality check PASSED" );
+
+	return quality_good;
+}
+
+void ContextImpl::resetSegmentQuality()
+{
+	m_segment_logprobs.clear();
+	m_segment_text.clear();
+	logDebug( u8"DEBUG: Reset segment quality tracking" );
+}
+
+float ContextImpl::calculateCompressionRatio( const std::string& text )
+{
+	if( text.empty() )
+		return 1.0f;
+
+	// Simple compression ratio calculation using text length vs unique character count
+	// This is a simplified version - in production, you might use zlib compression
+	std::set<char> unique_chars( text.begin(), text.end() );
+	float ratio = static_cast<float>( text.length() ) / static_cast<float>( unique_chars.size() );
+
+	return ratio;
+}
+
+float ContextImpl::calculateAverageLogProb()
+{
+	if( m_segment_logprobs.empty() )
+		return 0.0f;
+
+	float sum = 0.0f;
+	for( float logprob : m_segment_logprobs )
+		sum += logprob;
+
+	return sum / static_cast<float>( m_segment_logprobs.size() );
 }

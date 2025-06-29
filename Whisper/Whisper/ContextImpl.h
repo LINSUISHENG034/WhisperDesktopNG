@@ -11,6 +11,12 @@
 
 namespace Whisper
 {
+	// Forward declaration - actual definition is in Sampler.h
+	enum class DecoderState;
+}
+
+namespace Whisper
+{
 	class ContextImpl : public ComLight::ObjectRoot<iContext>
 	{
 		const DirectCompute::Device& device;
@@ -26,6 +32,16 @@ namespace Whisper
 		// Advanced token sampler for handling repetition penalty and temperature
 		std::unique_ptr<WhisperSampler> m_sampler;
 		std::vector<int> m_recent_tokens; // Token history for repetition penalty
+
+		// Decoder state machine for proper token suppression
+		DecoderState m_currentState = DecoderState::SeekingSOT;
+
+		// Quality detection system for "garbage text" prevention
+		std::vector<float> m_segment_logprobs;  // Accumulated log probabilities for current segment
+		std::string m_segment_text;             // Accumulated text for current segment
+		float m_logprob_threshold = -1.0f;      // Threshold for average log probability
+		float m_compression_ratio_threshold = 2.4f; // Threshold for compression ratio
+		int m_max_segment_length = 50;          // Maximum tokens per segment before quality check
 
 		HRESULT COMLIGHTCALL getModel( iModel** pp ) override final;
 		HRESULT COMLIGHTCALL timingsPrint() override final;
@@ -64,6 +80,13 @@ namespace Whisper
 		sTokenData sampleTimestamp( bool initial );
 		int wrapSegment( int max_len );
 		void expComputeTokenLevelTimestamps( int i_segment, float thold_pt, float thold_ptsum );
+
+		// Quality detection methods
+		void addTokenToSegment( int token_id, float logprob, const std::string& token_text );
+		bool checkSegmentQuality();
+		void resetSegmentQuality();
+		float calculateCompressionRatio( const std::string& text );
+		float calculateAverageLogProb();
 
 		std::vector<float> probs;
 		std::vector<std::pair<double, Vocabulary::id>> probs_id;
