@@ -30,6 +30,11 @@ namespace DirectCompute
 		// Dequantize a quantized tensor to FP32 format
 		// Input: quantized tensor with Q4_0, Q5_1, or Q8_0 data
 		// Output: FP32 tensor with dequantized values
+		// quantType: explicit quantization type (Q4_0, Q5_1, or Q8_0)
+		static HRESULT dequantize( const Tensor& quantizedInput, Tensor& fp32Output, eDataType quantType );
+
+		// Legacy dequantize function for backward compatibility
+		// Attempts to determine quantization type from tensor size heuristics
 		static HRESULT dequantize( const Tensor& quantizedInput, Tensor& fp32Output );
 
 		// Get the number of blocks for a given quantization type and element count

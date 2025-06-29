@@ -7,16 +7,59 @@
 
 using namespace DirectCompute;
 
+HRESULT QuantizationOps::dequantize( const Tensor& quantizedInput, Tensor& fp32Output, eDataType quantType )
+{
+	// Validate that the quantization type is supported
+	if( !isQuantizedType( quantType ) )
+	{
+		return E_INVALIDARG;
+	}
+
+	// Dynamic dispatch based on quantization type
+	switch( quantType )
+	{
+	case eDataType::Q4_0:
+		return dequantizeQ4_0( quantizedInput, fp32Output );
+	case eDataType::Q5_1:
+		return dequantizeQ5_1( quantizedInput, fp32Output );
+	case eDataType::Q8_0:
+		return dequantizeQ8_0( quantizedInput, fp32Output );
+	default:
+		// This should never happen due to isQuantizedType check above
+		return E_NOTIMPL;
+	}
+}
+
 HRESULT QuantizationOps::dequantize( const Tensor& quantizedInput, Tensor& fp32Output )
 {
-	// For now, we'll determine the type based on the tensor size
-	// This is a simplified approach - in a full implementation, we'd store the type with the tensor
+	// Legacy function for backward compatibility
+	// Attempt to determine quantization type from tensor size heuristics
 	const uint32_t elementCount = fp32Output.countElements();
+	const uint32_t inputSizeBytes = quantizedInput.countElements() * 4; // Assuming R32_UINT format
 
-	// We'll need to determine the quantization type from context
-	// For this initial implementation, let's assume Q5_1 as an example
-	return dequantizeQ5_1( quantizedInput, fp32Output );
+	// Calculate expected block count for each quantization type
+	const uint32_t elementsPerBlock = 32;
+	const uint32_t blockCount = (elementCount + elementsPerBlock - 1) / elementsPerBlock;
 
+	// Check which quantization type matches the input size
+	if( inputSizeBytes == blockCount * sizeof(block_q4_0) )
+	{
+		return dequantizeQ4_0( quantizedInput, fp32Output );
+	}
+	else if( inputSizeBytes == blockCount * sizeof(block_q5_1) )
+	{
+		return dequantizeQ5_1( quantizedInput, fp32Output );
+	}
+	else if( inputSizeBytes == blockCount * sizeof(block_q8_0) )
+	{
+		return dequantizeQ8_0( quantizedInput, fp32Output );
+	}
+	else
+	{
+		// Default to Q5_1 if size heuristics fail
+		// This maintains backward compatibility with existing code
+		return dequantizeQ5_1( quantizedInput, fp32Output );
+	}
 }
 
 uint32_t QuantizationOps::getBlockCount( eDataType quantType, uint32_t elementCount )
