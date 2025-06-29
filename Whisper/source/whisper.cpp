@@ -301,15 +301,19 @@ enum e_model {
     MODEL_SMALL,
     MODEL_MEDIUM,
     MODEL_LARGE,
+    MODEL_LARGE_V3,
+    MODEL_LARGE_V3_TURBO,
 };
 
 static const std::map<e_model, std::string> g_model_name = {
-    { MODEL_UNKNOWN,  "unknown"  },
-    { MODEL_TINY,     "tiny"     },
-    { MODEL_BASE,     "base"     },
-    { MODEL_SMALL,    "small"    },
-    { MODEL_MEDIUM,   "medium"   },
-    { MODEL_LARGE,    "large"    },
+    { MODEL_UNKNOWN,        "unknown"     },
+    { MODEL_TINY,           "tiny"        },
+    { MODEL_BASE,           "base"        },
+    { MODEL_SMALL,          "small"       },
+    { MODEL_MEDIUM,         "medium"      },
+    { MODEL_LARGE,          "large"       },
+    { MODEL_LARGE_V3,       "large-v3"    },
+    { MODEL_LARGE_V3_TURBO, "large-v3-turbo" },
 };
 
 static const std::map<std::string, std::pair<int, std::string>> g_lang = {
@@ -1559,10 +1563,13 @@ static bool whisper_model_load(struct whisper_model_loader * loader, whisper_con
         }
 
         if (hparams.n_audio_layer == 32) {
-            model.type = e_model::MODEL_LARGE;
-
             if (hparams.n_vocab == 51866) {
+                // Large-v3 model detected by vocabulary size
+                model.type = e_model::MODEL_LARGE_V3;
                 mver = " v3";
+            } else {
+                // Standard Large model (v1/v2)
+                model.type = e_model::MODEL_LARGE;
             }
         }
 
@@ -4178,6 +4185,10 @@ const char *whisper_model_type_readable(struct whisper_context * ctx) {
         return "medium";
     case e_model::MODEL_LARGE:
         return "large";
+    case e_model::MODEL_LARGE_V3:
+        return "large-v3";
+    case e_model::MODEL_LARGE_V3_TURBO:
+        return "large-v3-turbo";
     default:
         return "unknown";
     }

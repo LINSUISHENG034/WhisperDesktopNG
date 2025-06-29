@@ -299,15 +299,19 @@ enum e_model {
     MODEL_SMALL,
     MODEL_MEDIUM,
     MODEL_LARGE,
+    MODEL_LARGE_V3,
+    MODEL_LARGE_V3_TURBO,
 };
 
 static const std::map<e_model, std::string> g_model_name = {
-    { MODEL_UNKNOWN,  "unknown"  },
-    { MODEL_TINY,     "tiny"     },
-    { MODEL_BASE,     "base"     },
-    { MODEL_SMALL,    "small"    },
-    { MODEL_MEDIUM,   "medium"   },
-    { MODEL_LARGE,    "large"    },
+    { MODEL_UNKNOWN,        "unknown"     },
+    { MODEL_TINY,           "tiny"        },
+    { MODEL_BASE,           "base"        },
+    { MODEL_SMALL,          "small"       },
+    { MODEL_MEDIUM,         "medium"      },
+    { MODEL_LARGE,          "large"       },
+    { MODEL_LARGE_V3,       "large-v3"    },
+    { MODEL_LARGE_V3_TURBO, "large-v3-turbo" },
 };
 
 static const std::map<std::string, std::pair<int, std::string>> g_lang = {
@@ -1557,10 +1561,13 @@ static bool whisper_model_load(struct whisper_model_loader * loader, whisper_con
         }
 
         if (hparams.n_audio_layer == 32) {
-            model.type = e_model::MODEL_LARGE;
-
             if (hparams.n_vocab == 51866) {
+                // Large-v3 model detected by vocabulary size
+                model.type = e_model::MODEL_LARGE_V3;
                 mver = " v3";
+            } else {
+                // Standard Large model (v1/v2)
+                model.type = e_model::MODEL_LARGE;
             }
         }
 
@@ -3745,6 +3752,26 @@ struct whisper_context * whisper_init_with_params_no_state(struct whisper_model_
 
     loader->close(loader->context);
 
+    // Post-processing: Detect Turbo model based on filename
+    if (ctx->model.type == MODEL_LARGE_V3) {
+        std::string filename = path_model;
+        // Extract filename from path
+        size_t last_slash = filename.find_last_of("/\\");
+        if (last_slash != std::string::npos) {
+            filename = filename.substr(last_slash + 1);
+        }
+
+        // Check if filename contains "turbo" (case-insensitive)
+        std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
+        if (filename.find("turbo") != std::string::npos) {
+            ctx->model.type = MODEL_LARGE_V3_TURBO;
+            WHISPER_LOG_INFO("%s: detected Turbo model variant\n", __func__);
+        }
+    }
+
+    // Store model path for future reference
+    ctx->path_model = path_model;
+
     return ctx;
 }
 
@@ -4177,6 +4204,10 @@ const char *whisper_model_type_readable(struct whisper_context * ctx) {
         return "medium";
     case e_model::MODEL_LARGE:
         return "large";
+    case e_model::MODEL_LARGE_V3:
+        return "large-v3";
+    case e_model::MODEL_LARGE_V3_TURBO:
+        return "large-v3-turbo";
     default:
         return "unknown";
     }

@@ -305,7 +305,18 @@ namespace Whisper
 			if( hparams.n_audio_layer == 24 )
 				model.type = e_model::MODEL_MEDIUM;
 			if( hparams.n_audio_layer == 32 )
-				model.type = e_model::MODEL_LARGE;
+			{
+				if( hparams.n_vocab == 51866 )
+				{
+					// Large-v3 model detected by vocabulary size
+					model.type = e_model::MODEL_LARGE_V3;
+				}
+				else
+				{
+					// Standard Large model (v1/v2)
+					model.type = e_model::MODEL_LARGE;
+				}
+			}
 
 			logDebug( u8"%s: n_vocab       = %d", __func__, hparams.n_vocab );
 			logDebug( u8"%s: n_audio_ctx   = %d", __func__, hparams.n_audio_ctx );

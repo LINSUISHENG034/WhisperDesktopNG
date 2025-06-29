@@ -46,6 +46,8 @@ namespace
 		Small = 2,
 		Medium = 3,
 		Large = 4,
+		LargeV3 = 5,
+		LargeV3Turbo = 6,
 	};
 
 	static HRESULT detectModelType( const Whisper::sModelParams& modelParams, eModelType& mt )
@@ -65,7 +67,16 @@ namespace
 			mt = eModelType::Medium;
 			return S_OK;
 		case 32:
-			mt = eModelType::Large;
+			if( modelParams.n_vocab == 51866 )
+			{
+				// Large-v3 model detected by vocabulary size
+				mt = eModelType::LargeV3;
+			}
+			else
+			{
+				// Standard Large model (v1/v2)
+				mt = eModelType::Large;
+			}
 			return S_OK;
 		}
 		logError( u8"Unrecognized model" );
