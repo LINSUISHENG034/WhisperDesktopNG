@@ -523,6 +523,10 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 	auto prof = context.completeProfiler();
 	bool stoppedPrematurely = false;
 
+	// Fix for Large-v3 timestamp generation issue: limit consecutive failures
+	int consecutive_failures = 0;
+	const int max_consecutive_failures = 5; // Allow max 5 consecutive timestamp failures
+
 	if( params.flag( eFullParamsFlags::NoContext ) )
 	{
 		CHECK( context.clearState() );
@@ -594,7 +598,18 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 		{
 			// Measure "Decode" profiler value, both CPU and GPU times
 			auto prof = context.decodeProfiler();
-			for( int i = 0, n_max = model.parameters.n_text_ctx / 2 - 4; i < n_max; i++ )
+
+			// Fix for Large-v3 performance issue: limit n_max to reasonable value
+			// Large-v3 models may have very large n_text_ctx causing excessive decode loops
+			const int raw_n_max = model.parameters.n_text_ctx / 2 - 4;
+			const int n_max = std::min(raw_n_max, 220); // Cap at 220 (same as standard models)
+
+			if (raw_n_max != n_max) {
+				logDebug(u8"Limiting decode loops: n_text_ctx=%d, raw_n_max=%d, capped_n_max=%d",
+					model.parameters.n_text_ctx, raw_n_max, n_max);
+			}
+
+			for( int i = 0; i < n_max; i++ )
 			{
 				CHECK( decode( prompt.data(), prompt.size(), n_past, params.cpuThreads ) );
 
@@ -674,9 +689,32 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 		}
 		if( failed )
 		{
-			logError( u8"%s: failed to generate timestamp token - skipping one second", __func__ );
+			consecutive_failures++;
+			logError( u8"%s: failed to generate timestamp token - skipping one second (failure %d/%d)",
+				__func__, consecutive_failures, max_consecutive_failures );
+
+			// If too many consecutive failures, try to recover by using no-timestamp mode
+			if( consecutive_failures >= max_consecutive_failures )
+			{
+				logError( u8"%s: too many consecutive timestamp failures, switching to no-timestamp mode for remaining audio", __func__ );
+				// Process remaining audio without timestamps
+				seek_delta = seek_end - seek;
+				if( seek_delta > 0 )
+				{
+					// Add a single segment for the remaining audio
+					const std::string remaining_text = "[Timestamp generation failed - remaining audio processed without timestamps]";
+					result_all.push_back( { seek * 10, seek_end * 10, remaining_text, {} } );
+				}
+				break; // Exit the main loop
+			}
+
 			seek += 100;
 			continue;
+		}
+		else
+		{
+			// Reset failure counter on success
+			consecutive_failures = 0;
 		}
 
 		// shrink down to result_len

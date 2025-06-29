@@ -1,0 +1,1 @@
+﻿[00:00:40.000 --> 00:01:50.000]  [Timestamp generation failed - remaining audio processed without timestamps]
