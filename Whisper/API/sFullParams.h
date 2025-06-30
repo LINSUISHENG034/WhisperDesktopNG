@@ -62,6 +62,9 @@ namespace Whisper
 		// CRITICAL: Initial timestamp constraint parameter
 		float max_initial_ts;   // maximum initial timestamp in seconds (default: 1.0f)
 
+		// Sampling parameters
+		float temperature;      // temperature for sampling (0.0f = greedy, >0.0f = probabilistic)
+
 		struct
 		{
 			int n_past;

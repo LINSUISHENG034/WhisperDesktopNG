@@ -36,6 +36,7 @@ sFullParams makeNewParams( const whisper_full_params& wfp )
 	res.thold_ptsum = wfp.thold_ptsum;
 	res.max_len = wfp.max_len;
 	res.max_initial_ts = wfp.max_initial_ts;  // CRITICAL: Transfer max_initial_ts parameter
+	res.temperature = wfp.temperature;  // CRITICAL: Transfer temperature parameter for sampling
 	res.greedy.n_past = wfp.greedy.n_past;
 	res.beam_search.n_past = wfp.beam_search.n_past;
 	res.beam_search.beam_width = wfp.beam_search.beam_width;
@@ -148,6 +149,7 @@ whisper_full_params makeOldParams( const Whisper::sFullParams& rsi, Whisper::iCo
 	res.thold_ptsum = rsi.thold_ptsum;
 	res.max_len = rsi.max_len;
 	res.max_initial_ts = rsi.max_initial_ts;  // CRITICAL: Transfer max_initial_ts parameter
+	res.temperature = rsi.temperature;  // CRITICAL: Transfer temperature parameter for sampling
 	res.greedy.n_past = rsi.greedy.n_past;
 	res.beam_search.n_past = rsi.beam_search.n_past;
 	res.beam_search.beam_width = rsi.beam_search.beam_width;
