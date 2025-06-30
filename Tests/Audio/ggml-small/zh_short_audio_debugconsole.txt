@@ -1,0 +1,66 @@
+Using GPU "NVIDIA GeForce RTX 3070 Ti", feature level 12.1, effective flags Wave32 | NoReshapedMatMul
+Loaded MEL filters, 62.8 kb RAM
+Loaded vocabulary, 51865 strings, 771.3 kb RAM
+Loaded 479 GPU tensors, 464.445 MB VRAM
+Computed CPU base frequency: 2.49599 GHz
+Loaded model from "E:\Program Files\WhisperDesktop\ggml-small.bin" to VRAM
+Press Control+C or Control+Break to close this window
+Created source reader from the file "F:\Projects\WhisperDesktopNG\Tests\Audio\zh_short_audio.mp3"
+[00:00:00.000 --> 00:00:02.800]  不用开火10分钟就能吃上下  菜
+[00:00:02.800 --> 00:00:04.840]    子            
+[00:00:04.840 --> 00:00:06.880]      180度  10分钟
+[00:00:06.880 --> 00:00:09.160]    好的  子保       起来
+[00:00:09.160 --> 00:00:11.440]  一秒去皮 超    单快速
+[00:00:11.440 --> 00:00:12.960]      给它  开
+[00:00:12.960 --> 00:00:16.080]        去皮 用    直接    
+[00:00:16.080 --> 00:00:18.240]                   
+[00:00:18.240 --> 00:00:21.360]  倒上这个  好的料       一下
+[00:00:21.360 --> 00:00:23.400]  再来一点这个    油
+[00:00:23.400 --> 00:00:25.960]  这个    油  而不   很香
+[00:00:25.960 --> 00:00:28.000]  就这个 您就吃下吧
+[00:00:28.000 --> 00:00:29.360]  多    点  头
+[00:00:29.360 --> 00:00:31.800]  一个怕你不  吃 好吃 好吃
+    CPU Tasks
+LoadModel       429.125 milliseconds
+RunComplete     2.17493 seconds
+Run     2.09242 seconds
+Callbacks       46.5745 milliseconds, 18 calls, 2.58747 milliseconds average
+Spectrogram     41.5509 milliseconds, 7 calls, 5.93584 milliseconds average
+Sample  29.3997 milliseconds, 210 calls, 139.999 microseconds average
+Encode  586.896 milliseconds, 2 calls, 293.448 milliseconds average
+Decode  1.45881 seconds, 2 calls, 729.407 milliseconds average
+DecodeStep      1.42919 seconds, 210 calls, 6.80566 milliseconds average
+    GPU Tasks
+LoadModel       273.8 milliseconds
+Run     1.9848 seconds
+Encode  485.946 milliseconds, 2 calls, 242.973 milliseconds average
+EncodeLayer     344.496 milliseconds, 24 calls, 14.354 milliseconds average
+Decode  1.49886 seconds, 2 calls, 749.428 milliseconds average
+DecodeStep      1.49873 seconds, 210 calls, 7.13682 milliseconds average
+DecodeLayer     1.30942 seconds, 2520 calls, 519.61 microseconds average
+    Compute Shaders
+mulMatByRowTiled        711.039 milliseconds, 30160 calls, 23.5756 microseconds average
+mulMatTiled     338.848 milliseconds, 530 calls, 639.337 microseconds average
+softMaxLong     132.886 milliseconds, 210 calls, 632.792 microseconds average
+norm    95.4878 milliseconds, 7820 calls, 12.2107 microseconds average
+addRepeatEx     93.3553 milliseconds, 7608 calls, 12.2707 microseconds average
+fmaRepeat1      86.343 milliseconds, 7820 calls, 11.0413 microseconds average
+copyConvert     72.4416 milliseconds, 5136 calls, 14.1047 microseconds average
+copyTranspose   64.383 milliseconds, 5088 calls, 12.6539 microseconds average
+softMaxFixed    56.1434 milliseconds, 2544 calls, 22.0689 microseconds average
+addRepeatScale  55.7028 milliseconds, 5040 calls, 11.0521 microseconds average
+addRepeatGelu   51.3549 milliseconds, 2548 calls, 20.155 microseconds average
+convolutionMain 49.79 milliseconds, 2 calls, 24.895 milliseconds average
+convolutionMain2Fixed   44.543 milliseconds, 2 calls, 22.2715 milliseconds average
+scaleInPlace    30.6548 milliseconds, 2544 calls, 12.0498 microseconds average
+addRepeat       29.4463 milliseconds, 2592 calls, 11.3605 microseconds average
+softMax 26.462 milliseconds, 2520 calls, 10.5008 microseconds average
+diagMaskInf     16.8534 milliseconds, 2520 calls, 6.68786 microseconds average
+convolutionPrep1        7.1629 milliseconds, 4 calls, 1.79072 milliseconds average
+convolutionPrep2        3.5461 milliseconds, 4 calls, 886.525 microseconds average
+addRows 1.3165 milliseconds, 210 calls, 6.26905 microseconds average
+add     953.3 microseconds, 2 calls, 476.65 microseconds average
+    Memory Usage
+Model   856.028 KB RAM, 464.445 MB VRAM
+Context 79.9555 MB RAM, 418.206 MB VRAM
+Total   80.7915 MB RAM, 882.651 MB VRAM

@@ -22,6 +22,12 @@ namespace Whisper
 
 	int WhisperSampler::sample(float* logits, size_t logits_size, const std::vector<int>& history_tokens, DecoderState state)
 	{
+		// Call the extended version with no timestamp constraints
+		return sample(logits, logits_size, history_tokens, state, -1, -1);
+	}
+
+	int WhisperSampler::sample(float* logits, size_t logits_size, const std::vector<int>& history_tokens, DecoderState state, int current_seek, int seek_end)
+	{
 		if (!logits || logits_size == 0)
 		{
 			return 0; // Return safe default
@@ -30,13 +36,19 @@ namespace Whisper
 		// 1. Apply state-based token suppression (MOST IMPORTANT - do this first!)
 		suppress_tokens(logits, logits_size, state);
 
-		// 2. Apply adaptive repetition penalty
+		// 2. Apply timestamp range constraints for SeekingTimestamp state
+		if (state == DecoderState::SeekingTimestamp && current_seek >= 0 && seek_end >= 0)
+		{
+			suppress_out_of_range_timestamps(logits, logits_size, current_seek, seek_end);
+		}
+
+		// 3. Apply adaptive repetition penalty
 		apply_repetition_penalty(logits, logits_size, history_tokens);
 
-		// 3. Apply temperature scaling
+		// 4. Apply temperature scaling
 		apply_temperature(logits, logits_size);
 
-		// 4. Find the best token directly (greedy sampling)
+		// 5. Find the best token directly (greedy sampling)
 		// Note: Top-K sampling disabled temporarily due to bug with tiny models
 		int best_token_id = 0;
 		float max_logit = -FLT_MAX;
@@ -220,5 +232,58 @@ namespace Whisper
 				// Timestamp tokens should be allowed during transcription to naturally end segments
 				break;
 		}
+	}
+
+	void WhisperSampler::suppress_out_of_range_timestamps(float* logits, size_t logits_size, int current_seek, int seek_end)
+	{
+		// Suppress timestamp tokens that would result in positions outside the valid range
+		// Based on the formula: seek_delta = 2 * (token_id - token_beg)
+		// We want: current_seek <= seek_delta <= seek_end
+
+		const int token_beg = m_vocab.token_beg;
+		const int min_valid_token = token_beg;  // Timestamps start from 0
+		const int max_valid_token = token_beg + (seek_end - current_seek) / 2;
+
+		// DEBUG: Log timestamp range constraints
+		printf("TIMESTAMP_RANGE: current_seek=%d, seek_end=%d, token_beg=%d, min_valid=%d, max_valid=%d\n",
+			current_seek, seek_end, token_beg, min_valid_token, max_valid_token);
+
+		// DEBUG: Log top timestamp token probabilities before suppression
+		printf("TIMESTAMP_LOGITS_BEFORE: Top 10 timestamp tokens:\n");
+		std::vector<std::pair<float, int>> timestamp_probs;
+		for (int token_id = token_beg; token_id < static_cast<int>(logits_size) && token_id < token_beg + 100; ++token_id)
+		{
+			timestamp_probs.push_back({logits[token_id], token_id});
+		}
+		std::sort(timestamp_probs.begin(), timestamp_probs.end(), std::greater<std::pair<float, int>>());
+		for (int i = 0; i < std::min(10, (int)timestamp_probs.size()); ++i)
+		{
+			float prob = timestamp_probs[i].first;
+			int token_id = timestamp_probs[i].second;
+			int time_cs = 2 * (token_id - token_beg);  // centiseconds
+			printf("  Token %d (%.1fs): logit=%.6f\n", token_id, time_cs / 100.0f, prob);
+		}
+
+		// DEBUG: Also check the range of all logits values
+		float min_logit = FLT_MAX, max_logit = -FLT_MAX;
+		for (int token_id = token_beg; token_id < static_cast<int>(logits_size) && token_id < token_beg + 100; ++token_id)
+		{
+			min_logit = std::min(min_logit, logits[token_id]);
+			max_logit = std::max(max_logit, logits[token_id]);
+		}
+		printf("TIMESTAMP_LOGITS_RANGE: min=%.6f, max=%.6f\n", min_logit, max_logit);
+
+		int suppressed_count = 0;
+		// Suppress timestamp tokens outside the valid range
+		for (int token_id = token_beg; token_id < static_cast<int>(logits_size); ++token_id)
+		{
+			if (token_id < min_valid_token || token_id > max_valid_token)
+			{
+				logits[token_id] = -FLT_MAX;
+				suppressed_count++;
+			}
+		}
+
+		printf("TIMESTAMP_RANGE: suppressed %d timestamp tokens\n", suppressed_count);
 	}
 }

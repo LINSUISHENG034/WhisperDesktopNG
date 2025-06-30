@@ -2,6 +2,7 @@
 #include "Vocabulary.h"
 #include "loaderUtils.h"
 #include <regex>
+#include "../source/whisper.h"  // For whisper_lang_id function
 using ComLight::iReadStream;
 using namespace Whisper;
 
@@ -155,6 +156,24 @@ void Vocabulary::getSpecialTokens( SpecialTokens& rdi ) const
 	rdi.TranscriptionBegin = token_beg;
 	rdi.TaskTranslate = token_translate;
 	rdi.TaskTranscribe = token_transcribe;
+}
+
+int Vocabulary::languageTokenId( const char* lang_code ) const
+{
+	// Use whisper.cpp's whisper_lang_id to get language ID
+	const int lang_id = whisper_lang_id( lang_code );
+	if( lang_id == -1 )
+	{
+		// logDebug( u8"Language '%s' not found", lang_code );
+		return -1; // Language not found
+	}
+
+	// Calculate language token ID: sot_token + 1 + lang_id
+	// This follows whisper.cpp's token layout where language tokens come after SOT
+	const int lang_token_id = token_sot + 1 + lang_id;
+
+	// logDebug( u8"Language '%s' -> lang_id=%d, token_id=%d", lang_code, lang_id, lang_token_id );
+	return lang_token_id;
 }
 
 // https://github.com/ggerganov/whisper.cpp/blob/v1.2.1/whisper.cpp#L2451

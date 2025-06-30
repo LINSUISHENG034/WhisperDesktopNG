@@ -132,3 +132,19 @@
 [2025-06-29 18:47:13] [INFO] Results saved to: F:\Projects\WhisperDesktopNG\Tests\TranscriptionResults
 [2025-06-29 18:47:13] [INFO] Log file: F:\Projects\WhisperDesktopNG\Tests\transcription_test_log.txt
 [2025-06-29 18:47:13] [ERROR] SUMMARY: 0/1 tests produced valid transcriptions
+[2025-06-30 00:20:12] [INFO] === Comprehensive Transcription Test Started ===
+[2025-06-30 00:20:12] [INFO] Test Mode: quick
+[2025-06-30 00:20:12] [INFO] Checking test prerequisites...
+[2025-06-30 00:20:12] [SUCCESS] All prerequisites satisfied
+[2025-06-30 00:20:12] [INFO] Cleaning previous test results...
+[2025-06-30 00:20:12] [INFO] Removed 1 .txt files from Audio directory
+[2025-06-30 00:20:12] [INFO] Results directory cleaned and recreated
+[2025-06-30 00:20:12] [INFO] Testing 3 models against 4 audio files
+[2025-06-30 00:20:12] [INFO] [1/12] Testing base-q5_1 + jfk
+[2025-06-30 00:20:18] [INFO] Found generated file: jfk_ggml-base-q5_1_cpu_20250630_002018.txt
+[2025-06-30 00:20:18] [WARNING] ⚠️ WARNING: No valid transcription text
+[2025-06-30 00:20:18] [SUCCESS] Test report generated: F:\Projects\WhisperDesktopNG\Tests\TranscriptionResults\test_report.md
+[2025-06-30 00:20:18] [INFO] === Test Completed ===
+[2025-06-30 00:20:18] [INFO] Results saved to: F:\Projects\WhisperDesktopNG\Tests\TranscriptionResults
+[2025-06-30 00:20:18] [INFO] Log file: F:\Projects\WhisperDesktopNG\Tests\transcription_test_log.txt
+[2025-06-30 00:20:18] [ERROR] SUMMARY: 0/1 tests produced valid transcriptions

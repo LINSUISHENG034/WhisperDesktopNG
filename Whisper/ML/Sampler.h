@@ -35,6 +35,16 @@ namespace Whisper
 		/// <returns>Selected token ID</returns>
 		int sample(float* logits, size_t logits_size, const std::vector<int>& history_tokens, DecoderState state);
 
+		/// <summary>Samples the next token with timestamp range constraints</summary>
+		/// <param name="logits">Array of logits for all tokens (will be modified in-place)</param>
+		/// <param name="logits_size">Size of the logits array</param>
+		/// <param name="history_tokens">Recent token history for repetition penalty</param>
+		/// <param name="state">Current decoder state for token suppression</param>
+		/// <param name="current_seek">Current audio position</param>
+		/// <param name="seek_end">End of audio position</param>
+		/// <returns>Selected token ID</returns>
+		int sample(float* logits, size_t logits_size, const std::vector<int>& history_tokens, DecoderState state, int current_seek, int seek_end);
+
 		/// <summary>Backward compatibility: Samples token with default Transcribing state</summary>
 		/// <param name="logits">Array of logits for all tokens (will be modified in-place)</param>
 		/// <param name="logits_size">Size of the logits array</param>
@@ -87,5 +97,12 @@ namespace Whisper
 		/// <param name="logits_size">Maximum valid token ID</param>
 		/// <returns>True if token ID is valid</returns>
 		bool is_valid_token(int token_id, size_t logits_size) const;
+
+		/// <summary>Suppresses timestamp tokens that are outside the valid time range</summary>
+		/// <param name="logits">Array of logits to modify</param>
+		/// <param name="logits_size">Size of the logits array</param>
+		/// <param name="current_seek">Current audio position</param>
+		/// <param name="seek_end">End of audio position</param>
+		void suppress_out_of_range_timestamps(float* logits, size_t logits_size, int current_seek, int seek_end);
 	};
 }

@@ -4,6 +4,7 @@
 #include "../Utils/Trace/tracing.h"
 #include "../ML/Sampler.h"
 #include <set>
+#include <cmath>
 using namespace Whisper;
 
 ContextImpl::ContextImpl( const DirectCompute::Device& dev, const WhisperModel& modelData, iModel* modelPointer ) :
@@ -26,6 +27,9 @@ HRESULT ContextImpl::encode( iSpectrogram& mel, int seek )
 	// whisper_encode
 	using namespace DirectCompute;
 
+	// MEL DEBUG: Log encoding parameters
+	logDebug( u8"ENCODE_DEBUG: Starting encode, seek=%d", seek );
+
 	sEncodeParams ep;
 	ep.n_ctx = ( exp_n_audio_ctx > 0 ) ? exp_n_audio_ctx : model.parameters.n_audio_ctx;
 	ep.n_mels = model.parameters.n_mels;
@@ -41,6 +45,46 @@ HRESULT ContextImpl::encode( iSpectrogram& mel, int seek )
 	{
 		auto cur = context.encode( mel, ep );
 		Tracing::tensor( "encode-out", cur );
+
+		// ENCODER_OUTPUT_DEBUG: Log encoder output statistics
+		logDebug( u8"ENCODER_OUTPUT_DEBUG: seek=%d, encoder output tensor created", seek );
+
+		// Analyze encoder output statistics to understand feature distribution
+		try {
+			std::vector<float> encoder_data;
+			cur.download( encoder_data );
+
+			if( !encoder_data.empty() ) {
+				// Calculate basic statistics
+				float sum = 0.0f, sum_sq = 0.0f;
+				float min_val = encoder_data[0], max_val = encoder_data[0];
+
+				for( float val : encoder_data ) {
+					sum += val;
+					sum_sq += val * val;
+					min_val = std::min( min_val, val );
+					max_val = std::max( max_val, val );
+				}
+
+				float mean = sum / encoder_data.size();
+				float variance = (sum_sq / encoder_data.size()) - (mean * mean);
+				float std_dev = std::sqrt( variance );
+
+				logDebug( u8"ENCODER_STATS: seek=%d, size=%zu, mean=%.6f, std=%.6f, min=%.6f, max=%.6f",
+					seek, encoder_data.size(), mean, std_dev, min_val, max_val );
+
+				// Check for potential issues
+				if( std_dev < 0.001f ) {
+					logDebug( u8"ENCODER_WARNING: seek=%d, very low std deviation (%.6f), encoder output may be too uniform", seek, std_dev );
+				}
+				if( std::abs(mean) > 10.0f ) {
+					logDebug( u8"ENCODER_WARNING: seek=%d, high mean value (%.6f), encoder output may be unstable", seek, mean );
+				}
+			}
+		} catch( ... ) {
+			logDebug( u8"ENCODER_ERROR: seek=%d, failed to download encoder output for analysis", seek );
+		}
+
 		return S_OK;
 	}
 	catch( HRESULT hr )
@@ -85,6 +129,32 @@ sTokenData ContextImpl::sampleBest( const float* probs, bool force_timestamp, bo
 	probs_id.clear();
 	probs_id.reserve( n_logits );
 
+	// LANGUAGE DEBUG: Check if language constraints are being applied
+	logDebug( u8"LANGUAGE_DEBUG: Checking language processing in sample method, force_timestamp=%s", force_timestamp ? "YES" : "NO" );
+
+	// LANGUAGE DEBUG: Check current decoder state and language context
+	logDebug( u8"LANGUAGE_DEBUG: Current decoder state=%d, n_logits=%zu", (int)m_currentState, n_logits );
+
+	// MEL DEBUG: Add MEL spectrogram analysis
+	// This will help us understand if the encoder is receiving correct audio features
+
+	// LOGITS DEBUG: Add detailed logits analysis
+	logDebug( u8"LOGITS_DEBUG: Starting logits analysis, n_logits=%zu, m_sampler=%p", n_logits, m_sampler.get() );
+
+	// Find top 10 logits before any processing
+	std::vector<std::pair<float, int>> top_logits_raw;
+	for( size_t i = 0; i < n_logits; ++i ) {
+		top_logits_raw.push_back( {probs[i], (int)i} );
+	}
+	std::sort( top_logits_raw.begin(), top_logits_raw.end(), std::greater<std::pair<float, int>>() );
+
+	logDebug( u8"LOGITS_RAW_TOP10:" );
+	for( int i = 0; i < 10 && i < (int)top_logits_raw.size(); ++i ) {
+		const auto& pair = top_logits_raw[i];
+		const char* token_text = vocab.string( pair.second );
+		logDebug( u8"  [%d] id=%d, logit=%.6f, text='%s'", i, pair.second, pair.first, token_text ? token_text : "NULL" );
+	}
+
 	// Use the advanced sampler with state-aware token suppression
 	// This completely replaces the old probability modification logic
 	if( m_sampler ) {
@@ -99,10 +169,43 @@ sTokenData ContextImpl::sampleBest( const float* probs, bool force_timestamp, bo
 		// Let the advanced sampler handle everything: state suppression, repetition penalty, temperature
 		int sampled_token = m_sampler->sample( const_cast<float*>(probs), n_logits, previous_tokens, sampling_state );
 
+		// LOGITS DEBUG: Show top logits after sampler processing
+		std::vector<std::pair<float, int>> top_logits_processed;
+		for( size_t i = 0; i < n_logits; ++i ) {
+			top_logits_processed.push_back( {probs[i], (int)i} );
+		}
+		std::sort( top_logits_processed.begin(), top_logits_processed.end(), std::greater<std::pair<float, int>>() );
+
+		logDebug( u8"LOGITS_PROCESSED_TOP10:" );
+		for( int i = 0; i < 10 && i < (int)top_logits_processed.size(); ++i ) {
+			const auto& pair = top_logits_processed[i];
+			const char* token_text = vocab.string( pair.second );
+			logDebug( u8"  [%d] id=%d, logit=%.6f, text='%s'", i, pair.second, pair.first, token_text ? token_text : "NULL" );
+		}
+
+		const char* sampled_token_text = vocab.string( sampled_token );
+		logDebug( u8"LOGITS_SAMPLED: id=%d, logit=%.6f, text='%s'",
+			sampled_token,
+			(sampled_token >= 0 && sampled_token < (int)n_logits) ? probs[sampled_token] : -999.0f,
+			sampled_token_text ? sampled_token_text : "NULL" );
+
 		// Convert to the expected sTokenData format
 		sTokenData result;
 		result.id = sampled_token;
 		result.p = (sampled_token >= 0 && sampled_token < (int)n_logits) ? probs[sampled_token] : 0.0f;
+
+		// CRITICAL FIX: Set tid for timestamp tokens
+		// For timestamp tokens (id >= vocab.token_beg), tid should be the token id itself
+		// For non-timestamp tokens, tid should be 0
+		if( sampled_token >= vocab.token_beg )
+		{
+			result.tid = sampled_token;  // Timestamp token: tid = token id
+		}
+		else
+		{
+			result.tid = 0;  // Non-timestamp token: tid = 0
+		}
+
 		return result;
 	}
 
@@ -193,10 +296,86 @@ sTokenData ContextImpl::sampleBest( const std::vector<int>& previous_tokens )
 	return sampleBest( probs.data() + ( probs.size() - n_vocab ), false, false, previous_tokens );
 }
 
+sTokenData ContextImpl::sampleBest( const std::vector<int>& previous_tokens, int current_seek, int seek_end )
+{
+	const Vocabulary& vocab = model.shared->vocab;
+	const int n_vocab = vocab.n_vocab;
+	const float* probs_ptr = probs.data() + ( probs.size() - n_vocab );
+
+	size_t n_logits = vocab.size();
+
+	// Use the advanced sampler with timestamp range constraints
+	if( m_sampler ) {
+		// For this method, we're always in transcribing state unless we need a timestamp
+		DecoderState sampling_state = m_currentState;
+
+		// Call the sampler with timestamp constraints
+		int sampled_token = m_sampler->sample( const_cast<float*>(probs_ptr), n_logits, previous_tokens, sampling_state, current_seek, seek_end );
+
+		// Convert to the expected sTokenData format
+		sTokenData result;
+		result.id = sampled_token;
+		result.p = (sampled_token >= 0 && sampled_token < (int)n_logits) ? probs_ptr[sampled_token] : 0.0f;
+
+		// Set tid for timestamp tokens
+		if( sampled_token >= vocab.token_beg )
+		{
+			result.tid = sampled_token;  // Timestamp token: tid = token id
+		}
+		else
+		{
+			result.tid = 0;  // Non-timestamp token: tid = 0
+		}
+
+		return result;
+	}
+
+	// Fallback to the original method if sampler is not available
+	return sampleBest( probs_ptr, false, false, previous_tokens );
+}
+
 sTokenData ContextImpl::sampleTimestamp( bool initial )
 {
 	const int n_vocab = model.shared->vocab.n_vocab;
 	return sampleBest( probs.data() + ( probs.size() - n_vocab ), true, initial );
+}
+
+sTokenData ContextImpl::sampleTimestamp( bool initial, int current_seek, int seek_end )
+{
+	const Vocabulary& vocab = model.shared->vocab;
+	const int n_vocab = vocab.n_vocab;
+	const float* probs_ptr = probs.data() + ( probs.size() - n_vocab );
+
+	size_t n_logits = vocab.size();
+
+	// Use the advanced sampler with timestamp range constraints for timestamp sampling
+	if( m_sampler ) {
+		// Force timestamp sampling state
+		DecoderState sampling_state = DecoderState::SeekingTimestamp;
+
+		// Call the sampler with timestamp constraints
+		int sampled_token = m_sampler->sample( const_cast<float*>(probs_ptr), n_logits, m_recent_tokens, sampling_state, current_seek, seek_end );
+
+		// Convert to the expected sTokenData format
+		sTokenData result;
+		result.id = sampled_token;
+		result.p = (sampled_token >= 0 && sampled_token < (int)n_logits) ? probs_ptr[sampled_token] : 0.0f;
+
+		// Set tid for timestamp tokens
+		if( sampled_token >= vocab.token_beg )
+		{
+			result.tid = sampled_token;  // Timestamp token: tid = token id
+		}
+		else
+		{
+			result.tid = 0;  // Non-timestamp token: tid = 0
+		}
+
+		return result;
+	}
+
+	// Fallback to the original method if sampler is not available
+	return sampleBest( probs_ptr, true, initial );
 }
 
 // a cost-function / heuristic that is high for text that takes longer to pronounce
@@ -541,26 +720,57 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 	// overwrite audio_ctx
 	exp_n_audio_ctx = params.audio_ctx;
 
-	// these tokens determine the task that will be performed
-	std::vector<whisper_token> prompt_init = { vocab.token_sot };
+	// =================== [ ARCHITECTURAL FIX: CONTEXT PRIMING ] ===================
+	// Build complete initial context sequence: [SOT, LANGUAGE, TASK, TIMESTAMP]
+	// This follows whisper.cpp's reference implementation for proper multilingual support
+	std::vector<whisper_token> prompt_init;
+
+	// 1. Start-Of-Transcript token
+	prompt_init.push_back( vocab.token_sot );
+
 	if( vocab.is_multilingual() )
 	{
-		int langId = lookupLanguageId( params.language );
-		if( langId < 0 )
+		// 2. Language token
+		// Convert uint32_t language key to string for whisper.cpp API
+		char lang[ 5 ];
+		*(uint32_t*)( &lang[ 0 ] ) = params.language;
+		lang[ 4 ] = '\0';
+
+		const int lang_token_id = vocab.languageTokenId( lang );
+		if( lang_token_id < 0 )
 		{
-			char lang[ 5 ];
-			*(uint32_t*)( &lang[ 0 ] ) = params.language;
-			lang[ 4 ] = '\0';
 			logError( u8"%s: unknown language '%s'", __func__, lang );
 			return E_INVALIDARG;
 		}
+		prompt_init.push_back( lang_token_id );
 
-		prompt_init.push_back( vocab.token_sot + 1 + langId );
+		// 3. Task token (transcribe or translate)
 		if( params.flag( eFullParamsFlags::Translate ) )
 			prompt_init.push_back( vocab.token_translate );
 		else
 			prompt_init.push_back( vocab.token_transcribe );
+
+		// DEBUG: Show prompt tokens
+		logDebug( u8"PROMPT_DEBUG: language='%s', lang_token_id=%d", lang, lang_token_id );
+		for( size_t i = 0; i < prompt_init.size(); i++ )
+		{
+			const char* tokenText = vocab.string( prompt_init[i] );
+			logDebug( u8"PROMPT[%d]: id=%d, text='%s'", (int)i, prompt_init[i], tokenText ? tokenText : "NULL" );
+		}
 	}
+
+	// 4. Timestamp token (following whisper.cpp logic)
+	// When PrintTimestamps=true (timestamps enabled): add token_beg
+	// When PrintTimestamps=false (no timestamps): add token_not
+	if( params.flag( eFullParamsFlags::PrintTimestamps ) )
+	{
+		prompt_init.push_back( vocab.token_beg );
+	}
+	else
+	{
+		prompt_init.push_back( vocab.token_not );
+	}
+	// ============================================================================
 
 	// int progress_prev = 0;
 	// int progress_step = 5;
@@ -612,8 +822,16 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 			}
 		}
 
+		// MEL DEBUG: Analyze MEL spectrogram before encoding
+		logDebug( u8"MEL_DEBUG: About to encode, seek=%d, seek_end=%d", seek, seek_end );
+
+		// Get MEL spectrogram dimensions and sample some values
+		// This will help us understand if the audio preprocessing is correct
+
 		// encode audio features starting at offset seek
 		CHECK( encode( mel, seek ) );
+
+		logDebug( u8"MEL_DEBUG: Encoding completed for seek=%d", seek );
 
 		// Reset quality detection for new audio segment
 		resetSegmentQuality();
@@ -674,7 +892,21 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 
 			for( int i = 0; i < n_max; i++ )
 			{
+				// LANGUAGE_TOKEN_DEBUG: Log decoder input details
+				if( i == 0 && !prompt.empty() ) {
+					logDebug( u8"LANGUAGE_TOKEN_DEBUG: First decode call, prompt_size=%zu, n_past=%d", prompt.size(), n_past );
+					for( size_t j = 0; j < std::min(prompt.size(), (size_t)10); j++ ) {
+						const char* tokenText = vocab.string( prompt[j] );
+						logDebug( u8"LANGUAGE_TOKEN_DEBUG: prompt[%zu]=%d ('%s')", j, prompt[j], tokenText ? tokenText : "NULL" );
+					}
+				}
+
 				CHECK( decode( prompt.data(), prompt.size(), n_past, params.cpuThreads ) );
+
+				// LANGUAGE_TOKEN_DEBUG: Log decoder state after processing language tokens
+				if( i == 0 && n_past == (int)prompt.size() ) {
+					logDebug( u8"LANGUAGE_TOKEN_DEBUG: After first decode, n_past=%d, decoder state updated with language context", n_past );
+				}
 
 				n_past += (int)prompt.size();
 				prompt.clear();
@@ -690,35 +922,40 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 					auto p = profiler.cpuBlock( eCpuBlock::Sample );
 
 					// Use our centralized token history for the sampler
-					const sTokenData token = ( i == 0 ) ? sampleTimestamp( true ) : sampleBest( m_recent_tokens );
+					logDebug( u8"DECODE_SAMPLE: About to sample, i=%d, seek=%d, seek_end=%d", i, seek, seek_end );
+					const sTokenData token = ( i == 0 ) ? sampleTimestamp( true, seek, seek_end ) : sampleBest( m_recent_tokens, seek, seek_end );
+					const char* token_text = vocab.string( token.id );
+					const bool is_special = token.id >= vocab.token_eot;
+					logDebug( u8"DECODE_SAMPLE: Sampled token.id=%d, text='%s', is_special=%s",
+						token.id, token_text ? token_text : "NULL", is_special ? "YES" : "NO" );
 
-					// DEBUG: Log token information
-					const char* tokenText = vocab.string(token.id);
-					logDebug( u8"DEBUG: i=%d, token.id=%d ('%s'), vocab.token_beg=%d, token.p=%f, history_size=%d, state=%d",
-						i, token.id, tokenText ? tokenText : "NULL", vocab.token_beg, token.p, (int)m_recent_tokens.size(), (int)m_currentState );
+					// DEBUG: Log token information (commented out for cleaner output)
+					// const char* tokenText = vocab.string(token.id);
+					// logDebug( u8"DEBUG: i=%d, token.id=%d ('%s'), vocab.token_beg=%d, token.p=%f, history_size=%d, state=%d",
+					//	i, token.id, tokenText ? tokenText : "NULL", vocab.token_beg, token.p, (int)m_recent_tokens.size(), (int)m_currentState );
 
 					// Update decoder state based on the generated token
 					if( token.id == vocab.token_sot )
 					{
 						m_currentState = DecoderState::SeekingLanguage;
-						logDebug( u8"DEBUG: State transition to SeekingLanguage after SOT token" );
+						// logDebug( u8"DEBUG: State transition to SeekingLanguage after SOT token" );
 					}
 					else if( m_currentState == DecoderState::SeekingLanguage &&
 							 token.id >= vocab.token_sot + 1 && token.id < vocab.token_sot + 100 ) // Language tokens range
 					{
 						m_currentState = DecoderState::SeekingTimestamp; // Go to timestamp seeking first
-						logDebug( u8"DEBUG: State transition to SeekingTimestamp after language token %d", token.id );
+						// logDebug( u8"DEBUG: State transition to SeekingTimestamp after language token %d", token.id );
 					}
 					else if( token.id > vocab.token_beg ) // Timestamp token
 					{
 						m_currentState = DecoderState::Transcribing;
-						logDebug( u8"DEBUG: State transition to Transcribing after timestamp token" );
+						// logDebug( u8"DEBUG: State transition to Transcribing after timestamp token" );
 					}
 					else if( m_currentState == DecoderState::Transcribing && token.id == vocab.token_eot )
 					{
 						// EOT token means end of segment, go back to seeking timestamp for next segment
 						m_currentState = DecoderState::SeekingTimestamp;
-						logDebug( u8"DEBUG: State transition to SeekingTimestamp after EOT token" );
+						// logDebug( u8"DEBUG: State transition to SeekingTimestamp after EOT token" );
 					}
 
 					// Update centralized token history for repetition penalty
@@ -738,7 +975,7 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 					{
 						const int seek_delta_new = 2 * ( token.id - vocab.token_beg );
 
-						logDebug( u8"DEBUG: Timestamp token detected, seek_delta_new=%d", seek_delta_new );
+						// logDebug( u8"DEBUG: Timestamp token detected, seek_delta_new=%d", seek_delta_new );
 
 						// do not allow to go back in time
 						if( has_ts && seek_delta > seek_delta_new && result_len < i )
@@ -750,8 +987,8 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 					}
 					else
 					{
-						logDebug( u8"DEBUG: Non-timestamp token, token.id=%d <= vocab.token_beg=%d",
-							token.id, vocab.token_beg );
+						// logDebug( u8"DEBUG: Non-timestamp token, token.id=%d <= vocab.token_beg=%d",
+						//	token.id, vocab.token_beg );
 
 						// Add non-timestamp tokens to quality detection system
 						if( m_currentState == DecoderState::Transcribing )
@@ -765,7 +1002,7 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 							{
 								if( !checkSegmentQuality() )
 								{
-									logDebug( u8"DEBUG: Quality check failed - resetting segment and seeking new timestamp" );
+									// logDebug( u8"DEBUG: Quality check failed - resetting segment and seeking new timestamp" );
 									resetSegmentQuality();
 									// Force transition back to seeking timestamp to restart
 									m_currentState = DecoderState::SeekingTimestamp;
@@ -799,12 +1036,16 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 					// end of segment
 					if( token.id == vocab.token_eot ||                  // end of text token
 						( params.max_tokens > 0 && i >= params.max_tokens ) || // max tokens per segment reached
-						( has_ts && seek + seek_delta + 100 >= seek_end )     // end of audio reached
+						( has_ts && seek + seek_delta + 10 >= seek_end )     // end of audio reached (100ms)
 						)
 					{
+						// DEBUG: Critical exit condition analysis
+						logDebug( u8"EXIT_CONDITION: i=%d, token.id=%d, eot=%d, max_tokens=%d, has_ts=%s, seek=%d, seek_delta=%d, seek_end=%d, condition_check=%d",
+							i, token.id, vocab.token_eot, params.max_tokens, has_ts ? "true" : "false",
+							seek, seek_delta, seek_end, (seek + seek_delta + 10) );
 						if( result_len == 0 )
 						{
-							if( seek + seek_delta + 100 >= seek_end )
+							if( seek + seek_delta + 10 >= seek_end )
 								result_len = i + 1;
 							else
 							{
@@ -828,8 +1069,8 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 				// the sliding window by 1 second
 				if( i == n_max - 1 && ( result_len == 0 || seek_delta < 100 * WHISPER_CHUNK_SIZE / 2 ) )
 				{
-					logDebug( u8"DEBUG: Failure condition met - i=%d, n_max=%d, result_len=%d, seek_delta=%d, threshold=%d",
-						i, n_max, result_len, seek_delta, 100 * WHISPER_CHUNK_SIZE / 2 );
+					// logDebug( u8"DEBUG: Failure condition met - i=%d, n_max=%d, result_len=%d, seek_delta=%d, threshold=%d",
+					//	i, n_max, result_len, seek_delta, 100 * WHISPER_CHUNK_SIZE / 2 );
 					failed = true;
 					break;
 				}
@@ -868,6 +1109,17 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 		// shrink down to result_len
 		tokens_cur.resize( result_len );
 
+		// DEBUG: Check tokens_cur content (commented out for cleaner output)
+		// logDebug( u8"DEBUG: tokens_cur.size()=%d, result_len=%d", (int)tokens_cur.size(), result_len );
+		// for( int debug_i = 0; debug_i < std::min(10, (int)tokens_cur.size()); debug_i++ )
+		// {
+		//	const char* tokenText = vocab.string( tokens_cur[debug_i].id );
+		//	const bool isTimestamp = tokens_cur[debug_i].id >= vocab.token_beg;
+		//	logDebug( u8"DEBUG: tokens_cur[%d]: id=%d, tid=%d, text='%s', isTimestamp=%s",
+		//		debug_i, tokens_cur[debug_i].id, tokens_cur[debug_i].tid,
+		//		tokenText ? tokenText : "NULL", isTimestamp ? "YES" : "NO" );
+		// }
+
 		for( const auto& r : tokens_cur )
 			prompt_past.push_back( r.id );
 
@@ -877,6 +1129,19 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 			int i0 = 0;
 			int t0 = seek + 2 * ( tokens_cur.front().tid - vocab.token_beg );
 			std::string text = "";
+
+			// DEBUG: Critical text generation checkpoint
+			logDebug( u8"TEXT_GEN: tokens_cur.size()=%d, first_token_id=%d, tid=%d, t0=%d",
+				(int)tokens_cur.size(), tokens_cur.front().id, tokens_cur.front().tid, t0 );
+
+			// DEBUG: Show first 10 tokens with their text content
+			for( int debug_i = 0; debug_i < std::min(10, (int)tokens_cur.size()); debug_i++ )
+			{
+				const char* tokenText = vocab.string( tokens_cur[debug_i].id );
+				const bool isTimestamp = tokens_cur[debug_i].id >= vocab.token_beg;
+				logDebug( u8"TOKEN[%d]: id=%d, text='%s', isTimestamp=%s",
+					debug_i, tokens_cur[debug_i].id, tokenText ? tokenText : "NULL", isTimestamp ? "YES" : "NO" );
+			}
 
 			for( int i = 0; i < (int)tokens_cur.size(); i++ )
 			{
@@ -985,7 +1250,7 @@ void ContextImpl::addTokenToSegment( int token_id, float logprob, const std::str
 	m_segment_logprobs.push_back( logprob );
 	m_segment_text += token_text;
 
-	logDebug( u8"DEBUG: Added token %d ('%s') with logprob %.6f to segment", token_id, token_text.c_str(), logprob );
+	// logDebug( u8"DEBUG: Added token %d ('%s') with logprob %.6f to segment", token_id, token_text.c_str(), logprob );
 }
 
 bool ContextImpl::checkSegmentQuality()
@@ -999,24 +1264,24 @@ bool ContextImpl::checkSegmentQuality()
 	// Calculate compression ratio
 	float compression_ratio = calculateCompressionRatio( m_segment_text );
 
-	logDebug( u8"DEBUG: Quality check - avg_logprob=%.6f (threshold=%.6f), compression_ratio=%.6f (threshold=%.6f)",
-			  avg_logprob, m_logprob_threshold, compression_ratio, m_compression_ratio_threshold );
+	// logDebug( u8"DEBUG: Quality check - avg_logprob=%.6f (threshold=%.6f), compression_ratio=%.6f (threshold=%.6f)",
+	//		  avg_logprob, m_logprob_threshold, compression_ratio, m_compression_ratio_threshold );
 
 	// Check if quality is below thresholds
 	bool quality_good = true;
 	if( avg_logprob < m_logprob_threshold )
 	{
-		logDebug( u8"DEBUG: Quality check FAILED - low average log probability" );
+		// logDebug( u8"DEBUG: Quality check FAILED - low average log probability" );
 		quality_good = false;
 	}
 	if( compression_ratio > m_compression_ratio_threshold )
 	{
-		logDebug( u8"DEBUG: Quality check FAILED - high compression ratio (likely repetitive text)" );
+		// logDebug( u8"DEBUG: Quality check FAILED - high compression ratio (likely repetitive text)" );
 		quality_good = false;
 	}
 
-	if( quality_good )
-		logDebug( u8"DEBUG: Quality check PASSED" );
+	// if( quality_good )
+	//	logDebug( u8"DEBUG: Quality check PASSED" );
 
 	return quality_good;
 }
@@ -1025,7 +1290,7 @@ void ContextImpl::resetSegmentQuality()
 {
 	m_segment_logprobs.clear();
 	m_segment_text.clear();
-	logDebug( u8"DEBUG: Reset segment quality tracking" );
+	// logDebug( u8"DEBUG: Reset segment quality tracking" );
 }
 
 float ContextImpl::calculateCompressionRatio( const std::string& text )
