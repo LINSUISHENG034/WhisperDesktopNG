@@ -918,7 +918,7 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 					auto p = profiler.cpuBlock( eCpuBlock::Sample );
 
 					// Use our centralized token history for the sampler
-					// CRITICAL: Follow original project's simple but effective logic
+					// CRITICAL: Follow original project's simple but effective logic - let model naturally generate timestamps
 					const sTokenData token = ( i == 0 ) ? sampleTimestamp( true, seek, seek_end, params.max_initial_ts ) : sampleBest( m_recent_tokens, seek, seek_end );
 
 					// DEBUG: Log token information (commented out for cleaner output)

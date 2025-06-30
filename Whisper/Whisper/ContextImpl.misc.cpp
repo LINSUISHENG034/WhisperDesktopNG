@@ -69,8 +69,8 @@ HRESULT COMLIGHTCALL ContextImpl::fullDefaultParams( eSamplingStrategy strategy,
 	rdi->cpuThreads = defaultThreadsCount();
 	rdi->n_max_text_ctx = 16384;
 	rdi->flags = eFullParamsFlags::PrintProgress | eFullParamsFlags::PrintTimestamps;
-	rdi->thold_pt = 0.01f;
-	rdi->thold_ptsum = 0.01f;
+	rdi->thold_pt = 0.005f;  // Lower threshold to generate more timestamp tokens
+	rdi->thold_ptsum = 0.005f;  // Lower threshold to generate more timestamp tokens
 	rdi->max_len = 0;  // Default: no segment wrapping
 	rdi->max_initial_ts = 1.0f;
 	rdi->temperature = 0.0f;

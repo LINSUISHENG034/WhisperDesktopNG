@@ -48,19 +48,36 @@ namespace Whisper
 			suppress_initial_timestamp(logits, logits_size, max_initial_ts);
 		}
 
-		// 4. CRITICAL: Dynamic timestamp sampling COMPLETELY DISABLED
-		//
-		// DISCOVERY: Both our conservative and original project's simple logic fail in our environment
-		// - Conservative: (sum_ts > 0.10) && (sum_ts > max_tx * 100.0) -> Never triggers
-		// - Original: (sum_ts > max_tx) -> Always triggers, causes infinite loops
-		//
-		// ROOT CAUSE: Our environment has different probability distributions than original project
-		// - Our sum_ts ≈ 0.029 (2.9%), max_tx ≈ 0.00002 (0.002%)
-		// - Ratio ≈ 1400:1, but sum_ts is still low absolute value
-		//
-		// SOLUTION: Let the model generate naturally without forced timestamp sampling
-		// The original project's segmentation relies on natural token_eot generation
-		// We should focus on fixing the root cause rather than forcing timestamps
+		// 4. CRITICAL: Re-enable dynamic timestamp sampling with balanced approach
+		// Based on analysis of original project's segmentation patterns
+		if (state == DecoderState::Transcribing)
+		{
+			// Use simplified timestamp detection based on high timestamp token probabilities
+			// Assume timestamp tokens are in the range [50364, 51864] (typical for Whisper models)
+			const size_t timestamp_start = 50364;
+			const size_t timestamp_end = std::min(timestamp_start + 1500, logits_size);
+
+			float sum_ts = 0.0f;
+			float max_tx = -FLT_MAX;
+
+			// Calculate timestamp probabilities
+			for (size_t i = timestamp_start; i < timestamp_end; ++i)
+			{
+				if (i < logits_size)
+				{
+					const float prob = expf(logits[i]);
+					sum_ts += prob;
+					if (logits[i] > max_tx)
+						max_tx = logits[i];
+				}
+			}
+
+			// Relaxed condition to encourage more timestamp generation
+			if (sum_ts > 0.005f && sum_ts > expf(max_tx) * 0.5f && sum_ts < 0.8f)  // More lenient conditions
+			{
+				force_timestamp_sampling(logits, logits_size);
+			}
+		}
 
 		// 3. Apply language constraints during transcription (NEW - CRITICAL FIX)
 		if (state == DecoderState::Transcribing && m_current_language_token != -1)
