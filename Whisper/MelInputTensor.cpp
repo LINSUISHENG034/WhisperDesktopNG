@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MelInputTensor.h"
-#include "../D3D/MappedResource.h"
-#include "../D3D/createBuffer.h"
+#include "D3D/MappedResource.h"
+#include "D3D/createBuffer.h"
 #include <mfapi.h>	// MFCopyImage
 using namespace DirectCompute;
 

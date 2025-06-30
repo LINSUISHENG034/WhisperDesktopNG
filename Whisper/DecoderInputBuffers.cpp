@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "DecoderInputBuffers.h"
-#include "../D3D/createBuffer.h"
-#include "../D3D/MappedResource.h"
+#include "D3D/createBuffer.h"
+#include "D3D/MappedResource.h"
 using namespace DirectCompute;
 
 void DecoderInputBuffers::resize( uint32_t size )

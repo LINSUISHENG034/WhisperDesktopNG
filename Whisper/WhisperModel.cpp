@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "WhisperModel.h"
 #include "loaderUtils.h"
-#include "../D3D/createBuffer.h"
+#include "D3D/createBuffer.h"
 #include <atlcoll.h>
 #include <atlstr.h>
-#include "../Utils/GpuProfilerSimple.h"
-#include "../Utils/CpuProfiler.h"
-#include "../CPU/HybridLoader.h"
-#include "../ML/Reshaper.h"
+#include "Utils/GpuProfilerSimple.h"
+#include "Utils/CpuProfiler.h"
+#include "CPU/HybridLoader.h"
+#include "ML/Reshaper.h"
 using namespace Whisper;
 using namespace DirectCompute;
 

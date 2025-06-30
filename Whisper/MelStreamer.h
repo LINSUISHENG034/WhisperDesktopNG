@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include <deque>
-#include "../MF/PcmReader.h"
+#include "MF/PcmReader.h"
 #include "melSpectrogram.h"
 #include "iSpectrogram.h"
 #include <atlbase.h>
-#include "../Utils/parallelFor.h"
-#include "../Utils/ProfileCollection.h"
-#include "../API/iMediaFoundation.cl.h"
+#include "Utils/parallelFor.h"
+#include "Utils/ProfileCollection.h"
+#include "API/iMediaFoundation.cl.h"
 
 namespace Whisper
 {

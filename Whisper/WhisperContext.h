@@ -1,13 +1,13 @@
 #pragma once
-#include "../ML/MlContext.h"
+#include "ML/MlContext.h"
 #include "MelInputTensor.h"
 #include "KeyValueBuffers.h"
 #include "sEncodeParams.h"
 #include "DecoderInputBuffers.h"
 #include "DecoderResultBuffer.h"
-#include "../ML/TensorsArena.h"
+#include "ML/TensorsArena.h"
 #include "iSpectrogram.h"
-#include "../Hybrid/HybridContext.h"
+#include "Hybrid/HybridContext.h"
 #include <memory>
 #include "WhisperModel.h"
 #include <tuple>

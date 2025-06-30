@@ -2,8 +2,8 @@
 #include "ModelImpl.h"
 #include "ContextImpl.h"
 #include <intrin.h>
-#include "../Utils/ReadStream.h"
-#include "../modelFactory.h"
+#include "Utils/ReadStream.h"
+#include "modelFactory.h"
 using namespace Whisper;
 
 void ModelImpl::FinalRelease()

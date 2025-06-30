@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Languages.h"
 #include <atlcoll.h>
-#include "../API/iContext.cl.h"
+#include "API/iContext.cl.h"
 
 namespace
 {

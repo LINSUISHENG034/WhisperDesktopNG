@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "DecoderResultBuffer.h"
-#include "../D3D/MappedResource.h"
+#include "D3D/MappedResource.h"
 using namespace DirectCompute;
 
 void DecoderResultBuffer::copyFromVram( const Tensor& rsi )

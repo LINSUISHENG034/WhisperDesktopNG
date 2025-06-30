@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "KeyValueBuffers.h"
-#include "../D3D/createBuffer.h"
-#include "../ML/mlUtils.h"
+#include "D3D/createBuffer.h"
+#include "ML/mlUtils.h"
 using namespace DirectCompute;
 
 void AttentionBuffer::resize( uint32_t size )

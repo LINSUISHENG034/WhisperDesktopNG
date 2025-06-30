@@ -1,8 +1,8 @@
 ﻿#include "stdafx.h"
 #include "ContextImpl.h"
-#include "../API/iMediaFoundation.cl.h"
-#include "../MF/AudioBuffer.h"
-#include "../MF/mfUtils.h"
+#include "API/iMediaFoundation.cl.h"
+#include "MF/AudioBuffer.h"
+#include "MF/mfUtils.h"
 #include <mfidl.h>
 #include <mfapi.h>
 #include <mfreadwrite.h>

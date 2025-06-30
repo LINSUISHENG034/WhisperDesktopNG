@@ -1,5 +1,5 @@
 #pragma once
-#include "../ML/Tensor.h"
+#include "ML/Tensor.h"
 
 namespace DirectCompute
 {

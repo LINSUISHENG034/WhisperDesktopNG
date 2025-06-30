@@ -1,7 +1,7 @@
 #pragma once
-#include "../../ComLightLib/streams.h"
-#include "../API/SpecialTokens.h"
-#include "../Utils/MurmurHash3.h"
+#include "../ComLightLib/streams.h"
+#include "API/SpecialTokens.h"
+#include "Utils/MurmurHash3.h"
 
 namespace Whisper
 {

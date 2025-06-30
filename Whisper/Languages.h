@@ -1,5 +1,5 @@
 #pragma once
-#include "../../ComLightLib/comLightCommon.h"
+#include "../ComLightLib/comLightCommon.h"
 
 namespace Whisper
 {

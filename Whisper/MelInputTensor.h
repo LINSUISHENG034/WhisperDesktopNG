@@ -1,5 +1,5 @@
 #pragma once
-#include "../ML/TensorEx.h"
+#include "ML/TensorEx.h"
 #include "sEncodeParams.h"
 #include "iSpectrogram.h"
 

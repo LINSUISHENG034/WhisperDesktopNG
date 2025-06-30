@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "MelStreamer.h"
-#include "../Utils/parallelFor.h"
+#include "Utils/parallelFor.h"
 using namespace Whisper;
 
 MelStreamer::MelStreamer( const Filters& filters, ProfileCollection& prof, const iAudioReader* iar ) :

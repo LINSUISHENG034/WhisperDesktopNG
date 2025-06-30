@@ -2,9 +2,9 @@
 #include "WhisperContext.h"
 #include "ModelBuffers.h"
 #include <optional>
-#include "../Utils/Trace/tracing.h"
-#include "../D3D/RenderDoc/renderDoc.h"
-#include "../ML/testUtils.h"
+#include "Utils/Trace/tracing.h"
+#include "D3D/RenderDoc/renderDoc.h"
+#include "ML/testUtils.h"
 using namespace DirectCompute;
 
 namespace

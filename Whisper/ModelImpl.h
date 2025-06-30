@@ -1,9 +1,9 @@
 #pragma once
-#include "../API/iContext.cl.h"
+#include "API/iContext.cl.h"
 #include "../ComLightLib/comLightServer.h"
 #include "WhisperModel.h"
 #include "../ComLightLib/streams.h"
-#include "../ML/Device.h"
+#include "ML/Device.h"
 
 namespace Whisper
 {

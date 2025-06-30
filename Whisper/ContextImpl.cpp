@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "ContextImpl.h"
 #include "Languages.h"
-#include "../Utils/Trace/tracing.h"
-#include "../ML/Sampler.h"
+#include "Utils/Trace/tracing.h"
+#include "ML/Sampler.h"
 #include <set>
 #include <cmath>
 using namespace Whisper;

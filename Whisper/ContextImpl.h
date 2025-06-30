@@ -1,12 +1,12 @@
 #pragma once
-#include "../API/iContext.cl.h"
+#include "API/iContext.cl.h"
 #include "../ComLightLib/comLightServer.h"
 #include "WhisperContext.h"
 #include "Spectrogram.h"
 #include "TranscribeResult.h"
 #include "sTokenData.h"
-#include "../ML/Device.h"
-#include "../ML/Sampler.h"
+#include "ML/Device.h"
+#include "ML/Sampler.h"
 #include <memory>
 
 namespace Whisper

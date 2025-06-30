@@ -2,8 +2,8 @@
 #include "ContextImpl.h"
 #include <mfapi.h>
 #include "MelStreamer.h"
-#include "../API/iMediaFoundation.cl.h"
-#include "../Utils/Trace/tracing.h"
+#include "API/iMediaFoundation.cl.h"
+#include "Utils/Trace/tracing.h"
 using namespace Whisper;
 
 static int getCpuCoresCount()

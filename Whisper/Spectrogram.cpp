@@ -3,9 +3,9 @@
 #include <memory>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "../Utils/parallelFor.h"
-#include "../API/iMediaFoundation.cl.h"
-#include "../ML/testUtils.h"
+#include "Utils/parallelFor.h"
+#include "API/iMediaFoundation.cl.h"
+#include "ML/testUtils.h"
 #include "melSpectrogram.h"
 using namespace Whisper;
 

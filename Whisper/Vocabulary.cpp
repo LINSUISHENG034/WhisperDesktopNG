@@ -2,7 +2,7 @@
 #include "Vocabulary.h"
 #include "loaderUtils.h"
 #include <regex>
-#include "../source/whisper.h"  // For whisper_lang_id function
+#include "source/whisper.h"  // For whisper_lang_id function
 using ComLight::iReadStream;
 using namespace Whisper;
 

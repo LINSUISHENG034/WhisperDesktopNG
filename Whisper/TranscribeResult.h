@@ -1,5 +1,5 @@
 #pragma once
-#include "../API/iTranscribeResult.cl.h"
+#include "API/iTranscribeResult.cl.h"
 #include "../ComLightLib/comLightServer.h"
 
 namespace Whisper

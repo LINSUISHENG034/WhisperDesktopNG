@@ -2,9 +2,9 @@
 #include <memory>
 #include "Vocabulary.h"
 #include "ModelBuffers.h"
-#include "../../ComLightLib/streams.h"
-#include "../CPU/DecoderTensors.h"
-#include "../API/sLoadModelCallbacks.h"
+#include "../ComLightLib/streams.h"
+#include "CPU/DecoderTensors.h"
+#include "API/sLoadModelCallbacks.h"
 #include "sModelParams.h"
 
 namespace Whisper
