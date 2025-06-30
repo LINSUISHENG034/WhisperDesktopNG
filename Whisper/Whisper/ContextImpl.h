@@ -79,7 +79,7 @@ namespace Whisper
 		sTokenData sampleBest( const std::vector<int>& previous_tokens = {} );
 		sTokenData sampleBest( const std::vector<int>& previous_tokens, int current_seek, int seek_end );
 		sTokenData sampleTimestamp( bool initial );
-		sTokenData sampleTimestamp( bool initial, int current_seek, int seek_end );
+		sTokenData sampleTimestamp( bool initial, int current_seek, int seek_end, float max_initial_ts = -1.0f );
 		int wrapSegment( int max_len );
 		void expComputeTokenLevelTimestamps( int i_segment, float thold_pt, float thold_ptsum );
 

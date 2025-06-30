@@ -43,7 +43,7 @@ namespace Whisper
 		/// <param name="current_seek">Current audio position</param>
 		/// <param name="seek_end">End of audio position</param>
 		/// <returns>Selected token ID</returns>
-		int sample(float* logits, size_t logits_size, const std::vector<int>& history_tokens, DecoderState state, int current_seek, int seek_end);
+		int sample(float* logits, size_t logits_size, const std::vector<int>& history_tokens, DecoderState state, int current_seek, int seek_end, float max_initial_ts = -1.0f);
 
 		/// <summary>Backward compatibility: Samples token with default Transcribing state</summary>
 		/// <param name="logits">Array of logits for all tokens (will be modified in-place)</param>
@@ -62,12 +62,42 @@ namespace Whisper
 		/// <returns>Current sampling parameters</returns>
 		const SamplingParams& getParams() const;
 
+		/// <summary>Sets the current language token for language constraints</summary>
+		/// <param name="language_token">Language token ID (e.g., 50261 for Chinese)</param>
+		void setLanguageToken(int language_token);
+
+		/// <summary>Dynamic timestamp sampling: decides whether to force timestamp or text sampling</summary>
+		/// <param name="logits">Array of logits for all tokens (read-only)</param>
+		/// <param name="logits_size">Size of the logits array</param>
+		/// <returns>True if timestamp should be forced, false for text sampling</returns>
+		bool should_force_timestamp_sampling(const float* logits, size_t logits_size) const;
+
+		/// <summary>Conservative dynamic timestamp sampling with additional constraints</summary>
+		/// <param name="logits">Array of logits for all tokens (read-only)</param>
+		/// <param name="logits_size">Size of the logits array</param>
+		/// <returns>True if timestamp should be forced, false for text sampling</returns>
+		bool should_force_timestamp_sampling_conservative(const float* logits, size_t logits_size) const;
+
+		/// <summary>Original project's simple dynamic timestamp sampling logic</summary>
+		/// <param name="logits">Array of logits for all tokens (read-only)</param>
+		/// <param name="logits_size">Size of the logits array</param>
+		/// <returns>True if timestamp should be forced, false for text sampling</returns>
+		bool should_force_timestamp_sampling_original(const float* logits, size_t logits_size) const;
+
+		/// <summary>Forces timestamp sampling by suppressing all text tokens</summary>
+		/// <param name="logits">Array of logits for all tokens (will be modified)</param>
+		/// <param name="logits_size">Size of the logits array</param>
+		void force_timestamp_sampling(float* logits, size_t logits_size);
+
 	private:
 		/// <summary>Current sampling parameters</summary>
 		SamplingParams m_params;
 		
 		/// <summary>Reference to vocabulary for token classification</summary>
 		const Vocabulary& m_vocab;
+
+		/// <summary>Current language token for applying language constraints</summary>
+		int m_current_language_token;
 
 		/// <summary>Suppresses inappropriate tokens based on current decoder state</summary>
 		/// <param name="logits">Array of logits to modify</param>
@@ -104,5 +134,22 @@ namespace Whisper
 		/// <param name="current_seek">Current audio position</param>
 		/// <param name="seek_end">End of audio position</param>
 		void suppress_out_of_range_timestamps(float* logits, size_t logits_size, int current_seek, int seek_end);
+		void suppress_initial_timestamp(float* logits, size_t logits_size, float max_initial_ts);
+
+		/// <summary>Applies language-specific constraints to favor target language tokens</summary>
+		/// <param name="logits">Array of logits to modify</param>
+		/// <param name="logits_size">Size of the logits array</param>
+		/// <param name="language_token">Language token ID (e.g., 50261 for Chinese)</param>
+		void apply_language_constraints(float* logits, size_t logits_size, int language_token);
+
+		/// <summary>Checks if a token contains Chinese characters</summary>
+		/// <param name="token_id">Token ID to check</param>
+		/// <returns>True if token contains Chinese characters</returns>
+		bool is_chinese_token(int token_id) const;
+
+		/// <summary>Checks if a token is likely music/sound effect content</summary>
+		/// <param name="token_id">Token ID to check</param>
+		/// <returns>True if token represents music/sound effects</returns>
+		bool is_music_token(int token_id) const;
 	};
 }

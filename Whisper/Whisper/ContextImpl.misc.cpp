@@ -71,6 +71,7 @@ HRESULT COMLIGHTCALL ContextImpl::fullDefaultParams( eSamplingStrategy strategy,
 	rdi->flags = eFullParamsFlags::PrintProgress | eFullParamsFlags::PrintTimestamps;
 	rdi->thold_pt = 0.01f;
 	rdi->thold_ptsum = 0.01f;
+	rdi->max_initial_ts = 1.0f;  // CRITICAL: Required for our implementation to work
 	rdi->language = makeLanguageKey( "en" );
 
 	switch( strategy )

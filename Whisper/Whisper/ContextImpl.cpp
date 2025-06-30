@@ -340,7 +340,7 @@ sTokenData ContextImpl::sampleTimestamp( bool initial )
 	return sampleBest( probs.data() + ( probs.size() - n_vocab ), true, initial );
 }
 
-sTokenData ContextImpl::sampleTimestamp( bool initial, int current_seek, int seek_end )
+sTokenData ContextImpl::sampleTimestamp( bool initial, int current_seek, int seek_end, float max_initial_ts )
 {
 	const Vocabulary& vocab = model.shared->vocab;
 	const int n_vocab = vocab.n_vocab;
@@ -353,8 +353,9 @@ sTokenData ContextImpl::sampleTimestamp( bool initial, int current_seek, int see
 		// Force timestamp sampling state
 		DecoderState sampling_state = DecoderState::SeekingTimestamp;
 
+		// CRITICAL: Pass max_initial_ts for initial timestamp constraint
 		// Call the sampler with timestamp constraints
-		int sampled_token = m_sampler->sample( const_cast<float*>(probs_ptr), n_logits, m_recent_tokens, sampling_state, current_seek, seek_end );
+		int sampled_token = m_sampler->sample( const_cast<float*>(probs_ptr), n_logits, m_recent_tokens, sampling_state, current_seek, seek_end, max_initial_ts );
 
 		// Convert to the expected sTokenData format
 		sTokenData result;
@@ -482,8 +483,6 @@ void ContextImpl::expComputeTokenLevelTimestamps( int i_segment, float thold_pt,
 			}
 		}
 
-		const int64_t tt = t_beg + 2 * ( token.tid - vocab.token_beg );
-
 		tokens[ j ].id = token.id;
 		tokens[ j ].tid = token.tid;
 		tokens[ j ].p = token.p;
@@ -491,12 +490,20 @@ void ContextImpl::expComputeTokenLevelTimestamps( int i_segment, float thold_pt,
 		tokens[ j ].ptsum = token.ptsum;
 		tokens[ j ].vlen = voice_length( vocab.string( token.id ) );
 
-		if( token.pt > thold_pt && token.ptsum > thold_ptsum && token.tid > tid_last && tt <= t1 )
+		// CRITICAL FIX: Only calculate and apply timestamps for actual timestamp tokens
+		// Skip timestamp calculation for non-timestamp tokens (tid == 0)
+		if( token.tid > vocab.token_beg && token.pt > thold_pt && token.ptsum > thold_ptsum && token.tid > tid_last )
 		{
-			if( j > 0 )
-				tokens[ j - 1 ].t1 = tt;
-			tokens[ j ].t0 = tt;
-			tid_last = token.tid;
+			const int64_t tt = t_beg + 2 * ( token.tid - vocab.token_beg );
+
+			// Additional safety check: ensure timestamp is valid and within bounds
+			if( tt >= 0 && tt <= t1 )
+			{
+				if( j > 0 )
+					tokens[ j - 1 ].t1 = tt;
+				tokens[ j ].t0 = tt;
+				tid_last = token.tid;
+			}
 		}
 	}
 
@@ -744,19 +751,19 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 		}
 		prompt_init.push_back( lang_token_id );
 
+		// CRITICAL FIX: Set language token in sampler for language constraints
+		if( m_sampler )
+		{
+			m_sampler->setLanguageToken( lang_token_id );
+		}
+
 		// 3. Task token (transcribe or translate)
 		if( params.flag( eFullParamsFlags::Translate ) )
 			prompt_init.push_back( vocab.token_translate );
 		else
 			prompt_init.push_back( vocab.token_transcribe );
 
-		// DEBUG: Show prompt tokens
-		logDebug( u8"PROMPT_DEBUG: language='%s', lang_token_id=%d", lang, lang_token_id );
-		for( size_t i = 0; i < prompt_init.size(); i++ )
-		{
-			const char* tokenText = vocab.string( prompt_init[i] );
-			logDebug( u8"PROMPT[%d]: id=%d, text='%s'", (int)i, prompt_init[i], tokenText ? tokenText : "NULL" );
-		}
+		// Language token set successfully
 	}
 
 	// 4. Timestamp token (following whisper.cpp logic)
@@ -822,8 +829,7 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 			}
 		}
 
-		// MEL DEBUG: Analyze MEL spectrogram before encoding
-		logDebug( u8"MEL_DEBUG: About to encode, seek=%d, seek_end=%d", seek, seek_end );
+		// MEL encoding starting
 
 		// Get MEL spectrogram dimensions and sample some values
 		// This will help us understand if the audio preprocessing is correct
@@ -831,7 +837,7 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 		// encode audio features starting at offset seek
 		CHECK( encode( mel, seek ) );
 
-		logDebug( u8"MEL_DEBUG: Encoding completed for seek=%d", seek );
+		// MEL encoding completed
 
 		// Reset quality detection for new audio segment
 		resetSegmentQuality();
@@ -892,21 +898,11 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 
 			for( int i = 0; i < n_max; i++ )
 			{
-				// LANGUAGE_TOKEN_DEBUG: Log decoder input details
-				if( i == 0 && !prompt.empty() ) {
-					logDebug( u8"LANGUAGE_TOKEN_DEBUG: First decode call, prompt_size=%zu, n_past=%d", prompt.size(), n_past );
-					for( size_t j = 0; j < std::min(prompt.size(), (size_t)10); j++ ) {
-						const char* tokenText = vocab.string( prompt[j] );
-						logDebug( u8"LANGUAGE_TOKEN_DEBUG: prompt[%zu]=%d ('%s')", j, prompt[j], tokenText ? tokenText : "NULL" );
-					}
-				}
+				// Language token processing
 
 				CHECK( decode( prompt.data(), prompt.size(), n_past, params.cpuThreads ) );
 
-				// LANGUAGE_TOKEN_DEBUG: Log decoder state after processing language tokens
-				if( i == 0 && n_past == (int)prompt.size() ) {
-					logDebug( u8"LANGUAGE_TOKEN_DEBUG: After first decode, n_past=%d, decoder state updated with language context", n_past );
-				}
+				// Decoder state updated
 
 				n_past += (int)prompt.size();
 				prompt.clear();
@@ -922,12 +918,8 @@ HRESULT COMLIGHTCALL ContextImpl::runFullImpl( const sFullParams& params, const 
 					auto p = profiler.cpuBlock( eCpuBlock::Sample );
 
 					// Use our centralized token history for the sampler
-					logDebug( u8"DECODE_SAMPLE: About to sample, i=%d, seek=%d, seek_end=%d", i, seek, seek_end );
-					const sTokenData token = ( i == 0 ) ? sampleTimestamp( true, seek, seek_end ) : sampleBest( m_recent_tokens, seek, seek_end );
-					const char* token_text = vocab.string( token.id );
-					const bool is_special = token.id >= vocab.token_eot;
-					logDebug( u8"DECODE_SAMPLE: Sampled token.id=%d, text='%s', is_special=%s",
-						token.id, token_text ? token_text : "NULL", is_special ? "YES" : "NO" );
+					// CRITICAL: Follow original project's simple but effective logic
+					const sTokenData token = ( i == 0 ) ? sampleTimestamp( true, seek, seek_end, params.max_initial_ts ) : sampleBest( m_recent_tokens, seek, seek_end );
 
 					// DEBUG: Log token information (commented out for cleaner output)
 					// const char* tokenText = vocab.string(token.id);

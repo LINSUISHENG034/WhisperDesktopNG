@@ -59,6 +59,9 @@ namespace Whisper
 		int   max_len;          // max segment length in characters
 		int   max_tokens;       // max tokens per segment (0 = no limit)
 
+		// CRITICAL: Initial timestamp constraint parameter
+		float max_initial_ts;   // maximum initial timestamp in seconds (default: 1.0f)
+
 		struct
 		{
 			int n_past;
